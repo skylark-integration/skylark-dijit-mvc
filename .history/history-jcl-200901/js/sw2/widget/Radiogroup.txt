@@ -1,0 +1,340 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.RadioGroup",
+	superc		: sw2.widget.Control,
+	statics		: {
+        _radioGrpName  : 1,
+
+        LAYOUT_FLOW : "flow",
+		LAYOUT_HORZ : "horizontal",
+		LAYOUT_VERT : "vertical",
+
+        _getRadioGrpName   : function() {
+            return "radiogroup" + this._radioGrpName ++;
+        },
+
+		_initialize : function() {
+			Component.registerComponentTag(this,"RadioGroup");
+		},
+
+        _defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+            propInfo.put("items", String);
+		}
+    },
+	instances	: {
+//        _layout     :
+        _name           : "",
+        _radioBoxs      : null,
+        _active         : false,
+        _tBodies        : null,
+//        _radioTds       : null,
+
+        _initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Control);	
+			
+			ctx.setElCssClass(this._el , "RadioGroup");
+            this._name = $URG._getRadioGrpName();
+
+			var heTable = null;
+
+			heTable = ctx.createElement("TABLE");
+//			heTable.cellPadding = 0;
+//			heTable.cellSpacing = 0;
+			var heTbody = ctx.createElement("TBODY");
+//			var heTr = ctx.createElement("TR");
+//			var heTd = ctx.createElement("TD");
+//		
+//			heTd.align = "center";
+//			heTr.appendChild(heTd);
+//			heTbody.appendChild(heTr);
+			heTable.appendChild(heTbody);
+
+            this._tBodies = heTbody;
+
+            this._el.appendChild(heTable);
+
+			this._displayStyle = $URG.LAYOUT_HORZ;
+			this._radioBoxs = new Array();
+//            this._radioTds = new Array();
+		},
+
+		_finalize	: function() {
+//			this._radioBoxs.dispose();
+			this._radioBoxs = null;
+//            this._radioTds = null;
+		},
+
+//		_doCanAddChild	: function(oChild){
+//			return oChild.instanceOf(W.RadioButton);
+//		},
+
+//		_doAddChild 	: function(oChild) {
+//			this._tBodies.appendChild(oChild._el);
+//            this.addItem(oChild);
+//			System.execMethod(this,"_doAddChild",[oChild],W.Control);
+//		},
+
+//		_doRemoveChild	: function(oChild) {
+//			this._tBodies.removeChild(oChild._el);
+//            this.removeItem(oChild);
+//		},
+
+		activate	: function() {
+			if (!this._active) {
+				this._active = true;
+				this._doActivate();
+			}
+		},
+
+		_doActivate	: function() {
+//			this._radioBoxs = new Array();
+//			var heTd = this._tBodies[0].rows[0].cells[0];
+//			heTd.innerHTML = "";
+			switch (this._displayStyle) {
+				case $URG.LAYOUT_FLOW :
+					;
+				case $URG.LAYOUT_VERT :
+					{
+						heTd.style.whiteSpace = "";
+						break;
+					};
+				case $URG.LAYOUT_HORZ :
+					{
+//                        dbgLog("_tBodies.childNodes.length:" + this._tBodies.childNodes.length);
+//                        for(var i = 0; i < this._tBodies.childNodes.length; i ++) {
+//                            var heTr = this._tBodies.childNodes[i];
+//                            var heTd = heTr.firstChild;
+//                            heTr.removeChild(heTr.firstChild);
+//                            this._tBodies.removeChild(heTr);
+//                        }
+
+//                        dbgLog("_radioBoxs.length:" + this._radioBoxs.length);
+                        for(var i = 0; i < this._radioBoxs.length; i ++) {
+                            var heTr = ctx.createElement("TR");
+                            var heTd = ctx.createElement("TD");
+
+    //                        heTd.align = "center";
+                            heTr.appendChild(heTd);
+                            this._tBodies.appendChild(heTr);
+
+//                            heTd.appendChild(this._radioBoxs[i]._el);
+//                            heTd.innerHTML = this._radioBoxs[i];
+//                            heTd.style.whiteSpace = "nowrap";
+                            heTd.innerHTML = "<input type=radio name="+ this._name +
+                                " value=" + this._radioBoxs[i][1] + "> " + this._radioBoxs[i][0];
+
+//                            this._radioTds[i] = heTd;
+                        }
+						break;
+					}
+			};
+
+		},
+
+        _getItemIndex   : function(item) {
+            for(var i = 0; i < this._radioBoxs.length; i ++) {
+                if (this._radioBoxs[i][0] == item[0] && this._radioBoxs[i][1] == item[1]) {
+                    return i;
+                }
+            }
+            return -1;
+        },
+
+//        _isItem     : function(item) {
+//            return false;
+//        },
+
+        getItems    : function() {
+            var resStr = "";
+            for(var i = 0; i < this._radioBoxs.length; i ++) {
+                if (i != 0) {
+                    resStr += ",";
+                }
+                resStr += (this._radioBoxs[i][0] + "," + this._radioBoxs[i][1]);
+            }
+            return resStr;
+        },
+
+        setItems    : function(items) {
+            var     itemArray = items.split(",");
+            if (itemArray.length % 2 != 0) {
+                return; // throw exception;
+            }
+            for(var i = 0; i < itemArray.length; i += 2) {
+//                this.addItem(itemArray[i], itemArray[i + 1]);
+                var item = new Array(itemArray[i], itemArray[i + 1]);
+                if (this._getItemIndex(item) != -1) continue;
+
+                this._radioBoxs.push(item);
+//                i = i + 2;
+            }
+            this._doActivate();
+        },
+
+        addItem     : function(caption, value) {
+            dbgLog("W.RadioGroup.addItem:" + caption + "," + value);
+//            item.setBorderWidth(0);
+            var item = new Array(caption, value);
+            if (this._getItemIndex(item) != -1) return;
+
+            this._radioBoxs.push(item);
+
+            var heTr = ctx.createElement("TR");
+            var heTd = ctx.createElement("TD");
+
+//                        heTd.align = "center";
+            heTr.appendChild(heTd);
+            this._tBodies.appendChild(heTr);
+
+//                            heTd.appendChild(this._radioBoxs[i]._el);
+//                            heTd.innerHTML = this._radioBoxs[i];
+//                            heTd.style.whiteSpace = "nowrap";
+            heTd.innerHTML = "<input type=radio name="+ this._name +
+                " value=" + value + "> " + caption;
+//            this._tBodies.appendChild(item._el);
+        },
+
+        removeItem  : function(caption, value) {
+            var item = new Array(caption, value);
+            if (this._getItemIndex(item) == -1) return;
+            this._radioBoxs.splice(this._getItemIndex(item), 1);
+//            this._doActivate();
+//            this._tBodies.removeChild(item._el);
+			for (var i = 0; i < this._tBodies.childNodes.length; i++) {
+                var heTr = this._tBodies.childNodes[i];
+                var heTd = heTr.firstChild;
+                var radio = heTd.firstChild;
+                if (radio.value == value) {
+                    //radio.checked = true;
+                    this._tBodies.removeChild(heTr);
+                    break;
+                }
+			};
+        },
+
+//		setValues	: function(values, captions) {
+//            if (values.length != captions.length && this._radioBoxs.length != 0) {
+//                return;
+//            }
+//            var grpName = $URG._getRadioName();
+//            for(var i = 0; i < values.length; i ++) {
+//                this._radioBoxs[i] = "<input type=radio name="+ grpName +
+//                    " value=" + values[i] + "> " + captions[i] + "<br>";
+//            }
+//        },
+
+        setValue	: function(value) {
+			for (var i = 0; i < this._tBodies.childNodes.length; i++) {
+                var heTr = this._tBodies.childNodes[i];
+                var heTd = heTr.firstChild;
+                var radio = heTd.firstChild;
+                if (radio.value == value) {
+                    radio.checked = true;
+                    break;
+                }
+			};
+//			for (var i = 0; i < this._radioBoxs.length; i++) {
+//				var radio = this._radioBoxs[i];
+//				radio.setChecked((radio.value == value));
+//			}
+//			for (var i = 0; i < this._radioTds.length; i++) {
+//				var radio = this._radioBoxs[i].firstChild;
+//				radio.checked = (radio.value == value);
+//			}
+		},
+
+		getValue	: function () {
+			var value = "";
+			for (var i = 0; i < this._tBodies.childNodes.length; i++) {
+                var heTr = this._tBodies.childNodes[i];
+                var heTd = heTr.firstChild;
+                var radio = heTd.firstChild;
+                if (radio.checked) {
+                    value = radio.value;
+                    break;
+                }
+			};
+//			for (var i = 0; i < this._radioBoxs.length; i++) {
+///				var radio = this._radioBoxs[i];
+//				if (radio.getChecked()) {
+//					value = radio.getValue();
+//					break;
+//				}
+//			};
+//			for (var i = 0; i < this._radioTds.length; i++) {
+//				var radio = this._radioTds[i].firstChild;
+//				if (radio.checked) {
+//					value = radio.value;
+//					break;
+//				}
+//			};
+			return value;
+		},
+
+//		getLayout	: function() {
+//			return this._displayStyle;
+//		},
+//
+//		setLayout	: function(layout) {
+//			this._displayStyle = layout;
+//		},
+
+		onFocus		: function() {
+			this._hasFocus = true;
+//			this.$GA();
+			var $q_ = this._radioBoxs;
+			for (var i = 0; i < $q_.length; i++) {
+				var radio = $q_[i];
+/*				if (radio.getChecked()) {
+					try {
+						radio.focus();
+					} catch (e) {
+					};
+					return;
+				}*/
+			};
+			if ($q_.length > 0) {
+				$q_[0].focus();
+			}
+		},
+
+		_doBlur	: function() {
+//			this.post();
+			this._hasFocus = false;
+		},
+
+//		getRadioBoxs: function() {
+//			return this._radioBoxs;
+//		},
+
+		setReadOnly	:function(readOnly) {
+//			this.disabled = readOnly;
+		},
+
+//		onclick	: function (group, event) {
+		_doClick	: function() {
+//            var el = mouse._mouseinEl;
+            var val = this.getValue();
+            if (val == "") return;
+
+            if (this._curVal == null || val != this._curVal) {
+                var evt = new W.ClickEvent(this);
+                this.notifyEvent(evt);
+                this._curVal = val;
+            }
+//			if (!group.$HG) {
+//				group.post();
+//			}
+		}
+
+	}
+
+});
+
+var $URG = sw2.widget.RadioGroup;
+

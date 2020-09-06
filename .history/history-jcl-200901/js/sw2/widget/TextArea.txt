@@ -1,0 +1,72 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.TextArea",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"TextArea");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_oldValue	: null,
+		_elTextArea 	: null,
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"TextArea");
+
+            this._elTextArea = UITextArea.create(el);
+
+			return el;
+		},
+
+		_doFocus		: function() {
+			this._oldValue = this.getValue();
+			UIText.focus(this._elTextArea);
+			System.execMethod(this,"_doFocus",[],W.Control);
+		},
+
+		_doBlur			: function() {
+			System.execMethod(this,"_doBlur",[],W.Control);
+		},
+
+		getValue	: function() {
+			return UIText.getValue(this._elTextArea);
+		},
+
+		setValue	: function(value) {
+			UIText.setValue(this._elTextArea, value);
+		},
+
+		modified	: function() {
+			return this._oldValue != this.getValue();
+		},
+
+		getCols		: function() {
+			return UITextArea.getCols(this._elTextArea);
+		},
+
+		setCols		: function(cols){
+			UITextArea.setCols(this._elTextArea,cols);
+		},
+
+		getRows		: function() {
+			return UITextArea.getRows(this._elTextArea);
+		},
+
+		setRows		: function(rows){
+			UITextArea.setRows(this._elTextArea,rows);
+		}
+
+
+
+	}
+});
+

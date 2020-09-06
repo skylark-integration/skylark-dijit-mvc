@@ -1,0 +1,323 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+//===========================================================
+// 背景 No.2.2(改) Produced by「CLUB とむやん君」
+// URL http://www2s.biglobe.ne.jp/~club_tom/
+//-----------------------------------------------------------
+// 改変 by Katsu <katsu@ea.mbn.or.jp>
+// http://hp.vector.co.jp/authors/VA022006/
+//===========================================================
+
+var sl_co = [0xFF, 0xFF, 0xFF]; // 初期値
+var sl_ob0=[], sl_ob1=[], sl_ob2=[], sl_tracks=[];
+var sl_nu, sl_doFl=false, sl_loFl=false;
+var sl_xMo, sl_dxMo, sl_x=[];
+var sl_r=0, sl_g=0, sl_b=0, sl_h=0, sl_s=0, sl_l=0;
+
+var _slider =
+{
+	target : function(e)
+	{
+		return (d.all ? event.srcElement : e.target);
+	},
+	
+	// RBG値から HTML色コードをゲット
+	getCo : function(r, g, b)
+	{
+		var co = "#";
+		if (r < 16) co += "0"; co += r.toString(16);
+		if (g < 16) co += "0"; co += g.toString(16);
+		if (b < 16) co += "0"; co += b.toString(16);
+		return (d.CP.hexLorU.value == "toUpper") ? co.toUpperCase() : co;
+	},
+	
+	// RBG値から HSL値をゲット
+	getHSL : function(r, g, b)
+	{
+		var h,s,l,v,m;
+		r /= 255, g /= 255, b /= 255;
+		v = Math.max(r, g), v = Math.max(v, b);
+		m = Math.min(r, g), m = Math.min(m, b);
+		l = (m+v)/2;
+		if (v == m) sl_s = 0, sl_l = Math.round(l*255);
+		else
+		{
+			if (l <= 0.5) s = (v-m)/(v+m);
+			else s = (v-m)/(2-v-m);
+			if (r == v) h = (g-b)/(v-m);
+			if (g == v) h = 2+(b-r)/(v-m);
+			if (b == v) h = 4+(r-g)/(v-m);
+			h *= 60; if (h<0) h += 360;
+			sl_h = Math.round(h/360*255);
+			sl_s = Math.round(s*255);
+			sl_l = Math.round(l*255);
+		}
+	},
+	
+	// HSL値から RBG値をゲット
+	getRBG : function(h, s, l)
+	{
+		var r, g, b, v, m, se, mid1, mid2;
+		h /= 255, s /= 255, l /= 255;
+		if (l <= 0.5) v = l*(1+s);
+		else v = l+s-l*s;
+		if (v <= 0) sl_r = 0, sl_g = 0, sl_b = 0;
+		else
+		{
+			m = 2*l-v,h*=6, se = Math.floor(h);
+			mid1 = m+v*(v-m)/v*(h-se);
+			mid2 = v-v*(v-m)/v*(h-se);
+			switch (se)
+			{
+				case 0 : r = v;    g = mid1; b = m;    break;
+				case 1 : r = mid2; g = v;    b = m;    break;
+				case 2 : r = m;    g = v;    b = mid1; break;
+				case 3 : r = m;    g = mid2; b = v;    break;
+				case 4 : r = mid1; g = m;    b = v;    break;
+				case 5 : r = v;    g = m;    b = mid2; break;
+			}
+			sl_r = Math.round(r*255);
+			sl_g = Math.round(g*255);
+			sl_b = Math.round(b*255);
+		}
+	},
+	
+	// HSL値をセット
+	setHSL : function(co)
+	{
+		sl_r = sl_co[0], sl_g = sl_co[1], sl_b = sl_co[2];
+		this.getHSL(sl_r, sl_g, sl_b);
+		sl_l = co;
+		this.getRBG(sl_h, sl_s, sl_l);
+		sl_co[0] = sl_r, sl_co[1] = sl_g, sl_co[2] = sl_b;
+		for (i=0; i<=2; i++) {
+			sl_x[i] = sl_co[i];
+			this.setLaPoX(sl_ob2[i], sl_x[i]);
+		}
+	},
+	
+	// スタイルシートのx座標をセット
+	setLaPoX : function(obj, x)
+	{
+		if (d.all)                 obj.style.posLeft = x;
+		else if (d.getElementById) obj.style.left    = x+'px';
+	},
+	
+	// スタイルシートのx座標をゲット
+	getLaPoX : function(obj)
+	{
+		if (d.all)                 return obj.style.posLeft;
+		else if (d.getElementById) return parseInt(obj.style.left);
+	},
+	
+	// マウスのx座標をゲット
+	getMoPo : function(e, flag)
+	{
+		if (d.all)
+		{
+			if (flag) sl_xMo = d.body.scrollLeft+event.clientX;
+			else
+			{
+				sl_xMo = d.body.scrollLeft+event.clientX-event.offsetX;
+				if (UA.MacIE) sl_xMo -= d.body.scrollLeft;
+			}
+		}
+		else if (d.getElementById)
+		{
+			if (flag) sl_xMo = e.pageX;
+			else      sl_xMo = e.pageX-e.layerX;
+		}
+	},
+	
+	// フォームに RGB値を書き込む
+	wrFo : function(r, g, b, l)
+	{
+		d.CP["r" +_bcSt].value = r;
+		d.CP["g" +_bcSt].value = g;
+		d.CP["b" +_bcSt].value = b;
+		d.CP["rp"+_bcSt].value = Math.round(r/2.55);
+		d.CP["gp"+_bcSt].value = Math.round(g/2.55);
+		d.CP["bp"+_bcSt].value = Math.round(b/2.55);
+	},
+	
+	// イベントキャプチャーのマウスダウン動作
+	downE : function(e)
+	{
+		var na = this.target(e).name;
+		if (na && na.match(/^bar([0-3])/) )
+		{
+			sl_nu = eval(RegExp.$1);
+			this.getMoPo(e, false);
+			sl_dxMo = sl_xMo-this.getLaPoX(sl_ob2[sl_nu])+3;
+			sl_doFl = true;
+			sl_tracks[RegExp.$1].onmousemove = function() {};
+			return false;
+		}
+	},
+	
+	// イベントキャプチャーのマウスアップ動作
+	upE : function(e)
+	{
+		if (sl_doFl)
+		{
+			sl_doFl = false;
+			try {
+				var num = this.target(e).name.match(/[0-3]$/);
+				sl_tracks[num].onmousemove = function() { _slider.track_moveE(arguments[0], num) };
+			} catch (e) {}
+			_cnv.hex3or6(); view();
+			return false;
+		}
+	},
+	
+	// イベントキャプチャーのマウスムーブ動作
+	moveE : function(e)
+	{
+		if (sl_doFl)
+		{
+			var i, co;
+			this.getMoPo(e, true);
+			sl_x[sl_nu] = sl_xMo-sl_dxMo;
+			if (sl_x[sl_nu] <= 0)        sl_x[sl_nu] = 0;
+			else if (sl_x[sl_nu] >= 255) sl_x[sl_nu] = 255;
+			this.setLaPoX(sl_ob2[sl_nu], sl_x[sl_nu]);
+			co = sl_x[sl_nu];
+			if (sl_nu != 3)
+			{
+				sl_co[sl_nu] = co;
+				sl_r = sl_co[0], sl_g = sl_co[1], sl_b = sl_co[2];
+				this.getHSL(sl_r, sl_g, sl_b);
+				sl_x[3] = sl_l, false;
+				this.setLaPoX(sl_ob2[3], sl_x[3]);
+			}
+			else this.setHSL(co);
+			var color = this.getCo(sl_co[0], sl_co[1], sl_co[2]);
+			if (_bcSt == "b") d.CP.b16.value = top.view.document.bgColor = color;
+			if (_bcSt == "c") d.CP.c16.value = top.view.document.fgColor = color;
+			_x11color.out();
+			
+			this.wrFo(sl_co[0], sl_co[1], sl_co[2]);
+			return false;
+		}
+	},
+	
+	// トラック上のマウスムーブ動作
+	track_moveE : function(e, num)
+	{
+		if (this.target(e).name && this.target(e).name.match(/^bar/)) return;
+		var bar  = d.getElementById('ImB'+num), str = 'RGBL'.charAt(num)+' : ';
+		num  = d.all ? ((d.body.scrollLeft+event.clientX)-(d.body.scrollLeft+event.clientX-event.offsetX)) : (e.pageX-(e.pageX-e.layerX));
+		str += '00'.substr(0, 3-num.toString(10).length)+num + ' : ';
+		str +=  '0'.substr(0, 2-num.toString(16).length)+num.toString(16);
+		window.status = (num < 256 ? str.toUpperCase() : defaultStatus);
+	},
+	
+	// トラック上のクリック動作
+	track_clickE : function(e, num)
+	{
+		if (this.target(e).name && this.target(e).name.match(/^bar/)) return; var
+		co = d.all ? ((d.body.scrollLeft+event.clientX)-(d.body.scrollLeft+event.clientX-event.offsetX)) : (e.pageX-(e.pageX-e.layerX));
+		d.getElementById('ImB'+num).style.left = co+'px';
+		if (num == 3) {
+			this.setHSL(co);
+			d.CP['r'+_bcSt].value = sl_co[0];
+			d.CP['g'+_bcSt].value = sl_co[1];
+			d.CP['b'+_bcSt].value = sl_co[2];
+		}
+		else d.CP['rgb'.charAt(num)+_bcSt].value = co;
+		_rgb.dec_hex(_bcSt);
+	},
+	
+	// トラック上でのキー動作
+	track_keyE : function(e, num)
+	{
+		var keyCode = (d.all ? event.keyCode : e.keyCode), addNum;
+		switch (keyCode) {
+			case 37 : addNum = -5; break;
+			case 39 : addNum = +5; break;
+			default: return;
+		}
+		if (num == 3) {
+			var co = parseInt(d.getElementById('ImB'+num).style.left); this.setHSL(co);
+			d.CP['r'+_bcSt].value = sl_co[0]+addNum;
+			d.CP['g'+_bcSt].value = sl_co[1]+addNum;
+			d.CP['b'+_bcSt].value = sl_co[2]+addNum;
+		}
+		else {
+			var input = d.CP['rgb'.charAt(num)+_bcSt];
+			input.value = Number(input.value)+addNum;
+		}
+		_rgb.dec_hex(_bcSt);
+	},
+	
+	// フォームの値変更時の動作
+	ch : function()
+	{
+		if (sl_loFl && (d.all || d.getElementById))
+		{
+			var r, g, b;
+			r = d.CP["r"+_bcSt].value;
+			g = d.CP["g"+_bcSt].value;
+			b = d.CP["b"+_bcSt].value;
+			
+			if (isFinite(r) && isFinite(g) && isFinite(b))
+			{
+				r = eval(r), g = eval(g), b = eval(b);
+				if ((r >= 0 && r <= 255) && (g >= 0 && g <= 255) && (b >= 0 && b <= 255))
+				{
+					sl_co[0] = r, sl_co[1] = g, sl_co[2] = b;
+					sl_r = sl_co[0], sl_g = sl_co[1], sl_b = sl_co[2];
+					for (i=0; i<=2; i++)
+					{
+						sl_x[i] = sl_co[i];
+						this.setLaPoX(sl_ob2[i], sl_x[i]);
+					}
+					this.getHSL(sl_r, sl_g, sl_b);
+					sl_x[3] = sl_l;
+					this.setLaPoX(sl_ob2[3], sl_x[3]);
+				}
+			}
+			this.wrFo(sl_co[0], sl_co[1], sl_co[2]);
+		}
+	},
+	
+	// 初期設定
+	preLoad : function()
+	{
+		if ( !(d.all || d.getElementById) ) return;
+		d.onmousedown = function() { _slider.downE(arguments[0]) };
+		d.onmouseup   = function() { _slider.upE(arguments[0])   };
+		d.onmousemove = function() { _slider.moveE(arguments[0]) };
+		
+		for (var i=0; i<=3; i++)
+		{
+			sl_ob0[i] = d.getElementById("FrR"+i);
+			sl_ob1[i] = d.getElementById("ImR"+i);
+			sl_ob2[i] = d.getElementById("ImB"+i);
+			setTrackEvent(i);
+		}
+		for (var i=0; i<=2; i++)
+		{
+			sl_x[i] = sl_co[i];
+			this.setLaPoX(sl_ob2[i], sl_x[i]);
+		}
+		function setTrackEvent(i)
+		{
+			sl_tracks[i] = d.images['track'+i]; var parentAnchor = sl_tracks[i].parentNode;
+			sl_tracks[i].onmouseout   = function() { window.status=defaultStatus };
+			sl_tracks[i].onmousemove  = function() { _slider.track_moveE(arguments[0],i) };
+			sl_tracks[i].onclick      = function() { _slider.track_clickE(arguments[0],i); parentAnchor.focus() };
+			parentAnchor.onkeydown    = function() { _slider.track_keyE(arguments[0],i) };
+			parentAnchor.onmouseover  = function() { window.status=defaultStatus; return true };
+			d.images['bar'+i].onclick = function() { parentAnchor.focus() };
+		}
+		sl_r = sl_co[0], sl_g = sl_co[1], sl_b = sl_co[2];
+		this.getHSL(sl_r, sl_g, sl_b); sl_x[3] = sl_l;
+		this.setLaPoX(sl_ob2[3], sl_x[3]);
+		this.wrFo(sl_co[0], sl_co[1], sl_co[2]); sl_loFl = true;
+	}
+};
+

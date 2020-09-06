@@ -1,0 +1,1226 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+    name		: "sw2.widget.GridColumns",
+    superc		: sw2.Component,
+    statics		: {
+    },
+    instances	: {
+		configColName        : [],  //列の名前
+        configColTitle       : [],  //列のタイトル
+        configColType        : [],  //列のデータ類型
+        configColView        : [],  //表示かどうか
+        configColSumType     : [],  //合計列かどうか
+        configColReadType    : [],  //READONLYかどうか
+        configColNumType     : [],  //列が数字かどうか
+        configColClickType   : [],  //Click事件
+        configColDbClickType : [],  //DblClick事件
+        configColFocusType   : [],  //SetFocus事件
+        configColBlurType    : [],  //LostFocus事件
+        configColEnterType   : [],  //Returnキー押す事件
+        configColSortType    : [],  //ソートできるかどうか
+        configColWidth       : [],  //列の幅
+        configColAlign       : [],  //文字の横位置
+        configColControl     : [],  //ユーザコントロール列
+
+		_initialize : function() {
+		    
+		}
+	}
+});
+
+System.defineClass({
+    name		: "sw2.widget.CustomGrid",
+    superc		: sw2.widget.Control,
+    statics		: {
+    },
+    instances	: {
+    	_elTable		: null,
+    	_elHead		    : null,
+    	_elBody		    : null,
+    	_Columns        : null,
+    	_TAGNAME        : "grid",
+    	_sortCol        : -1,
+    	
+    	_initialize : function(id) {
+	    System.execMethod(this,"_initialize",null,W.Control);	
+	    var el = this._el;
+	    
+	    if(id != undefined){
+	        this._TAGNAME = id;
+//		        alert("_TAGNAME :"+this._TAGNAME);
+	    }
+	    
+	    this.id = this._TAGNAME+".ID";
+            this.Name = this._TAGNAME+".Name";
+            this.parent = el;
+            
+            this.intRows = 5;       //Default行数(タイトル行を除く)  
+            this.curRow   = -1;     //選択の行
+            this.curCol   = -1;     //選択の列
+            this.oldRow   = -1;     //前の選択の行
+            this.data = [];         //TABLE各行各列の内容を格納する配列
+//            this.tmprowobj = [];        //一行の各列の対象を格納
+            this.datarowobj = [];       //行を全て格納
+//            this._sortCol = -1;          //最後ソートした列の番号
+            this.node = new Object();
+            this.bgcolor = "#333333";
+
+            //TextBoxのSTYLE
+            this.TextBoxBorder = "none";
+            this.TextBoxFont   = "9pt";
+            this.TextBoxHeight = "18px";
+            this.TextBoxWidth  = "100%";
+//            this.TextBoxNormalBgColor = "#FFFFFF";
+//            this.TextBoxFocusBgColor = "#66FFCC";//"#FFFFE0";
+            
+            //RowsのSTYLE
+//            this.RowNormalBgColor    = "#FFFFFF";
+//            this.RowFocusBgColor     = "#FCE4A7";
+            
+            
+            //削除ICONを定義
+            this.delIcon = "×";
+//            this.delIconAction = "<font color=red><b>×</b></font>";
+
+            //総行数を定義
+            this.Lines = -1;
+            
+            //FFexplorerかどうか
+            this.isIE = /msie/i.test(navigator.userAgent);
+            this.isFF = !this.isIE; ///firefox/i.test(navigator.userAgent);
+            
+            //set Default Columns
+            this._Columns = new sw2.widget.GridColumns();
+            this.setColName(["Col1","Col2","Col3","Col4","Col5"]);
+            this.setColTitle(["A","B","C","D","E"]);
+            this.setColType([3,3,3,3,3]);
+            this.setColNumType([0,0,0,0,0]);
+            this.setColSumType([0,0,0,0,0]);
+            this.setColWidth([100,100,100,100,100])
+            this.setColAlign([0,0,0,0,0])
+            this.setColView([1,1,1,1,1]);
+            this.setColReadType([0,0,0,0,0]);
+        
+            //row select
+            this.ifSelectRow = false;
+            //column resizeable
+            this.ifColResize = false;
+            //複数行をSELECTするかどうか
+            this.ifSelMultiRows = false;
+        
+            //selected row
+            this.row = null;
+            //selected cell
+            this.cell = null;
+            //複数行をSELECTする時の最初の行
+            this.multiRowStart = null;
+            //selected rows
+            this.selectedRows = [];
+            
+            this.csvDelim = "\t";            
+        
+            //TABLEを作成
+            var heTable = ctx.createElement("TABLE");
+            heTable.className = "grid"
+            heTable.style.tableLayout = "fixed";
+//            heTable.width = "100%";
+//            heTable.style.color = "#000000";
+//            heTable.style.cursor = "pointer";
+//            heTable.style.emptyCells = "show";
+            
+//            heTable.bgColor = this.bgColor;
+            heTable.cellSpacing = "0";
+            heTable.cellPadding = "0";
+//            heTable.border = "1";
+
+            //head部を作成
+            var heHead = ctx.createElement("THEAD");
+            heHead.className = "grid_header";
+            
+            //body部を作成
+            var heBody = ctx.createElement("TBODY");
+            heBody.className = "grid_body";
+            
+            heTable.appendChild(heHead);
+            heTable.appendChild(heBody);
+            el.appendChild(heTable);
+            this._elTable = heTable;
+            this._elHead = heHead;
+            this._elBody = heBody;
+            
+            this.setHScroll(true);
+            this.setVScroll(true);
+            
+//            this._elTable.onselectstart=null;
+            
+            this.init();
+            
+            var objName = this._TAGNAME;  
+            if(this.isFF){
+                this._elBody.addEventListener("onkeydown",function(){eval(objName+"._onKeyDown(event);")},false);
+            }else{
+                this._elBody.attachEvent("onkeydown",function (){eval(objName+"._onKeyDown(event);")});
+            }    
+            
+        },
+        
+        _finalize  : function() {
+			this._elTable = null;
+			this._elHead = null;
+            this._elBody = null;
+			this._Columns = null;
+			objGrid = null;
+			System.execMethod(this,"_finalize",null,W.Control);	
+		},
+        
+        //対象の表示をセット
+        _setDisplay : function (obj,n) {
+            if(n == 1){
+                obj.style.display = '';
+            }else{
+                obj.style.display = 'none';
+            }
+        },
+        
+        _add : function (obj,onode) {
+            obj.appendChild(onode);
+        },
+/*        
+        _rows : function(i)
+        {
+            return this._elTable.rows[i+1];
+        
+        },
+*/        
+        //内容を取得
+        _InputRange : function (obj,row,col){
+            var o = this.getColType(row,col);
+//            this.tmprowobj.push(o);
+            this._add(obj,o);
+        },
+        
+        _setAttribute : function (obj,sName,sValue){
+            obj.setAttribute(sName,sValue);
+        },
+        
+        _getElHScroll	: function(el) {
+			return	ctx.getElStyle(el,"overflowX") == "auto";
+		},
+
+	_getElVScroll	: function(el) {
+		return	ctx.getElStyle(el,"overflowY") == "auto";
+	},
+
+	_setElHScroll	: function(el,bScroll) {
+		if (bScroll) {
+			ctx.setElStyle(el,"overflowX","auto")
+		} else {
+			ctx.setElStyle(el,"overflowX","hidden")
+		}
+	},
+
+	_setElVScroll	: function(el,bScroll) {
+		if (bScroll) {
+			ctx.setElStyle(el,"overflowY","auto")
+		} else {
+			ctx.setElStyle(el,"overflowY","hidden")
+		}
+	},
+		
+	_getRowData : function(row) {
+	    var tmpdata = [];
+		    
+           for(var j=0;j<this.datarowobj[row].cells.length;j++){
+               //対象外の列を排除する
+               if(this._Columns.configColType[j] != 1 && this._Columns.configColType[j] != 5){                        
+                    if(this._Columns.configColType[j] == 0){
+                        var obj = this.datarowobj[row].cells[j].childNodes[0];
+                        if(obj.innerHTML){
+    //                    obj.id = this.id+".sysNo."+this._Columns.configColName[j]+"."+i+"."+j;
+    //                            alert("obj.id:"+obj.id+" ClassName:"+obj.className);
+                            rNo = row+1;
+                            this._setAttribute(obj,"title","第"+rNo+"行");
+                            obj.innerHTML = rNo+".";   
+                        }
+                    }           
+                    
+                    if(this._Columns.configColType[j] == 3){
+                        tmpdata.push(this.datarowobj[row].cells[j].childNodes[0].value);
+                    }else{
+                        tmpdata.push(this.datarowobj[row].cells[j].childNodes[0].innerHTML);
+                    } 
+                             
+                }else{
+                    if(this._Columns.configColType[j] == 5){
+                        tmpdata.push(this.datarowobj[row].cells[j].childNodes[0].checked?'true':'false');
+                    }else{
+                        tmpdata.push('');
+                    }
+          
+                }
+                
+            }
+    
+            return tmpdata;
+	},
+		
+	rowBond : function(row) {		               
+            this.data[row]=this._getRowData(row);
+	},
+		
+	//データを配列にBONDINGする
+        _reloadgriddata : function(row, sortflg) {
+//            this.data.clear();
+            
+            var oName = this._TAGNAME;
+            var i = 0;
+            var rNo;
+ 
+            this.oldRow = -1;
+            this.curRow = -1;
+            
+            if(!row){
+                i = 0;
+//                this.data.clear();
+            }else{
+                i = row;
+//                while(i<this.data.length)
+//                    this.data.pop();
+            }
+            
+            for(;i<this.datarowobj.length;i++){
+                for(var j=0;j<this.datarowobj[i].cells.length;j++){
+
+                    this._setAttribute(this.datarowobj[i].childNodes[j].childNodes[0],"rowvalue",i);
+                    this._setAttribute(this.datarowobj[i].childNodes[j].childNodes[0],"colvalue",j);
+//                    this._setAttribute(this.datarowobj[i][j].childNodes[0],"rowvalue",i);
+//                    this._setAttribute(this.datarowobj[i][j].childNodes[0],"colvalue",j);
+                    
+                }
+                
+                if(sortflg==true)
+                    this.rowBond(i);
+                
+ //               if(i==3)
+//                    alert("bgColor:"+this._elBody.rows[i].bgColor+" Fcolor:"+this.RowFocusBgColor);
+//                if(this._elBody.rows[i].bgColor.toUpperCase().localeCompare(this.RowFocusBgColor.toUpperCase()) == 0){
+                if(this._elBody.rows[i].className == "rowselected"){
+                    this.oldRow = i;
+                    this.curRow = i;
+//                    alert("curRow : "+this.curRow);
+                }
+                
+                
+            }
+            
+        },
+
+        //Initialize TABLE
+        init : function() {
+            if(this._elTable.rows.length>0)
+            {
+//                alert("rows : "+this._elTable.rows.length);
+                this.clearAll(true);            
+            }
+            
+            if(this._Columns.configColName.length>0)
+            {
+                this.addTitleRow();
+            }   
+            
+            //Default行を追加する
+            for (var i=0;i<this.intRows;i++)
+            {
+//                alert("this.addRow("+(this._elBody.rows.length)+");");
+                this.addRow(this._elBody.rows.length);
+            }
+            
+//            if(this.ifSelMultiRows==true){
+//                this._elTable.onselectstart=function(){return false;};          
+//            }
+        },
+        
+        //Clear TABLE
+        //  header :  true -> del Columns;
+        //           false -> not del Columns;
+        clearAll : function(header) {
+            var lenB = -1;
+            var lenH = -1;
+            
+            lenB = this._elBody.rows.length-1;
+            lenH = this._elHead.rows.length-1;
+            
+//            alert("Header's length is : "+this._elHead.rows.length+",  lenH is : "+lenH);
+        //    alert("len is "+len);
+            for(var i=lenB; i>=0; i--)
+            {
+                this.delRow(i);
+            
+            }
+            if (header)
+            {
+                for(var i=lenH; i>=0; i--)
+                {
+                    this._elHead.deleteRow(i);
+                }
+            }
+        },
+        
+        setColName : function(parmA) {
+            this._Columns.configColName = parmA;
+        },
+                
+        setColTitle : function(parmA) {
+            this._Columns.configColTitle = parmA;
+        },
+        
+        setColType : function(parmA) {
+            this._Columns.configColType = parmA;
+        },
+        
+        setColNumType : function(parmA) {
+            this._Columns.configColNumType = parmA;
+        },
+        
+        setColSumType : function(parmA) {
+            this._Columns.configColSumType = parmA;
+        },
+        
+        setColWidth : function(parmA) {
+            this._Columns.configColWidth = parmA;
+        },
+        
+        setColAlign : function(parmA) {
+            this._Columns.configColAlign = parmA;
+        },
+        
+        setColView : function(parmA) {
+            this._Columns.configColView = parmA;
+        },
+        
+        setColReadType : function(parmA) {
+            this._Columns.configColReadType = parmA;
+        },
+        
+        setColControl : function(parmA) {
+            this._Columns.configColControl = parmA;
+        },
+        
+        setColSortType : function(parmA) {
+            this._Columns.configColSortType = parmA;
+        },
+        
+        getHScroll	: function() {
+			return this._getElHScroll(this._el);
+		},
+			
+		setHScroll	: function(bScroll) {
+			this._setElHScroll(this._el,bScroll);
+		},
+		
+		getVScroll	: function() {
+			return this._getElVScroll(this._el);
+		},
+			
+		setVScroll	: function(bScroll) {
+			this._setElVScroll(this._el,bScroll);
+		},
+        
+        //データの表示類型を取得する
+        getColType : function (row,col){
+            var obj=null;
+            var n = this._Columns.configColType[col];
+            var isRead = this._Columns.configColReadType[col];
+            var Aclick = this._Columns.configColClickType[col];
+            var Adbclick=this._Columns.configColDbClickType[col];
+            var Afoucs  = this._Columns.configColFocusType[col];
+            var Ablur   = this._Columns.configColBlurType[col];
+            var Acontrol= this._Columns.configColControl[col];
+            var spCtr = /CurRowID/g;
+            if(Acontrol != null && Acontrol != ""){
+                Acontrol = Acontrol.replace(spCtr,row);
+            }
+            var oName = this._TAGNAME;
+            switch(n){
+            case 0://該当の番号を戻る
+                obj = document.createElement("span");
+                obj.id = this.id+".sysNo."+this._Columns.configColName[col]+"."+row+"."+col;
+                this._setAttribute(obj,"title","第"+row+1+"行");
+                obj.innerHTML = row+1+".";
+                obj.className = "flexCol";
+                break;
+            case 1://該当の削除状態を戻る
+                obj = document.createElement("span");
+                this._setAttribute(obj,"title","この行を削除")
+                obj.style.color="red";
+                if(this.isFF){
+                    obj.addEventListener("click",function (){eval(oName+"._doClickDel(event)")},false);
+                }else
+                {
+                    obj.attachEvent("onclick",function (){eval(oName+"._doClickDel(event)")})
+                }
+                obj.innerHTML= this.delIcon;
+                break;
+            case 2://自分で定義した列を戻る
+                obj = document.createElement("span");
+                obj.id = this.id+".usercontorl."+this._Columns.configColName[col]+"."+row+"."+col;
+                if(Acontrol != null && Acontrol != ""){
+                    obj.innerHTML = Acontrol;
+                }
+                break;
+            case 3://TEXTBOXを戻る
+                obj = document.createElement("input");
+                obj.Type = "text";
+                obj.style.border = this.TextBoxBorder;
+//                obj.style.width = this.TextBoxWidth;
+//                obj.style.height= this.TextBoxHeight;
+                obj.style.textAlign = this.getTextAlign(this._Columns.configColAlign[col]);
+//                this._setAttribute(obj,"rowvalue",row);
+//                this._setAttribute(obj,"colvalue",col);
+                obj.id = this.id+"."+this._Columns.configColName[col]+"."+row+"."+col;
+                
+//                var objName = this._TAGNAME;
+                if(this.isFF){
+                    obj.addEventListener("focus",function(){eval(Afoucs)},false);
+                    obj.addEventListener("blur",function(){eval(Ablur)},false);
+                    obj.addEventListener("click",function(){eval(Aclick)},false);
+                    obj.addEventListener("dblclick",function(){eval(Adbclick)},false);
+
+                    if(this.ifSelMultiRows!=false){
+                        obj.addEventListener("click",function(){eval(oName+"._editable(event)")},false);
+                    }
+                }else{
+                    obj.attachEvent("onfocus",function(){eval(Afoucs)});
+                    obj.attachEvent("onblur",function(){eval(Ablur)});
+                    obj.attachEvent("onclick",function(){eval(Aclick)});
+                    obj.attachEvent("ondblclick",function(){eval(Adbclick)});
+                    
+                    if(this.ifSelMultiRows!=false){
+                        obj.attachEvent("onfocus",function(){eval(oName+"._editable(event)")});
+                        obj.attachEvent("onkeydown",function(){eval(oName+"._onkdown(event)")});
+                        obj.attachEvent("onblur",function(){eval(oName+"._editunable(event)")});
+                    }
+                }       
+                break;
+            case 4://REALDONLY対象を戻る
+                obj = document.createElement("span");
+                obj.style.textAlign = this.getTextAlign(this._Columns.configColAlign[col]);
+                obj.id = this.id+"."+this._Columns.configColName[col]+"."+row+"."+col;
+                break;
+            case 5://CheckBoxを戻る
+                obj = document.createElement("input");
+                this._setAttribute(obj,"type","checkbox");
+//                this._setAttribute(obj,"checked","false");
+//                this._setAttribute(obj,"rowvalue",row);
+//                this._setAttribute(obj,"colvalue",col);
+                obj.id = this.id+"."+this._Columns.configColName[col]+"."+row+"."+col;
+                break;  
+        
+            }
+            
+//            this._setAttribute(obj,"rowvalue",row);
+//            this._setAttribute(obj,"colvalue",col);
+            
+            obj.style.width  = this.TextBoxWidth; 
+            obj.style.height = "100%"       
+            return obj;
+        },
+        
+        _editable : function(event){
+//            alert("hello");
+            var el = event.target||event.srcElement;
+         
+            this._delClass(el," cellselected");
+            this._addClass(el," cellselected");
+            this._elTable.onselectstart=null;  
+            el.select();
+            this._elTable.onselectstart=function(){return false}; 
+//            alert(el.className); 
+            this.cell=el;
+//            return true;
+        },
+        
+        _onkdown : function(event){
+//            alert("hello");
+            // when press shift-key, and press another key.(shift code:16)
+            if(event.shiftKey && event.keyCode!=16){
+//                alert(event.keyCode);
+                this._elTable.onselectstart=null;  
+            }else{
+                this._elTable.onselectstart=function(){return false};  
+            }
+        },
+        
+        _editunable : function(event){
+            var el = this.cell;
+            //alert(el.innerHTML);
+            if(el!=null)
+                this._delClass(el,"cellselected");
+
+            this._elTable.onselectstart=function(){return false};  
+//            (event.target||event.srcElement).select();
+        },
+        
+        //文字位置を取得
+        getTextAlign : function (n){
+        	var align = new Array();
+        	align[0] = "left";
+        	align[1] = "center";
+        	align[2] = "right";
+        	return (align[n]);
+        },
+        
+        //タイトル行を追加
+        addTitleRow : function() {
+            var colCap = "";
+            
+            this.node = this._elHead.insertRow(this._elHead.rows.length);
+
+            this.node.height = "20";
+//            this.node.bgColor = "#B8CCE6";
+            this.node.className = "hdr"
+            this.node.border="1px solid gray";
+
+            for(var i=0;i<this._Columns.configColName.length;i++){
+                var tdnode = ctx.createElement("td");
+                tdnode.noWrap = true;
+                tdnode.height = "20";
+                tdnode.width= this._Columns.configColWidth[i];
+                tdnode.align ="center";
+                this._setDisplay(tdnode,this._Columns.configColView[i]);
+                tdnode.id = this._TAGNAME + ".Title."+this._Columns.configColName[i]+"."+i;
+                colCap = this._Columns.configColTitle[i];
+//                alert("The caption is : \""+colCap+"\"");
+                //if(colCap=="")
+                //{
+                //    colCap="*";
+//                    alert("The result is : \""+colCap+"\"");
+                //}
+//                tdnode.innerHTML = colCap;
+                this._setAttribute(tdnode,"colvalue",i);
+                this.setHeaderCol(tdnode,colCap);
+                
+                this._setColSort(tdnode,i);
+                this._add(this.node,tdnode);
+            }
+            
+            // 11/26 Add (Col Resizeable)
+            if(this.ifColResize==true){
+//                alert("OK");
+                var objName = this._TAGNAME;            
+                if(this.isFF){
+                    this.node.addEventListener("mousemove",function(){eval(objName+"._changeCursorState(event)")},false);
+                    this.node.addEventListener("mousedown",function(){eval(objName+"._startColResize(event)")},false);
+                }else{
+                    this.node.attachEvent("onmousemove",function (){eval(objName+"._changeCursorState(event)")});
+                    this.node.attachEvent("onmousedown",function (){eval(objName+"._startColResize(event)")});
+                }    
+            }
+
+        },
+        
+        //データ行を追加
+        addRow : function (idx){
+            var objName = this._TAGNAME;
+            
+            this.node = this._elBody.insertRow(idx);
+            this.node.height = "20";
+            this.node.bgColor = "#FFFFFF";
+            this._setAttribute(this.node,"normalbgcolor",this.RowNormalBgColor);
+            this._setAttribute(this.node,"focusbgcolor",this.RowFocusBgColor);
+            this._setAttribute(this.node,"rowindex",idx);
+            if(this.ifSelectRow){
+//========================= 10/16 Add　begin =====================================
+                if(this.isFF){
+                    this.node.addEventListener("click",function (){eval(objName+"._doSelect(event)")},false);
+//	                this.node.addEventListener("onkeydown",function (){eval(this._TAGNAME+".$OnKeyDown(event);")},false);
+                }else{
+                    this.node.attachEvent("onclick",function (){eval(objName+"._doSelect(event)")});
+                }
+//========================= 10/16 Add　end =======================================                
+            }
+//            this.tmprowobj = [];
+            for(var j=0;j<this._Columns.configColName.length;j++){
+                var tdnode = document.createElement("td");
+                tdnode.noWrap = true;
+                tdnode.height = "20";
+                this._setDisplay(tdnode,this._Columns.configColView[j]);
+                this._InputRange(tdnode,idx,j);
+                tdnode.align = this.getTextAlign(this._Columns.configColAlign[j]);
+//----------------------------------------------- test ---------------------------------------------
+//                this._setAttribute(tdnode,"rowvalue",idx);
+//                this._setAttribute(tdnode,"colvalue",j);
+
+                if(this.isFF){
+                    tdnode.addEventListener("dblclick",this._showRowCol,false);
+                }else{
+                    tdnode.attachEvent("ondblclick",this._showRowCol);
+                }       
+            
+//--------------------------------------------------------------------------------------------------           
+                this._add(this.node,tdnode);
+//----------------------------------------------- test ---------------------------------------------
+                if(idx>0){
+                    this._setAttribute(this._elBody.rows[idx].childNodes[j].childNodes[0],"rowvalue",idx);
+                    this._setAttribute(this._elBody.rows[idx].childNodes[j].childNodes[0],"colvalue",j);
+//                    this._setAttribute(tdnode.childNodes[0],"rowvalue",idx);
+//                    this._setAttribute(tdnode.childNodes[0],"colvalue",j);
+                }
+//--------------------------------------------------------------------------------------------------           
+            }
+//            alert("Datarowobj Add "+idx);
+            this.datarowobj.insertAt(this.node, idx);
+            this.data.insertAt(this._getRowData(idx), idx)
+            this._reloadgriddata(idx);
+        },
+        
+        _doClickDel : function (oEvent) {
+            
+            if(this.isFF){            
+                var obj=oEvent.target;
+            }else{
+                var obj=oEvent.srcElement;
+            }
+            
+            if(obj.rowvalue!=null){
+                var idx = obj.rowvalue;
+                
+                if(this.oldRow == idx){
+                    if(idx < this.datarowobj.length-1 && idx >= 0){
+//                alert("rowvalue : "+idx+" oldRow : "+this.oldRow);
+                        this.selectRow(idx+1);
+                        this.oldRow--;
+                        this.curRow--;
+                    }else{
+                        if(idx == this.datarowobj.length-1 && this.datarowobj.length-1 > 0){
+                            this.selectRow(idx-1);
+                        }
+                    }
+                }else{
+                    if(this.oldRow != -1 && this.oldRow > idx){
+                        this.oldRow--;
+                        this.curRow--;
+                    }
+                }
+                
+                this.delRow(idx);
+                
+            }
+        },
+                                    
+        //行を削除する
+        delRow : function (row){
+
+            //項番の列なら、項番を更新する
+            if(this._Columns.configColType[0] == 0){
+                for(var i=this._elBody.rows.length-1;i>row;i--){                
+                    this.datarowobj[i].cells[0].childNodes[0].innerHTML = this.datarowobj[i-1].cells[0].childNodes[0].innerHTML;
+//                    alert("datarowobj["+i+"][0]: ( "+this.datarowobj[i][0].childNodes[0].innerHTML+" )");
+                }
+            }
+            
+            this._elBody.deleteRow(row);
+            this.datarowobj.removeAt(row);
+            this.data.removeAt(row)
+            this._reloadgriddata(row);
+
+        },
+
+//========================= 10/16 Add　=====================================
+        //一行のデータをロードする
+        loadRow : function (d,row){
+            var obj = this.datarowobj;
+//            alert("LoadRow : "+row);
+            if(obj.length <= row){
+                this.addRow(row);
+            }
+            
+//            var dl = d.length;
+//            var al = this.data[row].length;
+            var a = this.datarowobj[row];
+//            if(dl == al){
+//                this.data[row] = d;
+//            }
+            
+            for(var i=0;i<d.length;i++){
+                if(this._Columns.configColType[i] == 3 || this._Columns.configColType[i] == 4){//TextBox又はREADONLYセル
+                    if(this._Columns.configColType[i] == 3){
+                        a.cells[i].childNodes[0].value = d[i];
+                    }else{
+                        a.cells[i].childNodes[0].innerHTML = d[i];	  
+                    }        
+                }
+                
+                if(this._Columns.configColType[i] == 5){
+                    if(d[i]=='true' || d[i]==1 || d[i]=='1'){                        
+                        a.cells[i].childNodes[0].checked=true;   
+//                        a.cells[i].childNodes[0].innerHTML += ' checked';
+                    }else{
+                        a.cells[i].childNodes[0].checked=false;   
+                    }
+//                    alert(a.cells[i].childNodes[0].checked);
+                }   
+            }
+            
+            this.rowBond(row);
+                        
+        },
+        
+        //行を選択する
+        selectRow : function (idx,selMod){
+
+                if(this.ifSelMultiRows!=false && selMod==null){
+                    this._elTable.onselectstart=function(){return false;};
+//                    a=this._elTable.rows[2].cells[20].value; 
+//                    alert("no select");
+                    
+                }else{
+//                    alert("select ok");                    
+                }
+
+            if(!selMod)
+                selMod = 0;
+            
+            if(selMod == 0){        
+ //               alert("a row selected")
+                this.clearSelection();
+                this.row = this._elBody.rows[idx]
+                this.multiRowStart = this.row;
+                this.selectedRows[0] = this.row;
+                
+                if(this.oldRow == -1){
+                    this.oldRow = idx;
+                    this.curRow = idx;
+                    this._delClass(this._elBody.rows[idx],"rowselected");
+                    this._addClass(this._elBody.rows[idx],"rowselected");
+                }else{
+                    if(this.oldRow < this._elBody.rows.length){
+    //                    this._elBody.rows[this.oldRow].bgColor = this.RowNormalBgColor;
+                        this._delClass(this._elBody.rows[this.oldRow],"rowselected");
+    //                    this._addClass(this._elBody.rows[this.oldRow],"rownormal");
+                    }
+                    this.oldRow = idx;
+                    this.curRow = idx;
+    //                this._elBody.rows[idx].bgColor = this.RowFocusBgColor;
+                    this._delClass(this._elBody.rows[idx],"rowselected");
+                    this._addClass(this._elBody.rows[idx],"rowselected");
+                }
+            // Shiftキーを押す場合                
+            }else if(selMod == 1){
+                var idx1 = this.multiRowStart.childNodes[0].childNodes[0].rowvalue;
+                var idx2 = idx;
+                
+                this.row=this._elBody.rows[idx];
+                
+                if(idx1<idx2){
+                    strt=idx1;
+                    end =idx2;
+                }else{
+                    strt=idx2;
+                    end =idx1;
+                }
+                
+                this.selectedRows.clear();
+                
+                for(var i=0;i<this._elBody.rows.length-1;i++){
+                    this._delClass(this._elBody.rows[i],"rowselected");
+    
+                    if(i>=strt && i<=end){
+                        this._addClass(this._elBody.rows[i],"rowselected");
+                        this.selectedRows[this.selectedRows.length] = this._elBody.rows[i];
+                    }
+                }
+            // Ctrlキーを押す場合                
+            }else if(selMod == 2){
+                if(this._elBody.rows[idx].className.indexOf("rowselected")!= -1){
+                    this._delClass(this._elBody.rows[idx],"rowselected");
+                    this.selectedRows.remove(this._elBody.rows[idx])
+                    
+                    if(this.selectedRows.length==0){
+                        this.row = null;
+                        this.multiRowStart = null;
+                    }
+                }else{
+                    this._addClass(this._elBody.rows[idx],"rowselected");
+                    if(this.multiRowStart){
+                        this.multiRowStart = this._elBody.rows[idx];
+                    }
+                    this.row = this._elBody.rows[idx];
+                    this.selectedRows[this.selectedRows.length] = this._elBody.rows[idx];
+                }               
+                
+            }
+            
+            if(selMod!=0){
+                var strOut="";
+                for(var j=0; j<this.selectedRows.length; j++)
+                    strOut += (this.selectedRows[j].childNodes[0].childNodes[0].rowvalue+",");
+                alert(strOut);   
+            }
+        },
+        
+        clearSelection : function(){
+//            this.editStop()
+            for(var i=0;i<this.selectedRows.length;i++){
+                var r=this.selectedRows[i];
+                this._delClass(r,"rowselected");
+            };
+            
+            this.selectedRows.clear();
+            this.row = null;
+            this.multiRowStart = null;
+
+        },
+        
+        _doSelect : function (oEvent) {
+            
+            if(this.isFF){            
+                var obj=oEvent.target;
+//                var obj=this.getFirstParentOfType(oEvent.target,"TD");
+            }else{
+                var obj=oEvent.srcElement;
+//                var obj=this.getFirstParentOfType(oEvent.srcElement,"TD");
+            }
+            
+            if(obj.rowvalue!=null){
+//                var idx = obj.rowvalue;
+//                this.selectRow(idx);
+
+//---------------- 12/04 Add (MultiRows Select) ---------------------------------------------------                
+                var selMethod = 0;
+                var idx = obj.rowvalue;
+//                this._elTable.onselectstart=null;
+                if(this.ifSelMultiRows!=false){
+                    if(oEvent.shiftKey && this.row!=null){
+                        selMethod = 1;
+                    };
+                    if(oEvent.ctrlKey){
+                        selMethod = 2;
+                    };
+//                    alert("Test");
+//                    this._elTable.onselectstart=function(){return false;};       
+                    if(selMethod>0){
+//                        alert("no select");
+                        this._elTable.onselectstart=function(){return false;};       
+                    }else{
+//                        this._elTable.onselectstart=null;
+//                        alert("select ok");          
+                    }
+                };
+
+                this.selectRow(idx,selMethod);
+                
+//                if(selMethod==0)
+//                    this._elTable.onselectstart=null;
+//-------------------------------------------------------------------------------------------------                
+
+            }
+        },
+                            
+        _showRowCol : function (oEvent){
+
+            if(this.isFF){
+                str = "行："+oEvent.target.rowvalue+"；列："+oEvent.target.colvalue;
+            }else{
+//        	    var x=oEvent.currentTarget.toString();
+        	    str = "行："+oEvent.srcElement.rowvalue+"；列："+oEvent.srcElement.colvalue+"\n";
+        	    
+        	    str += grid2.data[oEvent.srcElement.rowvalue][oEvent.srcElement.colvalue];
+ //       	    str += "   ("+grid2.datarowobj[oEvent.srcElement.rowvalue].cells[oEvent.srcElement.colvalue].childNodes[0].checked+")"
+        	}
+        	
+        	alert(str);
+        },
+     
+//---------------- 10/31 Add (Sort table) ---------------------------------------------------
+        //ソートイベントを追加
+        _setColSort : function (obj,col){
+            var objName = this._TAGNAME;
+            
+            if(this._Columns.configColSortType[col] == 1){
+//                alert(objName+".Sort("+col+"); this._Columns.configColSortType["+col+"] : "+this._Columns.configColSortType[col]);
+
+                
+                if(this.isFF){
+            	    obj.addEventListener("click",function(){eval(objName+".Sort("+col+");")},false);
+            	}else{
+            	    obj.attachEvent("onclick",function(){eval(objName+".Sort("+col+");")});
+            	}
+            }
+        
+        },
+        
+        //排序FUNC
+        Sort : function (col){
+
+//            alert("sort前："+this.datarowobj[2].cells[7].childNodes[0].checked)
+            if (this._sortCol == col){
+                this.datarowobj.reverse();
+            }else{
+                ObjName = eval(this);
+                this.datarowobj.sort(this._generateCompTR(col));
+            }
+
+//            alert("sort後："+this.datarowobj[2].cells[7].childNodes[0].checked)
+
+
+            var fragment = document.createDocumentFragment();
+            for (var i=0; i<this.datarowobj.length; i++) {
+//                alert("前："+this.datarowobj[i].childNodes[7].childNodes[0].checked)
+//                var str=this.datarowobj[i].childNodes[7].innerHTML;
+                fragment.appendChild(this.datarowobj[i]);
+//                this.datarowobj[i].childNodes[7].innerHTML=str;
+                
+//                alert("後："+this.datarowobj[i].childNodes[7].childNodes[0].checked)       
+            }
+
+
+            this._elBody.appendChild(fragment);
+            this._sortCol = col;
+            
+            this.setSortColTitle(col);
+            this._reloadgriddata(0,true);
+//            alert("ato_sortCol : "+this._sortCol);
+        },
+        
+        setHeaderCol : function(obj,label){
+            var headerHTML = "";
+            var imgBfIdx = label.indexOf('img:[');
+            var imgAfIdx = 0;
+            var capBf = "";
+            var capAf = "";
+            
+            if(imgBfIdx!=-1){
+                var imUrl = label.replace(/.*\[([^>]+)\].*/,"$1");
+                
+                imgAfIdx = label.indexOf("]");
+                capBf = label.substr(0, imgBfIdx);
+                capAf = label.substr(imgAfIdx+1,label.length);
+                headerHTML+=capBf;
+                headerHTML+="<img width='18px' height='18px' align='absmiddle' src='"+imUrl+"' hspace='2'>";
+                headerHTML+=capAf;
+                
+            }else{
+                headerHTML+=label;
+            }
+            
+            obj.innerHTML = headerHTML;
+            
+        },
+        
+        //比較関数Generator
+        _generateCompTR : function (col){
+            var obj = ObjName;
+            return function compareTR (tr1,tr2){
+//                alert("col type : "+obj._Columns.configColType[col]);
+//                alert("_Columns.configColType["+col+"] : "+value1+";  tr2["+col+"] : "+value2)
+                if(obj._Columns.configColType[col] == 3 || obj._Columns.configColType[col] == 4){//TextBox又はREADONLYセル
+                    if(obj._Columns.configColType[col] == 3){
+                        var value1 = tr1.cells[col].childNodes[0].value;
+                        var value2 = tr2.cells[col].childNodes[0].value;
+                    }else{
+                        var value1 = tr1.cells[col].childNodes[0].innerHTML;
+                        var value2 = tr2.cells[col].childNodes[0].innerHTML;
+                    }
+                }
+//                alert("tr1["+col+"] : "+value1+";  tr2["+col+"] : "+value2)
+                return value1.localeCompare(value2);
+            }   
+        },
+        
+        setSortColTitle : function (col){
+            var obj = document.getElementById(this._TAGNAME + ".Title."+this._Columns.configColName[col]+"."+col);
+            var inHtml = obj.innerHTML;
+           
+            if(inHtml.indexOf("↑")==-1 && inHtml.indexOf("↓")==-1){
+                obj.innerHTML = obj.innerHTML + "↑";
+            }else{
+                if(inHtml.indexOf("↑")!=-1)
+                    obj.innerHTML = obj.innerHTML.replace("↑","") + "↓";
+                else
+                    obj.innerHTML = obj.innerHTML.replace("↓","")  + "↑";
+            }
+                
+//            this.setHeaderCol(obj,col,obj.inHtml);
+            
+            for(var i=0;i<this._Columns.configColName.length;i++){
+                if(col != i){
+                    var obja = document.getElementById(this._TAGNAME + ".Title."+this._Columns.configColName[i]+"."+i);
+                    obja.innerHTML = this._Columns.configColTitle[i];
+                    this.setHeaderCol(obja,obja.innerHTML);
+                }
+            }
+        
+        },
+
+//---------------- 11/26 Add (Col Resizeable) ---------------------------------------------------
+// 列限界にあたるカーソルを変更する
+        _changeCursorState : function (ev){
+            var el = ev.target||ev.srcElement;
+            
+            if(el.tagName!="TD")
+                el = this._getFirstParentOfType(el,"TD")
+                
+            var check = ev.layerX+(((!this.isIE)&&(ev.target.tagName=="DIV"))?el.offsetLeft:0);
+            
+            if((el.offsetWidth - (ev.offsetX||(parseInt(this._getPosition(el,this._elHead))-check)*-1))<10){
+                el.style.cursor = "E-resize";
+            }else
+                el.style.cursor = "default";
+                
+        },
+        
+        _getPosition : function(oNode,pNode){
+            if(!pNode)
+                var pNode = document.body
+        
+            var oCurrentNode=oNode;
+            var iLeft=0;
+            var iTop=0;
+            
+            while ((oCurrentNode)&&(oCurrentNode!=pNode)){
+                iLeft+=oCurrentNode.offsetLeft-oCurrentNode.scrollLeft;
+                iTop+=oCurrentNode.offsetTop-oCurrentNode.scrollTop;
+                oCurrentNode=oCurrentNode.offsetParent;
+            };
+            
+            if (pNode == document.body ){
+                if (this.isIE){
+                    if (document.documentElement.scrollTop)iTop+=document.documentElement.scrollTop;
+                    if (document.documentElement.scrollLeft)iLeft+=document.documentElement.scrollLeft;
+                }else
+                    if (!this.isFF){
+                        iLeft+=document.body.offsetLeft;
+                        iTop+=document.body.offsetTop;
+                    };
+            };
+            
+            return new Array(iLeft,iTop);
+        },
+        
+        _getFirstParentOfType : function(obj,tag){
+            while(obj.tagName!=tag && obj.tagName!="BODY"){
+                obj = obj.parentNode;
+            };
+            return obj;
+        },
+        
+// Resize処理
+        _startColResize : function(ev){
+            var el = ev.target||ev.srcElement;
+            
+            if(el.tagName!="TD")
+                el = this._getFirstParentOfType(el,"TD")
+            
+            var x = ev.clientX;
+            var tabW = this._elHead.offsetWidth;
+            var startW = parseInt(el.offsetWidth)
+            
+//            alert("el.tagName="+el.tagName+"  el.style.cursor="+el.style.cursor);
+            if(el.tagName=="TD" && el.style.cursor!="default"){
+                ObjName = eval(this);
+                
+                this._elTable.onmousemove= function(){
+                    var obj = ObjName;
+                    obj._doColResize(ev,el,startW,x,tabW)
+                }                
+                document.body.onmouseup = function(){
+                    var obj = ObjName;
+                    obj._stopColResize();
+                }
+            };
+        },
+        
+        _stopColResize : function(){
+//            alert("OK");
+            this._elTable.onmousemove = "";
+            document.body.onmouseup = "";
+            
+            this._elTable.style.cursor="default";
+            this.reSizes();
+        },
+        
+        // ev: イベント対象
+        // el: イベント発生の対象
+        // startW: elのoffsetWidth
+        // x: evのclientX
+        // tabW: tableのoffsetWidth
+        _doColResize : function(ev,el,startW,x,tabW){
+            el.style.cursor = "E-resize";
+            var fcolW = startW + (ev.clientX-x);
+            var wtabW = tabW + (ev.clientX-x)
+            this._setColumnSizeR(el.colvalue,fcolW);
+                
+        },
+        
+        _setColumnSizeR : function(ind, fcolW){
+            if(fcolW>10){
+                this._elHead.rows[0].childNodes[ind].width = fcolW+"px";
+//                alert(this._elHead.rows[0].childNodes[ind].width);
+                this._Columns.configColWidth[ind] = fcolW;
+            };
+        },
+        
+        reSizes : function(){
+            if((!this._elHead.rows[0])) return;
+            
+            for(var i=0;i<this._Columns.configColWidth.length;i++)
+                this._elHead.rows[0].childNodes[i].width = this._Columns.configColWidth[i];
+            
+//            alert(this._elHead.rows[0].childNodes[2].id+":"+this._elHead.rows[0].childNodes[2].width);
+        },
+
+//----------------- 12/13 Add ---------------------------------------------------------------
+        _onKeyDown : function(ev){
+//            var elem = ev.target||ev.srcElement;
+            
+//            alert(ev.keyCode);
+            if(ev.keyCode==67 && ev.ctrlKey){
+                var str="";
+                for(var i=0;i<this.selectedRows.length;i++){
+                    idxD = this.selectedRows[i].childNodes[0].childNodes[0].rowvalue
+                    str += (grid2.data[idxD].join(this.csvDelim)+"\n");
+                }
+                
+                alert(str);
+                this.toClipBoard(str);
+            }
+        },
+        
+        toClipBoard : function(val){
+            if (window.clipboardData)
+                window.clipboardData.setData("Text",val);
+            else
+                (new Clipboard()).copy(val);
+        
+        },
+//-------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+
+        _addClass : function (obj,value) {
+            if(!obj.className){
+                obj.className = value;
+            }else{
+                newClassName = obj.className;
+                newClassName+= " ";
+                newClassName+= value;
+                obj.className = newClassName;
+            }
+        },
+        
+        _delClass : function (obj,value) {
+            if(obj.className.indexOf(value)!= -1){
+                obj.className=obj.className.replace(value,"");
+            }
+        }
+        
+    }
+    
+});
+
+
+                

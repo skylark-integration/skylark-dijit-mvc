@@ -1,0 +1,309 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.Calendar",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"Calendar");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_elTitle	: null,
+		_elContent	: null,
+		_elYearMon	: null,
+        _dateArray  : null,
+
+        _preYear    : null,
+        _preMon     : null,
+        _nxtMon     : null,
+        _nxtYear    : null,
+
+        _initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Control);
+
+            ctx.setElCssClass(this._el,"Calendar");
+
+            var calTable = ctx.createElement("TABLE");
+            this._el.appendChild(calTable);
+
+            calTable.style.width = "100%";
+            calTable.style.height = "100%";
+			calTable.style.tableLayout = "fixed";
+			calTable.cellPadding = 0;
+			calTable.cellSpacing = 0;
+
+            var calTBody = ctx.createElement("TBODY");
+            calTable.appendChild(calTBody);
+
+            var calTr = ctx.createElement("TR");
+            calTBody.appendChild(calTr);
+            var calTd = ctx.createElement("TD");
+            calTr.appendChild(calTd);
+            calTd.style.width = "100%";
+
+			var heTitle = ctx.createElement("DIV");
+			this._elTitle = heTitle;
+//			ctx.setElStyle(heTitle, "position", "absolute");
+            calTd.appendChild(heTitle);
+
+            var heTable = ctx.createElement("TABLE");
+            var heTBody = ctx.createElement("TBODY");
+            var heTr = ctx.createElement("TR");
+            heTitle.appendChild(heTable);
+            heTable.appendChild(heTBody);
+            heTBody.appendChild(heTr);
+            heTable.style.width = "100%";
+            var heTd =	 ctx.createElement("TD");
+            heTr.appendChild(heTd);
+            var imgYM = ctx.createElement("IMG");
+            imgYM.src = sw2.ResLibPath + "/images/calendar/tabset_scroll1.gif";
+            heTd.appendChild(imgYM);
+//            heTd.style.cursor = "hand";
+            this._preYear = imgYM;
+
+            heTd = ctx.createElement("TD");
+            heTr.appendChild(heTd);
+            imgYM = ctx.createElement("IMG");
+            imgYM.src = sw2.ResLibPath + "/images/calendar/scrollbar_btn1_hori.gif";
+            heTd.appendChild(imgYM);
+            this._preMon = imgYM;
+
+            heTd = ctx.createElement("TD");
+            heTr.appendChild(heTd);
+            this._elYearMon = heTd;
+            heTd.style.width = "100%";
+            heTd.align = "center";
+            heTd.vAlign = "middle";
+
+            heTd = ctx.createElement("TD");
+            heTr.appendChild(heTd);
+            imgYM = ctx.createElement("IMG");
+            imgYM.src = sw2.ResLibPath + "/images/calendar/scrollbar_btn2_hori.gif";
+            heTd.appendChild(imgYM);
+//            heTd.style.cursor = "hand";
+            this._nxtMon = imgYM;
+
+            heTd = ctx.createElement("TD");
+            heTr.appendChild(heTd);
+            imgYM = ctx.createElement("IMG");
+            imgYM.src = sw2.ResLibPath + "/images/calendar/tabset_scroll2.gif";
+            heTd.appendChild(imgYM);
+//            heTd.style.cursor = "hand";
+            this._nxtYear = imgYM;
+
+
+            calTr = ctx.createElement("TR");
+			calTr.style.height = "100%";
+            calTBody.appendChild(calTr);
+            calTd = ctx.createElement("TD");
+            calTr.appendChild(calTd);
+            calTd.style.width = "100%";
+            calTd.style.height = "100%";
+
+			var heContent = ctx.createElement("DIV");
+			heContent.style.width = "100%";
+			heContent.style.height = "100%";
+
+			this._elContent = heContent;
+
+//			ctx.setElStyle(heContent, "position", "absolute");
+            calTd.appendChild(heContent);
+
+            heTable = ctx.createElement("TABLE");
+            heTHead = ctx.createElement("THEAD");
+            heTr = ctx.createElement("TR");
+            heContent.appendChild(heTable);
+            heTable.appendChild(heTHead);
+            heTHead.appendChild(heTr);
+            heTable.style.width = "100%";
+           heTable.style.height = "100%";
+
+            var heTh = ctx.createElement("TH");
+            heTr.appendChild(heTh);
+            heTh.innerText = "日";
+
+            heTh = ctx.createElement("TH");
+            heTr.appendChild(heTh);
+            heTh.innerText = "月";
+
+            heTh = ctx.createElement("TH");
+            heTr.appendChild(heTh);
+            heTh.innerText = "火";
+
+            heTh = ctx.createElement("TH");
+            heTr.appendChild(heTh);
+            heTh.innerText = "水";
+
+            heTh = ctx.createElement("TH");
+            heTr.appendChild(heTh);
+            heTh.innerText = "木";
+
+            heTh = ctx.createElement("TH");
+            heTr.appendChild(heTh);
+            heTh.innerText = "金";
+
+            heTh = ctx.createElement("TH");
+            heTr.appendChild(heTh);
+            heTh.innerText = "土";
+
+            heTBody = ctx.createElement("TBODY");
+            heTable.appendChild(heTBody);
+
+            this._dateArray = new Array();
+            for(var i = 0; i < 6; i ++) {
+                var week = new Array();
+                this._dateArray.push(week);
+
+                heTr = ctx.createElement("TR");
+                heTBody.appendChild(heTr);
+                for(var j = 0; j < 7; j ++) {
+                    heTd = ctx.createElement("TD");
+                    heTr.appendChild(heTd);
+                    heTd.align = "center";
+                    week.push(heTd);
+                }
+            }
+
+            var tmpDate = new Date();
+            this._curYear = tmpDate.getYear();
+            this._curMon = tmpDate.getMonth();
+            this._curDate = tmpDate.getDate();
+
+            this._display(this._curMon, this._curYear);
+
+//            System.execMethod(this, "setBounds", [10,10,200,110], W.Control);
+		},
+
+		_finalize : function() {
+            this._dateArray = null;
+			System.execMethod(this, "_finalize", null, W.Control);
+		},
+
+        _getMonStr        : function(mon) {
+            if (mon < 0 || mon > 11) {
+                return "unknown";
+            }
+
+            var monStr = new Array("一", "二", "三", "四", "五", "六", 
+                "七", "八", "九", "十", "十一", "十二");
+//            var monStr = new Array("January", "February", "March", "April", "May", "June", 
+//                "July", "August", "September", "October", "November", "December");
+            return monStr[mon];
+        },
+
+        _display        : function(mon, year) {
+
+            this._curMon = mon;
+            this._curYear = year;
+
+            var tmpDate = new Date(year, mon, 1);
+            tmpDate.setDate(1 - tmpDate.getDay());
+
+            this._elYearMon.innerText = year + "年　" + this._getMonStr(mon) + "月";
+
+            var curDate = new Date();
+            for(var i = 0; i < 6; i ++) {
+                for(var j = 0; j < 7; j ++) {
+
+					var text = tmpDate.getDate();
+;
+
+                    if (tmpDate.getYear() == curDate.getYear() && 
+                        tmpDate.getMonth() == curDate.getMonth() && 
+                        tmpDate.getDate() == curDate.getDate()) {
+                        if (curDate.getMonth() != this._curMon) {
+                            this._dateArray[i][j].bgColor = "#00FF00";
+                            this._dateArray[i][j]._canClick = false;
+//                            this._dateArray[i][j].style.cursor = "";
+                        } else {
+                            this._dateArray[i][j].bgColor = "#00FF00";
+//                            this._dateArray[i][j]._canClick = true;
+                            this._dateArray[i][j].style.cursor = "hand";
+                            this._curTargetDate = this._dateArray[i][j];
+                        }
+                    } else {
+                        if (tmpDate.getMonth() == this._curMon) {
+                            this._dateArray[i][j].bgColor = "#7A7AFF";
+                            this._dateArray[i][j]._canClick = true;
+//                            this._dateArray[i][j].style.cursor = "hand";
+                        } else {
+                            this._dateArray[i][j].bgColor = "#EDF2F6";
+                            this._dateArray[i][j]._canClick = false;
+//                            this._dateArray[i][j].style.cursor = "";
+							text = "";
+                        }
+                    }
+                    this._dateArray[i][j].innerText = text;
+                    this._dateArray[i][j].bgSaveColor = this._dateArray[i][j].bgColor;
+                    tmpDate.setDate(tmpDate.getDate() + 1);
+                }
+            }
+        },
+
+        getCurrentDate  : function() {
+            return ((this._curMon + 1) + "/" + this._curDate + "/" + this._curYear);
+        },
+
+        _doClick		: function() {
+            var evtSrc = mouse._mouseinEl;
+            if (evtSrc == this._preYear) {
+                this._display(this._curMon, this._curYear - 1);
+            } else if (evtSrc == this._preMon) {
+                if (this._curMon == 0) {
+                    this._display(11, this._curYear - 1);
+                } else
+                    this._display(this._curMon - 1, this._curYear);
+            } else if (evtSrc == this._nxtMon) {
+                if (this._curMon == 11) {
+                    this._display(0, this._curYear + 1);
+                } else
+                    this._display(this._curMon + 1, this._curYear);
+            } else if (evtSrc == this._nxtYear) {
+                this._display(this._curMon, this._curYear + 1);
+            } else {
+                var el = this._getCurrentDateEl(evtSrc);
+                if (el != null && el._canClick) {
+                    if (this._curTargetDate != null && this._curTargetDate != el) {
+                        this._curTargetDate.bgColor = this._curTargetDate.bgSaveColor;
+                    }
+                    this._curTargetDate = el;
+                    this._curTargetDate.bgColor = "#0000FF";
+                }
+            }
+        },
+
+        _doDblClick		: function () {
+            var evtSrc = mouse._mouseinEl;
+            var el = this._getCurrentDateEl(evtSrc);
+            if (el != null && el._canClick) {
+                this._curDate = el.innerText;
+                var evt = new W.DblClickEvent(this);
+                this.notifyEvent(evt);
+            }
+        },
+
+        _getCurrentDateEl : function(evtSrc) {
+            for(var i = 0; i < 6; i ++) {
+                for(var j = 0; j < 7; j ++) {
+                    if (this._dateArray[i][j] == evtSrc) {
+                        return this._dateArray[i][j];
+                    }
+                }
+            }
+            return null;
+        }
+/*,
+
+        setBounds   : function(l, t, w, h) {
+            System.execMethod(this, "setBounds", [l,t,200,110], W.Control);
+        }
+*/
+    }
+});

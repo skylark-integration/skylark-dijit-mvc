@@ -1,0 +1,1001 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=shift-jis">
+<link href="../resources/css/system.css" rel="stylesheet" type="text/css" />
+<link href="../resources/css/skin.css" rel="stylesheet" type="text/css" />
+
+
+<SCRIPT language ='JavaScript' src = '../js/spw/lang.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/component.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/browser.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/types.txt'></SCRIPT>
+<script language = 'javascript' >
+	sw2.ResLibPath = "../resources";
+</script>
+<SCRIPT language ='JavaScript' src = '../js/sw2/host/ui/Element.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/control.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/dragdrop.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/context.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/desktop.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/form.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/button.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/checkbox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/ProgressBar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/label.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/panel.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/radiobutton.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/radiogroup.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/calendar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/textinput.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/textarea.txt'></SCRIPT>
+
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/groupbox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/splitter.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/tree.txt'></SCRIPT>
+
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/scrollbar.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/menubar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/toolbar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/tabcontrol.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/listctrl.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/listbox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/combo.txt'></SCRIPT>
+
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/context.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/grid.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/Calendar.txt'></SCRIPT>
+
+
+
+<SCRIPT language='JavaScript'>
+System.defineClass({
+	name		: "my.Sw2Demo",
+	superc		: spw.Object,
+	statics		: {
+	},
+	instances	: {
+		_controlsArray  : 
+			    [
+					{
+						text:"CommonControl",
+						children	:[
+							{
+								text:"Button",
+								icon: "./images/Button.gif"
+							},
+							{
+								text:"Label",
+								icon: "./images/Label.gif"
+							},
+							{
+								text:"TextField",
+								icon: "./images/TextField.gif"
+							},
+							{
+								text:"TextArea",
+								icon: "./images/TextArea.gif"
+							},
+							{
+								text:"Radio",
+								icon: "./images/Radio.gif"
+							},
+							{
+								text:"RadioGroup",
+								icon: "./images/RadioGroup.gif"
+							},
+							{
+								text:"CheckBox",
+								icon: "./images/CheckBox.gif"
+							},
+							{
+								text:"ListBox",
+								icon: "./images/ListBox.gif"
+							},
+							{
+								text:"ComboBox",
+								icon: "./images/ComboBox.gif"
+							},
+							{
+								text:"ProgressBar",
+								icon: "./images/ProgressBar.gif"
+							},
+							{
+								text:"TreeView",
+								icon: "./images/TreeView.gif"
+							},
+							{
+								text:"Calendar",
+								icon: "./images/Blank.gif"
+							},
+							{
+								text:"Grid",
+								icon: "./images/Grid.gif"
+							}
+						]
+					},	
+					{
+						text:"Container",
+						children	:[
+							{
+								text:"Panel",
+								icon: "./images/Panel.gif"
+							},
+							{
+								text:"Groupbox",
+								icon: "./images/GroupBox.gif"
+							},
+							{
+								text:"TabControl",
+								icon: "./images/TabControl.gif"
+							}
+						]
+					},
+					{
+						text:"Menu&Toolbar",
+						children	:[
+							{
+								text:"MenuBar",
+								icon: "./images/MenuBar.gif"
+							},
+							{
+								text:"MenuBox",
+								icon: "./images/blank.gif"
+							},
+							{
+								text:"ToolBar",
+								icon: "./images/blank.gif"
+							}
+						]
+					}	
+			    ],
+
+		_frmMain	: null,
+		_container  : null,
+		_ctrlTree	: null,
+		_ctrlMenu	: null,
+
+		_initialize : function() {
+		},
+
+		_buildCtrlNaviMenuBar	: function(form) {
+			var menubar = new W.MenuBar(form);
+			var menu = new W.Menu();
+			menu.loadFromArray(this._controlsArray)
+			menubar.setBounds(0,0,200,25);	
+			menubar.setMenu(menu);
+			return  menubar;
+		},
+
+		_garbageCollect			: function() {
+			GarbageCollect();
+		},
+
+		_buildControlSample		: function(name) {
+			switch (name) {
+				case "Panel" :
+					this._buildSplitterSample();
+					break;
+				case "TreeView" :
+					this._buildTreeSample();
+					break;
+				case "Button" :
+				case "Label" :
+				case "TextField" :
+				case "TextArea" :
+				case "Radio" :
+				case "CheckBox" :
+				case "ProgressBar":
+					this._buildStandardControlSample();
+					break;
+				case "MenuBar":
+					this._buildMenuSample();
+					break;
+				case "TabControl":
+					this._buildTabCtlSample();
+					break;
+				case "ListBox":
+				case "ComboBox":
+					this._buildListBoxSample();
+					break;
+				case "Calendar":
+					this._buildCalendarSample();
+					break;
+				case "Grid":
+					this._buildGridSample();
+					break;
+				case "Groupbox":
+					this._buildGroupBoxSample();
+					break;
+
+				default : 
+//					System.asyncExecMethod(this,this._garbageCollect,[],0)
+					
+					break;
+
+	
+			}
+		},
+
+		_NaviTreeViewDblClick 	: function(evt) {
+			var tree = evt.getSender();
+			var node = tree.getSelected();
+			if (node) {
+				this._buildControlSample(node.getText());
+			}
+			
+			
+		},
+
+
+		_buildCtrlNaviTreeView	:function (form) {
+			var tv  = new W.TreeView(form);
+			var nodes = tv.getNodes();
+			tv.setBounds(0,0,200,300);	
+			nodes.loadFromArray(this._controlsArray);
+			tv.addEventListener("DblClick",this._NaviTreeViewDblClick,this);
+			return tv;
+			
+			
+		},
+
+		_clearControlSample		: function() {
+			var children = this._container.getChildren();
+			for (var i = 0; i<children.length;i++) {
+				children[i].setParent(null);
+			}
+		},
+
+		_buildGridSample		: function() {
+			this._clearControlSample();
+
+			this._controlLabel.setText("Grid");
+
+		    var mTime = new Date();
+
+			var grid2 = new W.CustomGrid("grid2");
+
+			grid2.setBounds(30,30,530,230);
+			grid2.setParent(this._container);
+
+			grid2.setColName(["No","HidSerial","serial","usercode","fullname","qty","ctr","del"]);
+		    grid2.setColTitle(["No.","HidSerial","Serial","img:[./images/leaf.gif]UserCode","FULL名前","数量","管理",""]);
+		    grid2.setColType([0,4,4,4,4,3,2,1]);
+		    grid2.setColNumType([0,0,0,0,0,2,0,2]);
+		    grid2.setColWidth([20,10,100,100,100,50,100,15])
+		    grid2.setColAlign([0,0,2,0,0,0,0,0])
+		    grid2.setColView([1,0,1,1,1,1,1,1]);
+		    grid2.setColReadType([0,0,0,0,0,0,0,0]);
+		    grid2.setColSortType([0,0,1,1,1,1,0,0]);
+		    grid2.setColControl([,,,,,,"<input type=button value='削除' onclick=''>",])
+
+		    grid2.intRows=7;
+
+		    grid2.ifSelectRow = true;	
+		    grid2.ifColResize = true;
+		    grid2.ifSelMultiRows = true;
+		    grid2.init();
+		    grid2.selectRow(0);
+
+		    var m = [];
+		    var n = 0;
+		    for(var i=0;i<grid2.intRows;i++){
+		        var d = [null,i+1,"Serial"+(i+1),"UserCode"+(i+1),"名称"+(i+1),1,"",1]
+		        m.push(d);
+		    }
+		    for(var i=0;i<grid2.intRows;i++){
+		        grid2.loadRow(m[i],i);
+		    }
+			window.grid2  = grid2;
+		},
+
+		_buildGroupBoxSample			: function() {
+			this._clearControlSample();
+
+			this._controlLabel.setText("GroupBox");
+
+
+			groupbox = new W.GroupBox();
+			groupbox.setParent(this._container);
+			groupbox.setBounds(30,30,200,120);
+			groupbox.setTitle("Setting:");
+
+			cs = groupbox.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+			var chkBox1 = new W.CheckBox();
+			chkBox1.setParent(groupbox);
+			chkBox1.setText("ツールバーを表示しない");
+			chkBox1.setBounds(10, 10, 180, 23);
+			cs = chkBox1.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+			var btn1 = new W.Button();
+			btn1.setParent(groupbox);
+			btn1.setBounds(10, 43, 50, 25);
+			btn1.setText("OK");
+			cs = btn1.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+		},
+
+
+		_buildCalendarSample			: function() {
+			this._clearControlSample();
+
+			this._controlLabel.setText("Calendar");
+
+
+			var calendar = new W.Calendar();
+			calendar.setParent(this._container);
+			calendar.setBounds(100,100,250,200);
+
+			cs = calendar.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+		},
+
+		_buildListBoxSample			: function() {
+			this._clearControlSample();
+
+			this._controlLabel.setText("ListBox/ComboBox");
+
+
+			var label0 = new W.Label(this._frmMain);
+			label0.setBounds(20,20,100,30);
+			label0.setText("開発言語:");
+			label0.setParent(this._container);
+
+
+
+			var listbox = new W.ListBox();
+			listbox.setBounds(30,40, 100, 200);
+			listbox.setParent(this._container);
+			listbox.setMultiSelect(true);
+
+			var languages = [
+								{cd:"01",name:"ASSEMBLER"},
+								{cd:"02",name:"FORTRAN"},
+								{cd:"03",name:"ALGOL58"},
+								{cd:"04",name:"COBOL"},
+								{cd:"05",name:"LISP"},
+								{cd:"06",name:"BASIC"},
+								{cd:"07",name:"PL/I"},
+								{cd:"08",name:"BCPL"},
+								{cd:"09",name:"SIMULA"},
+								{cd:"10",name:"PASCAL"},
+								{cd:"11",name:"B"},
+								{cd:"12",name:"C"},
+								{cd:"13",name:"SMALLTALK"},
+								{cd:"14",name:"AWK"},
+
+								{cd:"15",name:"ADA"},
+								{cd:"16",name:"C++"},
+								{cd:"17",name:"POSTSCRIPT"},
+								{cd:"18",name:"PERL"},
+								{cd:"19",name:"PYTHON"},
+								{cd:"20",name:"VISUALBASIC"},
+
+								{cd:"21",name:"RUBY"},
+								{cd:"22",name:"DELPHI"},
+								{cd:"23",name:"JAVA"},
+								{cd:"24",name:"PHP"},
+								{cd:"25",name:"C#"}
+							];
+			listbox.bindDatasource(languages,"name","cd");
+
+			var label1 = new W.Label(this._frmMain);
+			label1.setBounds(20,270,100,30);
+			label1.setText("MuliSelect:");
+			label1.setParent(this._container);
+
+			var tCombo = new W.ComboBox();
+			tCombo.setBounds(130, 270, 100, 20);
+			tCombo.setParent(this._container);
+
+			var items = tCombo.getItems();
+			items.add("True");
+			items.add("False");
+
+			tCombo.setText("True");
+		},
+
+
+		_buildTabCtlSample			: function() {
+			this._clearControlSample();
+
+			this._controlLabel.setText("TabControl");
+
+			var tabctl = new W.TabControl(this._frmMain);
+
+
+			var tabsheet1 = new W.TabPage();
+			tabsheet1.setText("表示形式");
+
+			var checkBox2 = new W.CheckBox();
+			checkBox2.setParent(tabsheet1);
+			checkBox2.setBounds(30, 30, 100, 25);
+			checkBox2.setText("PST");
+			cs = checkBox2.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+			tabsheet1.setParent(tabctl);
+
+			var tabsheet2 = new W.TabPage();
+			tabsheet2.setText("配置");
+
+			var button2 = new W.Button();
+			button2.setBounds(10, 10, 80, 40);
+			button2.setText("button2");
+			button2.setParent(tabsheet2);
+			cs = button2.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+			tabsheet2.setParent(tabctl);
+
+			var tabsheet3 = new W.TabPage();
+			tabsheet3.setText("フォント");
+
+			var button3 = new W.Button();
+			button3.setBounds(10, 10, 80, 40);
+			button3.setText("button3");
+			button3.setParent(tabsheet3);
+			cs = button3.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+			tabsheet3.setParent(tabctl);
+
+			var tabsheet4 = new W.TabPage();
+			tabsheet4.setText("パターン");
+
+			var button4 = new W.Button();
+			button4.setBounds(10, 10, 80, 40);
+			button4.setText("button4");
+			button4.setParent(tabsheet4);
+			cs = button4.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+			tabsheet4.setParent(tabctl);
+
+			var tabsheet5 = new W.TabPage();
+			tabsheet5.setText("保護");
+
+			var button5 = new W.Button();
+			button5.setBounds(10, 10, 80, 40);
+			button5.setText("button5");
+			button5.setParent(tabsheet5);
+			cs = button5.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+			tabsheet5.setParent(tabctl);
+
+			tabctl.setParent(this._container);
+
+			tabctl.setBounds(20,20,400,200);
+
+			function radioClick(evt) {
+				var radio = evt.getSender();
+				if (radio1 != radio) {
+					radio1.setChecked(false);
+					tabctl.setTabPlacement(W.TabPlacement.bottom);
+				}
+				if (radio2 != radio) {
+					radio2.setChecked(false);
+					tabctl.setTabPlacement(W.TabPlacement.top);
+				}
+				
+			};
+
+			var label1 = new W.Label(this._frmMain);
+			label1.setBounds(20,300,100,30);
+			label1.setText("Tabplacement:");
+			label1.setParent(this._container);
+
+			var radio1 = new W.Radio(this._frmMain);
+			radio1.getBackground().setColor("blue");
+			radio1.setBounds(130,300,80,30);
+			radio1.setText("top");
+			radio1.setParent(this._container);
+			radio1.addEventListener("Click",radioClick,null);
+			
+			radio1.setChecked(true);
+
+			var radio2 = new W.Radio(this._frmMain);
+			radio2.setBounds(220,300,80,30);
+			radio2.getBackground().setColor("blue");
+			radio2.setText("bottom");
+			radio2.setParent(this._container);
+			radio2.addEventListener("Click",radioClick,null);
+
+		},
+
+		_buildMenuSample			: function() {
+			var _mainmenu  = 
+			    [
+					{
+						text:"File",
+						children	:[
+							{
+								text:"New",
+								icon: "./images/new.gif"
+							},
+							{
+								text:"Open",
+								icon: "./images/open.gif"
+							},
+							{
+								text:"Close",
+								icon: "./images/close.gif"
+							},
+							{
+								text:"CloseAll"
+							},
+							{
+								text:"Save",
+								icon: "./images/save.gif"
+							},
+							{
+								text:"SaveAs"
+							},
+							{
+								text:"Exit"
+							}
+						]
+					},	
+					{
+						text:"Edit",
+						children	:[
+							{
+								text:"Undo",
+								icon: "./images/undo.gif"
+							},
+							{
+								text:"Redo",
+								icon: "./images/redo.gif"
+							},
+							{
+								text:"Cut",
+								icon: "./images/cut.gif"
+							},
+							{
+								text:"Copy",
+								icon: "./images/copy.gif"
+							},
+							{
+								text:"Paste",
+								icon: "./images/paste.gif"
+							},
+							{
+								text:"Delete",
+								icon: "./images/delete.gif"
+							}
+						]
+					},
+					{
+						text:"View"
+					},	
+					{
+						text:"Help"
+					}	
+			    ];
+			this._clearControlSample();
+
+			this._controlLabel.setText("Menu");
+
+			var menu = new W.Menu();
+			menu.loadFromArray(_mainmenu)
+
+			var menubar = new W.MenuBar(this._frmMain);
+			menubar.setParent(this._container);
+			menubar.setDock(W.Dock.top);
+			menubar.setMenu(menu);
+		},
+
+		_buildStandardControlSample	: function() {
+			function radioClick(evt) {
+				var radio = evt.getSender();
+				if (radio1 != radio) {
+					radio1.setChecked(false);
+				}
+				if (radio2 != radio) {
+					radio2.setChecked(false);
+				}
+				if (radio3 != radio) {
+					radio3.setChecked(false);
+				}
+				if (radio4 != radio) {
+					radio4.setChecked(false);
+				}
+			};
+
+			this._clearControlSample();
+
+			this._controlLabel.setText("Label/Radio/Check/Button/TextField/TextArea/ProgessBar");
+
+			var label1 = new W.Label(this._frmMain);
+			label1.setBounds(10,10,40,30);
+			label1.setText("東京");
+			label1.setParent(this._container);
+
+			var label2 = new W.Label(this._frmMain);
+			label2.setBounds(70,10,40,30);
+			label2.getBackground().setColor("blue");
+			label2.setText("大阪");
+			label2.setParent(this._container);
+
+			var label3 = new W.Label(this._frmMain);
+			label3.setBounds(120,10,100,80);
+			label3.getBackground().setColor("yellow");
+			label3.getFont().setColor("green");
+			label3.getFont().setBold(true);
+			label3.getFont().setItalic(true);
+			label3.getFont().setSize(24);
+			label3.setText("名古屋");
+			label3.setParent(this._container);
+
+
+			var checkbox1 = new W.CheckBox(this._frmMain);
+			checkbox1.setBounds(10,120,80,30);
+			checkbox1.setText("東京");
+			checkbox1.getBorders().setStyles("groove");
+			checkbox1.getBorders().setWidths("2 3");
+			checkbox1.getBorders().setColors("blue green yellow");
+			checkbox1.setParent(this._container);
+
+			var checkbox2 = new W.CheckBox(this._frmMain);
+			checkbox2.setBounds(100,120,80,30);
+			checkbox2.getBackground().setColor("blue");
+			checkbox2.setText("大阪");
+			checkbox2.setParent(this._container);
+
+			var checkbox3 = new W.CheckBox(this._frmMain);
+			checkbox3.setBounds(200,120,100,30);
+			checkbox3.getBackground().setColor("yellow");
+			checkbox3.getFont().setColor("green");
+			checkbox3.getFont().setBold(true);
+			checkbox3.getFont().setItalic(true);
+			checkbox3.getFont().setSize(24);
+			checkbox3.setText("名古屋");
+			checkbox3.setParent(this._container);
+
+
+			var checkbox4 = new W.CheckBox(this._frmMain);
+			checkbox4.setBounds(350,120,100,30);
+			checkbox4.getBackground().setColor("red");
+			checkbox4.getFont().setColor("green");
+			checkbox4.getFont().setBold(true);
+			checkbox4.getFont().setItalic(true);
+			checkbox4.getFont().setSize(24);
+			checkbox4.setText("札幌");
+			checkbox4.setParent(this._container);
+
+
+			var radio1 = new W.Radio(this._frmMain);
+			radio1.setBounds(10,180,80,30);
+			radio1.setText("東京");
+			radio1.getBorders().setStyles("groove");
+			radio1.getBorders().setWidths("2 3");
+			radio1.getBorders().setColors("blue green yellow");
+			radio1.setParent(this._container);
+			radio1.addEventListener("Click",radioClick,null);
+
+			var radio2 = new W.Radio(this._frmMain);
+			radio2.setBounds(100,180,80,30);
+			radio2.getBackground().setColor("blue");
+			radio2.setText("大阪");
+			radio2.setParent(this._container);
+			radio2.addEventListener("Click",radioClick,null);
+
+			var radio3 = new W.Radio(this._frmMain);
+			radio3.setBounds(200,180,100,30);
+			radio3.getBackground().setColor("yellow");
+			radio3.getFont().setColor("green");
+			radio3.getFont().setBold(true);
+			radio3.getFont().setItalic(true);
+			radio3.getFont().setSize(24);
+			radio3.setText("名古屋");
+			radio3.setParent(this._container);
+			radio3.addEventListener("Click",radioClick,null);
+
+
+			var radio4 = new W.Radio(this._frmMain);
+			radio4.setBounds(350,180,100,30);
+			radio4.getBackground().setColor("red");
+			radio4.getFont().setColor("green");
+			radio4.getFont().setBold(true);
+			radio4.getFont().setItalic(true);
+			radio4.getFont().setSize(24);
+			radio4.setText("札幌");
+			radio4.setParent(this._container);
+			radio4.addEventListener("Click",radioClick,null);
+
+
+			var button1 = new W.Button(this._frmMain);
+			button1.setBounds(10,240,80,30);
+			button1.setText("確定");
+			button1.setParent(this._container);
+
+			var button2 = new W.Button(this._frmMain);
+			button2.setBounds(100,240,120,30);
+			button2.setText("キャンセル");
+			button2.setParent(this._container);
+
+			var textlabel = new W.Label();
+			textlabel.setBounds(30,300,30,26);
+			textlabel.setParent(this._container);
+			textlabel.setText("名前：");
+
+			var textinput = new W.Text();
+			textinput.setBounds(70,300,200,26);
+			textinput.setParent(this._container);
+			textinput.setValue("李　文峰")
+
+			var textlabel2 = new W.Label();
+			textlabel2.setBounds(30,340,30,26);
+			textlabel2.setParent(this._container);
+			textlabel2.setText("メモ：");
+
+
+			var textarea = new W.TextArea();
+			textarea.setBounds(70,340,200,100);
+			textarea.setParent(this._container);
+
+
+			var progressBar = new W.ProgressBar();
+			progressBar.setParent(this._container);
+			progressBar.setBounds(30,450,300,20);
+			progressBar.setPosition(60);
+			progressBar.getBorders().setStyles("groove");
+			progressBar.getBorders().setWidths("1");
+			progressBar.getBorders().setColors("blue");
+
+
+		},
+
+
+		_buildSplitterSample	: function() {
+			this._clearControlSample();
+
+			this._controlLabel.setText("Splitter Sample");
+
+			var panel1 = new W.Panel(this._frmMain);
+			panel1.getBackground().setColor("yellow");
+			panel1.setHeight(30);
+			panel1.setDock(W.Dock.top);
+			panel1.setParent(this._container);
+			
+			var splitter1 = new W.Splitter(this._frmMain);
+			splitter1.setDock(W.Dock.top);
+			splitter1.setParent(this._container);
+
+			var panel2 = new W.Panel(this._frmMain);
+			panel2.getBackground().setColor("yellow");
+			panel2.setDock(W.Dock.client);
+			panel2.setParent(this._container);
+			
+			
+			var panel11 = new W.Panel(this._frmMain);
+			panel11.getBackground().setColor("yellow");
+			panel11.setWidth(30);
+			panel11.setDock(W.Dock.left);
+			panel11.setParent(panel1);
+			
+			var splitter2 = new W.Splitter(this._frmMain);
+			splitter2.setDock(W.Dock.left);
+			splitter2.setParent(panel1);
+			splitter2.getBackground().setColor("green");
+			
+
+			var panel12 = new W.Panel(this._frmMain);
+			panel12.getBackground().setColor("yellow");
+			panel12.setDock(W.Dock.client);
+			panel12.setParent(panel1);
+
+			
+		},
+
+		_buildTreeSample		: function() {
+			var nodesArray  =  
+			    [
+					{
+						text:"Desktop",
+						icon : "./images/desktop.gif",
+						children	:[
+							{
+								text:"My Documents",
+								icon: "./images/documents.gif"
+							},
+							{
+								text:"My Computer",
+								icon: "./images/computer.gif",
+								children : [
+										{
+											text:"Disk C:"
+										},
+										{
+											text:"Disk D:"
+										},
+										{
+											text:"Disk E:"
+										}
+								]
+							},
+							{
+								text:"Internet",
+								icon: "./images/internet.gif"
+							},
+							{
+								text:"Recycle",
+								icon: "./images/recycle.gif"
+							}
+						]
+					}
+				];
+
+			
+			
+			function  btnExpandAllClick(evt) {
+				treeSample.fullExpand();
+				
+			};
+
+			
+			function  btnCollapseAllClick(evt) {
+				treeSample.fullCollapse();
+				
+			};
+
+			function  checkClick(evt) {
+				var node = treeSample.getSelected();
+				if (node) {
+					node.setCheckable(checkbox.getChecked());
+				}
+				
+			};
+
+			function treeSelectedChanged(evt) {
+				var node = treeSample.getSelected();
+				if (node) {
+					checkbox.setChecked(node.getCheckable());
+				} else {
+					checkbox.setChecked(false);
+				}
+			}
+
+			this._clearControlSample();
+
+			this._controlLabel.setText("TreeView Sample");
+
+			var btn1 = new W.Button(this._frmMain);
+			btn1.setText("ExpandAll");
+			btn1.addEventListener("Click",btnExpandAllClick,null);
+			btn1.setBounds(40,10,80,30);
+			btn1.setParent(this._container);
+	
+			var btn2 = new W.Button(this._frmMain);
+			btn2.setText("CollapseAll");
+			btn2.addEventListener("Click",btnCollapseAllClick,null);
+			btn2.setBounds(150,10,80,30);
+			btn2.setParent(this._container);
+
+
+			var checkbox = new W.CheckBox(this._frmMain);
+			checkbox.setText("WithCheckBox");
+			checkbox.addEventListener("Click",checkClick,null);
+			checkbox.setBounds(250,10,200,30);
+			checkbox.setParent(this._container);
+
+			var treeSample = new W.TreeView(this._frmMain) ;
+			treeSample.getNodes().loadFromArray(nodesArray);
+			treeSample.setBounds(40,100,300,200);
+			treeSample.setParent(this._container);
+
+			treeSample.addEventListener("Changed",treeSelectedChanged,null);
+			
+		},
+
+				
+
+		run		:	function() {
+			W.Desktop.start();
+
+			var form = new W.Form();
+//			this._frmMain = form;
+			
+			var dw = desk.getWidth();
+			var dh = desk.getHeight();	
+			form.setBounds((dw-800)/2,1,800,600);
+			form.setParent(desk);
+			form.setVisible(true);
+			form.setIcon("./images/desktop.gif");
+			form.setText("SW2 Client Application Framework Sample");
+
+			var mb = this._buildCtrlNaviMenuBar(form);
+			mb.setDock(W.Dock.top);
+			mb.setParent(form);
+			this._ctrlMenu = mb;
+
+			var tv = this._buildCtrlNaviTreeView(form);
+			tv.setDock(W.Dock.left);
+			tv.setParent(form);
+
+			this._ctrlTree = tv;
+
+			var splitter = new W.Splitter(form);
+			splitter.setDock(W.Dock.left);
+			splitter.setParent(form);
+
+			var panel = new W.Panel(form);
+//			panel._el.style.overflow = "hidden";
+			panel.setDock(W.Dock.client);
+			panel.setParent(form);
+
+			var bss = new W.BorderStyles("ridge none none none");
+
+			var bws = new W.BorderWidths("3 0 0 0");
+
+			panel.getBorders().setWidths(bws);
+			panel.getBorders().setStyles(bss);
+
+
+			var label = new W.Label(form);
+			label.setText("Control Sample");
+			label.setDock(W.Dock.top);
+			label.setParent(panel);
+
+			var panel2 = new W.Panel(form);
+			panel2.setDock(W.Dock.client);
+			panel2.setParent(panel);
+//			panel2._el.style.overflow = "hidden";
+
+
+			this._controlLabel = label;
+			this._container = panel2;
+
+			form.setVisible(true);
+			
+//			this._buildSplitterSample();
+//			this._buildTreeSample();
+
+			tv.fullExpand();
+			this._buildStandardControlSample();
+		}
+
+
+	}
+});
+	
+
+var myapp = null;
+
+function afterload(){
+	myapp = new my.Sw2Demo();
+	myapp.run();
+}
+
+</SCRIPT>
+
+
+</head>
+<BODY onload='afterload();'>
+</BODY>
+</html>
+
+
+

@@ -1,0 +1,403 @@
+{
+	"name"	: "qfacedemo",
+	"title"	: "Qface Platform Demo System",
+	"theme" : "soria",
+	"scenes" : {
+		"icons"	: {
+			"type"  : "qface/scene/impl/icons/Scene",
+			"theme" : "soria",
+			"wallpaper": {
+				"image": "./wallpaper1.png",
+				"color": "#696969",
+				"style": "centered",
+				"storedList": []
+			},
+			"panels": [
+		                {
+		                        "thickness": 24,
+		                        "span": 1,
+		                        "locked": true,
+		                        "orientation": "horizontal",
+		                        "placement": "BC",
+		                        "opacity": 0.95,
+		                        "applets": [
+		                                {"settings": {}, "pos": 0.00, "declaredClass": "qface/scene/impl/icons/Taskbar"}
+		                        ]
+		                }
+			],
+			"apps"  : [
+				{
+					"sysname":"pst.sample.tool.Calculator.App",
+					"name":"Calculator",
+					"category":"Accessories",
+					"icon":"icon-32-apps-accessories-calculator",
+					"version":"1.0"
+				},
+				{
+					"sysname":"pst.sample.game.Checkers.App",
+					"name":"Checkers",
+					"category":"Games",
+					"icon":"icon-32-apps-preferences-desktop-sound",
+					"version":"1.0"
+				},
+				{
+					"sysname":"pst.sample.game.MineSweep.App",
+					"name":"MineSweep",
+					"category":"Games",
+					"icon":"icon-32-apps-preferences-desktop-screensaver",
+					"version":"1.0"
+				},
+				{
+					"sysname":"pst.sample.system.TaskManager.App",
+					"name":"TaskManager",
+					"category":"System",
+					"icon":"icon-32-apps-utilities-system-monitor",
+					"version":"1.0"
+				},
+				{
+					"sysname":"pst.sample.tool.WebBrowser.App",
+					"name":"WebBrowser",
+					"category":"Internet",
+					"icon":"icon-32-apps-internet-web-browser",
+					"version":"1.0"
+				},
+				{
+					"sysname":"pst.sample.effect.3DVideo.App",
+					"name":"3DPlayer",
+					"category":"Multimedia",
+					"icon":"icon-32-apps-internet-web-browser",
+					"version":"1.0"
+				},
+				{
+					"sysname":"pst.sample.office.WordProcessor.App",
+					"name":"WordProcessor",
+					"category":"Office",
+					"icon":"icon-32-mimetypes-x-office-document",
+					"version":"1.0"
+				},
+				{
+					"sysname":"pst.sample.mobile.JamlAppDemo.App",
+					"name":"JAML Mobile App",
+					"category":"mobile",
+					"icon":"icon-32-apps-preferences-desktop-theme",
+					"version":"1.0"
+				}
+			]
+		},
+		"explore_multitab" : {
+			"type"  : "qface/scene/impl/explorer/MultiTabScene",
+			"theme" : "soria",
+			"wallpaper": {
+				"image": "./wallpaper2.jpg",
+				"color": "#696969",
+				"style": "centered",
+				"storedList": []
+			},
+			"apps"  : {
+				"identifier": "id",
+				"label": "label",
+				"items":	[					
+					{ "type": "folder", "id":"003","sysname": "Accessories",  "label":"Accessories","name":"Accessories", "icon":"category", "folders":[
+								{
+									"id"       : "004",
+									"sysname":"pst.sample.tool.Calculator.App",
+									"label":"Calculator",
+									"name":"Calculator",
+									"category":"Accessories",
+									"icon":"icon-32-apps-accessories-calculator",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"005","sysname": "Games", "label":"Games","name":"Games", "icon":"category", "folders":[
+								{
+									"id"       : "006",
+									"sysname":"pst.sample.game.MineSweep.App",
+									"label":"MineSweep",
+									"name":"MineSweep",
+									"category":"Games",
+									"icon":"icon-32-apps-preferences-desktop-screensaver",
+									"version":"1.0"
+								},
+								{
+									"id"       : "007",
+									"sysname":"pst.sample.game.Checkers.App",
+									"label":"Checkers",
+									"name":"Checkers",
+									"category":"Games",
+									"icon":"icon-32-apps-preferences-desktop-sound",
+									"version":"1.0"
+								}
+					]},
+
+
+					{ "type": "folder", "id":"008","sysname": "Internet",  "label":"Internet","name":"Internet", "icon":"category", "folders":[
+								{
+									"id"       : "009",
+									"sysname":"pst.sample.tool.WebBrowser.App",
+									"label":"WebBrowser",
+									"name":"WebBrowser",
+									"category":"Internet",
+									"icon":"icon-32-apps-internet-web-browser",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"011","sysname": "System", "label":"System","name":"System", "icon":"category", "folders":[
+								{
+									"id"       : "012",
+									"sysname":"pst.sample.system.TaskManager.App",
+									"label":"TaskManager",
+									"name":"TaskManager",
+									"category":"System",
+									"icon":"icon-32-apps-utilities-system-monitor",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"013","sysname": "Multimedia", "label":"Multimedia", "name":"Multimedia", "icon":"category", "folders":[
+								{
+									"id"       : "014",
+									"sysname":"pst.sample.effect.3DVideo.App",
+									"label":"3DPlayer",
+									"name":"3D3DPlayer",
+									"category":"Multimedia",
+									"icon":"icon-32-apps-internet-web-browser",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"015","sysname": "Office", "label":"Office", "name":"Office", "icon":"category", "folders":[
+								{
+									"id"       : "016",
+									"sysname":"pst.sample.office.WordProcessor.App",
+									"label":"WordProcessor",
+									"name":"WordProcessor",
+									"category":"Office",
+									"icon":"icon-32-mimetypes-x-office-document",
+									"version":"1.0"
+								}
+					]}
+				]
+			}		
+		},
+		
+		"explore_multiapp" : {
+			"type"  : "qface/scene/impl/explorer/MultiAppScene",
+			"theme" : "soria",
+			"wallpaper": {
+				"image": "./wallpaper2.jpg",
+				"color": "#696969",
+				"style": "centered",
+				"storedList": []
+			},
+			"apps"  : {
+				"identifier": "id",
+				"label": "label",
+				"items":	[					
+					{ "type": "folder", "id":"003","sysname": "Accessories",  "label":"Accessories","name":"Accessories", "icon":"category", "folders":[
+								{
+									"id"       : "004",
+									"sysname":"pst.sample.tool.Calculator.App",
+									"label":"Calculator",
+									"name":"Calculator",
+									"category":"Accessories",
+									"icon":"icon-32-apps-accessories-calculator",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"005","sysname": "Games", "label":"Games","name":"Games", "icon":"category", "folders":[
+								{
+									"id"       : "006",
+									"sysname":"pst.sample.game.MineSweep.App",
+									"label":"MineSweep",
+									"name":"MineSweep",
+									"category":"Games",
+									"icon":"icon-32-apps-preferences-desktop-screensaver",
+									"version":"1.0"
+								},
+								{
+									"id"       : "007",
+									"sysname":"pst.sample.game.Checkers.App",
+									"label":"Checkers",
+									"name":"Checkers",
+									"category":"Games",
+									"icon":"icon-32-apps-preferences-desktop-sound",
+									"version":"1.0"
+								}
+					]},
+
+
+					{ "type": "folder", "id":"008","sysname": "Internet",  "label":"Internet","name":"Internet", "icon":"category", "folders":[
+								{
+									"id"       : "009",
+									"sysname":"pst.sample.tool.WebBrowser.App",
+									"label":"WebBrowser",
+									"name":"WebBrowser",
+									"category":"Internet",
+									"icon":"icon-32-apps-internet-web-browser",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"011","sysname": "System", "label":"System","name":"System", "icon":"category", "folders":[
+								{
+									"id"       : "012",
+									"sysname":"pst.sample.system.TaskManager.App",
+									"label":"TaskManager",
+									"name":"TaskManager",
+									"category":"System",
+									"icon":"icon-32-apps-utilities-system-monitor",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"013","sysname": "Multimedia", "label":"Multimedia", "name":"Multimedia", "icon":"category", "folders":[
+								{
+									"id"       : "014",
+									"sysname":"pst.sample.effect.3DVideo.App",
+									"label":"3DPlayer",
+									"name":"3D3DPlayer",
+									"category":"Multimedia",
+									"icon":"icon-32-apps-internet-web-browser",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"015","sysname": "Office", "label":"Office", "name":"Office", "icon":"category", "folders":[
+								{
+									"id"       : "016",
+									"sysname":"pst.sample.office.WordProcessor.App",
+									"label":"WordProcessor",
+									"name":"WordProcessor",
+									"category":"Office",
+									"icon":"icon-32-mimetypes-x-office-document",
+									"version":"1.0"
+								}
+					]}
+				]
+			}		
+		},
+		
+		"explore_singleApp" : {
+			"type"  : "qface/scene/impl/explorer/SingleAppScene",
+			"theme" : "soria",
+			"wallpaper": {
+				"image": "./wallpaper2.jpg",
+				"color": "#696969",
+				"style": "centered",
+				"storedList": []
+			},
+			"apps"  : {
+				"identifier": "id",
+				"label": "label",
+				"items":	[					
+					{ "type": "folder", "id":"003","sysname": "Accessories",  "label":"Accessories","name":"Accessories", "icon":"category", "folders":[
+								{
+									"id"       : "004",
+									"sysname":"pst.sample.tool.Calculator.App",
+									"label":"Calculator",
+									"name":"Calculator",
+									"category":"Accessories",
+									"icon":"icon-32-apps-accessories-calculator",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"005","sysname": "Games", "label":"Games","name":"Games", "icon":"category", "folders":[
+								{
+									"id"       : "006",
+									"sysname":"pst.sample.game.MineSweep.App",
+									"label":"MineSweep",
+									"name":"MineSweep",
+									"category":"Games",
+									"icon":"icon-32-apps-preferences-desktop-screensaver",
+									"version":"1.0"
+								},
+								{
+									"id"       : "007",
+									"sysname":"pst.sample.game.Checkers.App",
+									"label":"Checkers",
+									"name":"Checkers",
+									"category":"Games",
+									"icon":"icon-32-apps-preferences-desktop-sound",
+									"version":"1.0"
+								}
+					]},
+
+
+					{ "type": "folder", "id":"008","sysname": "Internet",  "label":"Internet","name":"Internet", "icon":"category", "folders":[
+								{
+									"id"       : "009",
+									"sysname":"pst.sample.tool.WebBrowser.App",
+									"label":"WebBrowser",
+									"name":"WebBrowser",
+									"category":"Internet",
+									"icon":"icon-32-apps-internet-web-browser",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"011","sysname": "System", "label":"System","name":"System", "icon":"category", "folders":[
+								{
+									"id"       : "012",
+									"sysname":"pst.sample.system.TaskManager.App",
+									"label":"TaskManager",
+									"name":"TaskManager",
+									"category":"System",
+									"icon":"icon-32-apps-utilities-system-monitor",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"013","sysname": "Multimedia", "label":"Multimedia", "name":"Multimedia", "icon":"category", "folders":[
+								{
+									"id"       : "014",
+									"sysname":"pst.sample.effect.3DVideo.App",
+									"label":"3DPlayer",
+									"name":"3D3DPlayer",
+									"category":"Multimedia",
+									"icon":"icon-32-apps-internet-web-browser",
+									"version":"1.0"
+								}
+					]},
+
+					{ "type": "folder", "id":"015","sysname": "Office", "label":"Office", "name":"Office", "icon":"category", "folders":[
+								{
+									"id"       : "016",
+									"sysname":"pst.sample.office.WordProcessor.App",
+									"label":"WordProcessor",
+									"name":"WordProcessor",
+									"category":"Office",
+									"icon":"icon-32-mimetypes-x-office-document",
+									"version":"1.0"
+								}
+					]}
+				]
+			}		
+		},
+		
+		"singleap" : {
+			"type"  : "qface/scene/impl/singleap/Scene",
+			"theme" : "soria",
+			"wallpaper": {
+				"image": "./wallpaper2.jpg",
+				"color": "#696969",
+				"style": "centered",
+				"storedList": []
+			},
+			"app"  : {
+				"sysname":"pst.sample.effect.3DVideo.App",
+				"label":"3DPlayer",
+				"name":"3DPlayer",
+				"category":"Multimedia",
+				"icon":"icon-32-apps-internet-web-browser",
+				"args":{
+					"paused" :true
+				},
+				"version":"1.0"
+			}
+		}	
+	}
+}	

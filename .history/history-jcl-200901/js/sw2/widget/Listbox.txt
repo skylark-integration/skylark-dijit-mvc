@@ -1,0 +1,298 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+
+System.defineClass({
+	name		: "sw2.widget.ListBox",
+	superc		: sw2.widget.ListControl,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"ListBox");
+		},
+		_defineProperties	: function(propInfo) {
+			W.ListControl._defineProperties(propInfo);
+            propInfo.put("multiSelect", Boolean);
+		}
+	},
+	instances	: {
+		_liFocused	: null,
+		_liBlank	: null,
+		_liItems	: null,
+		_elUl		: null,
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"ListBox");
+
+			this._elUl = UIList.create(el);
+			this._liBlank =  UIListItem.create(this._elUl);
+			this._liItems = new Array();
+			return el;
+		},
+
+		_getClientElement	: function() {
+			return this._elUl;
+		},
+
+		_doFocus		: function() {
+			this._focusItem();
+			System.execMethod(this,"_doFocus",[],W.Control);
+		},
+
+		_doBlur			: function() {
+			this._blurItem();
+			System.execMethod(this,"_doBlur",[],W.Control);
+		},
+
+		_doMouseDown	: function(btn,x,y){
+			if (!this._liBlank) {
+				var idx = this._liItems.indexOf(mouse._mouseinEl);
+				if (idx>-1) {
+					var bSelected = this.getSelected(idx);
+					if (this.getMultiSelect()) {
+					this.setSelected(idx,!bSelected);
+					} else {
+						if (!bSelected) {
+							this.setSelected(idx,true);
+						}
+					}
+					this._setCurIndex(idx);
+				}
+			}
+			
+			System.execMethod(this,"_doMouseDown",[btn,x,y],W.Control);
+		},
+
+		_doMouseMove	: function(btn,x,y){
+			if (!this._liBlank && this.getMouseMoveSelect() && !this.getMultiSelect()) {
+				var idx = this._liItems.indexOf(mouse._mouseinEl);
+				if (idx>-1) {
+					var bSelected = this.getSelected(idx);
+					if (!bSelected) {
+						this.setSelected(idx,true);
+					}
+					this._setCurIndex(idx);
+				}
+			}
+			
+			System.execMethod(this,"_doMouseMove",[btn,x,y],W.Control);
+		},
+		
+		_doKeyDown		: function(keyCode) {
+			if (!this._liBlank) {
+				var bMuliSelect = this.getMultiSelect();
+		    	switch (keyCode) {	        
+					case KEY.UP:         
+						this._setCurIndex(this._getCurIndex()-1);
+						if (!bMuliSelect) {
+							this.setSelected(this._getCurIndex(),true);
+						}
+						break;
+		            
+		            case KEY.DOWN:
+						this._setCurIndex(this._getCurIndex()+1);
+						if (!bMuliSelect) {
+							this.setSelected(this._getCurIndex(),true);
+						}
+		               break;
+		            
+		            case KEY.RETURN:
+		                break;
+		            
+		            case KEY.SPACE:
+						if (bMuliSelect) {
+							this.setSelected(this._getCurIndex(),!this.getSelected(this._getCurIndex()));
+						} else {
+							this.setSelected(this._getCurIndex(),true);
+						}
+						
+		                break;
+		            default:                        	                
+		    		    break;
+		        }
+			}
+			System.execMethod(this,"_doKeyDown",[keyCode],W.Control);
+		},
+
+		_focusItem		: function(item){
+			if (this._liFocused) {
+				if (!item || this._liFocused == item) {
+					return;
+				}
+				this._blurItem();
+			}
+			if (!item) {
+				if (this._liBlank) {
+					item = this._liBlank;
+				} else {
+					item = this._liItems[0];
+				}
+			}
+			UIElement.addCssClass(item,"Focus");
+			this._liFocused = item;
+		},
+
+		_blurItem		: function(){
+			if (this._liFocused) {
+				UIElement.removeCssClass(this._liFocused,"Focus");
+				this._liFocused = null;
+			}
+		},
+
+		_getCurIndex		: function() {
+			return this._liItems.indexOf(this._liFocused);
+		},
+
+		_setCurIndex		: function(nIdx) {
+			if (nIdx<0){
+				nIdx=0;
+			} else if (nIdx>this._liItems.length-1) {
+				nIdx = this._liItems.length-1;
+			}
+			this._focusItem(this._liItems[nIdx]);
+		},
+
+
+		getMultiSelect	: function() {
+			return UIElement.getAttribute(this._elUl,"_multiple") == "1";
+		},
+
+		setMultiSelect	: function(bMultiSel) {
+			UIElement.setAttribute(this._elUl,"_multiple", bMultiSel ? "1":"");
+		},
+
+		getSelectCount	: function() {
+			var nCount = 0;
+			for (var i=0;i<this._liItems.length;i++){
+				if (UIElement.getAttribute(this._liItems[i],"_selected")=="1") {
+					nCount++;
+				}
+			}
+			return nCount;
+		},
+
+		getSelectIndex	: function() {
+			var idx = -1;
+			if (!this.getMultiSelect()) {
+				for (var i = 0;i<this._liItems.length;i++) {
+					if (this.getSelected(i)) {
+						return i;
+					}
+				}
+			}
+			return idx;
+		},
+
+		setSelectIndex	: function(nIdx){
+			if (!this.getMultiSelect()) {
+				if (nIdx<-1 || nIdx>= this._liItems.length) {
+					throw Error("invalid parameter");
+				}
+				if (nIdx == -1) {
+					var nCurIdx = this.getSelectIndex();
+					if (nCurIdx != -1) {
+						this.setSelected(nCurIdx,false);
+					}
+				} else {
+					this.setSelected(nIdx,true);
+				}
+			}
+		},
+
+		getMouseMoveSelect	: function() {
+			return UIElement.getAttribute(this._elUl,"_moveSel") == "1";
+		},
+
+		setMouseMoveSelect	: function(bMoveSel) {
+			UIElement.setAttribute(this._elUl,"_moveSel", bMoveSel ? "1":"");
+		},
+
+		getSelected		: function(nIdx) {
+			if (nIdx<0 || nIdx>= this._liItems.length) {
+				throw Error("invalid parameter");
+			}
+			return UIElement.getAttribute(this._liItems[nIdx],"_selected")=="1";
+		},
+
+		setSelected		: function(nIdx,bSel) {
+			if (nIdx<0 || nIdx>= this._liItems.length) {
+				throw Error("invalid parameter");
+			}
+			var heLi = this._liItems[nIdx];
+			if (bSel == this.getSelected(nIdx)) {
+				return;
+			}
+
+			if (bSel && !this.getMultiSelect()) {
+				for (var i = 0;i<this._liItems.length;i++) {
+					this.setSelected(i,false);
+				}
+			}
+
+			if (bSel) {
+				UIElement.addCssClass(heLi,"selected");
+			} else {
+				UIElement.removeCssClass(heLi,"selected");
+			}
+
+			UIElement.setAttribute(this._liItems[nIdx],"_selected",bSel?"1":"");
+
+		},
+
+		_doClearItems	: function(){
+			for (var i= this._liItems.length-1;i>=0;i--){
+				this._doRemoveItem(i);
+			}
+		},
+
+		_doRefreshItems	: function(){
+			this._doClearItems();
+			var items = this.getItems();
+			for (var i =0;i<items.getCount();i++) {
+				var item = items.getItem(i);
+				this._doAddItem(item);
+			}
+		},
+
+		_doAddItem		: function(item){
+			var sText = this.getItemText(item);
+			var heLi = this._liBlank;
+			if (heLi) {
+				this._liBlank = null;
+			} else {
+				heLi = UIListItem.create(this._elUl);
+			}
+			UIListItem.setText(heLi,sText);
+  			UIElement.replaceAllCssClass(heLi,"unselected");
+ 			this._liItems.push(heLi);
+		},
+
+		_doRemoveItem	: function(nIdx){
+			if (nIdx<0 || nIdx>= this._liItems.length) {
+				throw Error("invalid parameter");
+			}
+			var heLi = this._liItems.removeAt(nIdx);
+			if (this._liItems.length == 0) {
+				UIElement.setInnerText(heLi,"");
+				this._liBlank = heLi;
+			} else {
+				UIElement.removeChild(this._elUl,heLi);
+			}
+		},
+	
+		getItemValue	: function(nIdx) {
+			if (nIdx<0 || nIdx>= this._liItems.length) {
+				throw Error("invalid parameter");
+			}
+			var sValue = this._liItems[nIdx]._value;
+			if (!sValue) {
+				sValue = UIListItem.getText(this._liItems[nIdx]);
+			}
+			return sValue;
+		}
+		 
+	}
+});
+

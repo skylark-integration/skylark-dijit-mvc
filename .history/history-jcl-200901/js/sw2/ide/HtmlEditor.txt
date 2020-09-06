@@ -1,0 +1,88 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.ide.HtmlEditForm",
+	superc		: sw2.widget.Form,
+	statics		: {
+	},
+	instances	: {
+		_dragSel	: null,
+		_selection	: null,
+
+		_initialize	: function(dsgFrm) {
+			System.execMethod(this,"_initialize",null,W.Form);
+			this._selection = new sw2.ide.Selection(this);
+		},
+
+		_finalize	: function() {
+			if (this._dragSel) {
+				this._dragSel.dispose();
+				this._dragSel = null;
+			}
+
+			if (this._selection) {
+				this._selection.dispose();
+				this._selection = null;
+			}
+
+			System.execMethod(this,"_finalize",null,W.Form);
+		},
+		
+
+		_doMouseMove	: function(x,y) {
+			if (mouse.getLButton()) {
+				this._dragSel.setWidth(x-mouse.getDownX());
+				this._dragSel.setHeight(y-mouse.getDownY());
+			}
+			System.execMethod(this,"_doMouseMove",null,W.Form);	
+		},
+
+		_doMouseDown	: function(btn,x,y) {
+			W.Control.setCapture(this);
+			if (mouse.getLButton()) {
+				if (!this._dragSel) {
+					this._dragSel = new W.Control(this);
+					this._dragSel.setBorderWidth(1);
+					this._dragSel.setBorderColor("gray");
+					this._dragSel.setBorderStyle(W.BorderStyle.dotted);
+					ctx.setElTransparent(this._dragSel._el,true);
+					this._dragSel.setLeft(mouse.getDownX()-this.getLeft()-this.getClientLeft());
+					this._dragSel.setTop(mouse.getDownY()-this.getTop()-this.getClientTop());
+					this._dragSel.setParent(this);
+				}
+			}
+
+			System.execMethod(this,"_doMouseDown",null,W.Form);	
+		},
+
+		_doMouseUp	: function(btn,x,y) {
+			if (btn==W.MouseButton.left) {
+				W.Control.setCapture(null);
+				this._dragSel.dispose();
+				this._dragSel = null;
+			}
+			System.execMethod(this,"_doMouseUp",null,W.Form);	
+		},
+
+
+		format	: function (what,opt) {
+		  //	
+		  if (!validateMode()) return;
+		  if (opt=="removeFormat")
+		  {
+		    what=opt;
+		    opt=null;
+		  }
+
+		  if (opt==null) HtmlEdit.document.execCommand(what);
+		  else HtmlEdit.document.execCommand(what,"",opt);
+
+		  pureText = false;
+		  HtmlEdit.focus();
+		}
+		
+	}
+});

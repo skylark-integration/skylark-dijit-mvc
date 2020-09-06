@@ -1,0 +1,30 @@
+<html>
+<head>
+<script language ='javascript'>
+function f1() {
+
+};
+f1.prototype = new Object();
+f1.prototype.p1 = "1";
+f1.prototype.p2 = "a";
+
+function f2() {
+};
+
+f2.prototype = new f1();
+f2.prototype.p1 = "3";
+ function test() {
+
+     var o = new f2();
+     o.p1 = "aaa";
+     alert(o.p1+","+ o.p2);
+ };
+</script>
+</head>
+<body>
+<form>
+<input type = "button" name ='a' value = 'test' onclick = "test();"/>
+
+</form>
+</body>
+</html>

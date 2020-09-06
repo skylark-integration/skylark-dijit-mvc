@@ -1,0 +1,85 @@
+<HTML><HEAD>
+<LINK href="../themes\default/ide.css" type=text/css rel=stylesheet>
+<LINK href="../themes\default/skin.css" type=text/css rel=stylesheet>
+<LINK href="../themes\default/system.css" type=text/css rel=stylesheet>
+</HEAD>
+<BODY>
+
+
+<DIV class=" Control TabSet" hideFocus style="Z-INDEX: 1; LEFT: 20px; WIDTH: 400px; POSITION: absolute; TOP: 20px; HEIGHT: 200px" unselectable="true"><TABLE class=" TabControl_Table" hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus>
+<DIV class=" Tabs_Div" hideFocus>
+<TABLE class=" Tabs_Top" hideFocus cellSpacing=0 cellPadding=0>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD class=" Tab_Delim_First" hideFocus></TD>
+<TD class=" Tab_Text" hideFocus>Tab111</TD>
+<TD class=" Tab_Delim" hideFocus></TD>
+<TD class=" Tab_Text" hideFocus>Tab2</TD>
+<TD class=" Tab_Delim" hideFocus></TD>
+<TD class=" Tab_Text" hideFocus>Tab3</TD>
+<TD class=" Tab_Delim" hideFocus></TD>
+<TD class=" Tab_Text" hideFocus>Tab4</TD>
+<TD class=" Tab_Delim" hideFocus></TD>
+<TD class=" Tab_Text" hideFocus>Tab5</TD>
+<TD class=" Tab_Delim_Last" hideFocus></TD></TR></TBODY></TABLE></DIV></TD></TR>
+<TR hideFocus>
+<TD hideFocus>
+<DIV class=" TabSetContentContainer_Top" hideFocus>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 1; POSITION: absolute">
+<DIV class=" Control CheckBox" hideFocus style="Z-INDEX: 1; LEFT: 30px; WIDTH: 100px; POSITION: absolute; TOP: 30px; HEIGHT: 25px"><INPUT hideFocus type=checkbox>
+<DIV hideFocus></DIV></DIV></DIV>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 2; POSITION: absolute">
+<DIV class=" Control Button" hideFocus style="Z-INDEX: 1; LEFT: 10px; WIDTH: 80px; POSITION: absolute; TOP: 10px; HEIGHT: 40px">
+<TABLE hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus style="WIDTH: auto">
+<COL hideFocus style="WIDTH: 100%">
+<COL hideFocus style="WIDTH: auto"></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus></TD>
+<TD hideFocus align=middle>button2</TD>
+<TD hideFocus><IMG hideFocus src="../themes/default/menu_indicator.gif"></TD></TR></TBODY></TABLE></DIV></DIV>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 3; POSITION: absolute">
+<DIV class=" Control Button" hideFocus style="Z-INDEX: 1; LEFT: 10px; WIDTH: 80px; POSITION: absolute; TOP: 10px; HEIGHT: 40px">
+<TABLE hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus style="WIDTH: auto">
+<COL hideFocus style="WIDTH: 100%">
+<COL hideFocus style="WIDTH: auto"></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus></TD>
+<TD hideFocus align=middle>button3</TD>
+<TD hideFocus><IMG hideFocus src="../themes/default/menu_indicator.gif"></TD></TR></TBODY></TABLE></DIV></DIV>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 4; POSITION: absolute">
+<DIV class=" Control Button" hideFocus style="Z-INDEX: 1; LEFT: 10px; WIDTH: 80px; POSITION: absolute; TOP: 10px; HEIGHT: 40px">
+<TABLE hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus style="WIDTH: auto">
+<COL hideFocus style="WIDTH: 100%">
+<COL hideFocus style="WIDTH: auto"></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus></TD>
+<TD hideFocus align=middle>button4</TD>
+<TD hideFocus><IMG hideFocus src="../themes/default/menu_indicator.gif"></TD></TR></TBODY></TABLE></DIV></DIV>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 5; POSITION: absolute">
+<DIV class=" Control Button" hideFocus style="Z-INDEX: 1; LEFT: 10px; WIDTH: 80px; POSITION: absolute; TOP: 10px; HEIGHT: 40px">
+<TABLE hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus style="WIDTH: auto">
+<COL hideFocus style="WIDTH: 100%">
+<COL hideFocus style="WIDTH: auto"></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus></TD>
+<TD hideFocus align=middle>button5</TD>
+<TD hideFocus><IMG hideFocus src="../themes/default/menu_indicator.gif"></TD></TR></TBODY></TABLE></DIV></DIV></DIV></TD></TR></TBODY></TABLE></DIV>
+</BODY>
+</HTML>

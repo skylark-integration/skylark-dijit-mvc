@@ -1,0 +1,101 @@
+<html>
+<head>
+<style>
+.DIV2 {
+ background-color: black;
+}
+</style>
+<script language = "javascript">
+var div1 = null;
+var div2 = null;
+function test1() {
+	div1 = document.createElement("DIV");
+	div1.style.position = "absolute";
+	div1.style.left = "30pt";
+	div1.style.visibility = "visible";
+	div1.style.width = "200pt";
+	div1.style.top = "60pt";
+	div1.style.height = "200pt";
+
+	div1.style.borderStyle = "ridge";
+	div1.style.borderWidth = "3";
+//	div1.style.borderColor = "blue";
+	document.body.appendChild(div1);
+
+		
+	div2 = document.createElement("DIV");
+	div2.style.overflow = "auto";
+
+	div2.style.position = "absolute";
+	div2.style.visibility = "visible";
+	div2.style.left = 0;
+	div2.style.top = 0;
+	div2.style.width = "100%";
+	div2.style.height = "100%";
+
+	div2.style.borderStyle = "inset";
+	div2.style.borderWidth = "0";
+//	div2.style.borderColor = "blue";
+	div1.appendChild(div2);
+};
+
+var btn1;
+var btn2
+function test2() {
+	btn1 = document.createElement("BUTTON");
+	btn1.style.position = "absolute";
+	btn1.style.left = "-10pt";
+	btn1.style.visibility = "visible";
+	btn1.style.width = "60pt";
+	btn1.style.top = "10pt";
+	btn1.style.height = "40pt";
+	btn1.innerText = "btn1";
+	div1.appendChild(btn1);
+
+};
+var flag = 0;
+function test3() {
+	//form.setWidth(form.getWidth()+5);
+	if (flag == 0) {
+		div1.removeChild(btn1);
+		div2.appendChild(btn1);
+		flag = 1;
+	} else {
+		div2.removeChild(btn1);
+		div1.appendChild(btn1);
+		flag = 0;
+	}
+};
+
+function test4() {
+//	document.body.removeChild(form._el);
+	alert(button._el.currentStyle.zIndex);
+	button._el.style.zIndex = 	button._el.style.zIndex + 2;
+	//	alert(form._el.style.zIndex+","+form._elTable.style.zIndex+",");
+
+};
+
+function test5() {
+//	alert($H._elDesktop.style.zIndex);
+	alert(button._el.currentStyle.visibility);
+//	var b = $HTML.createElement("form");
+//	$HTML.addElement(b);
+//	alert($C._captured);
+//	alert(document.body.offsetLeft + "," + document.body.clientWidth+","+ document.body.offsetWidth+"," + document.body.clientHeight+","+ document.body.offsetHeight);
+//	alert($H._elDesktop.clientWidth+","+ $H._elDesktop.offsetWidth+"," + $H._elDesktop.clientHeight+","+ $H._elDesktop.offsetHeight);
+}	
+
+</script>
+</head>
+
+<body>
+<form>
+<input type = button name ='div' value = 'div' onfocus = "document.title='f'" onclick = "document.title='c';test1();event.returnValue= false;" />
+<input type = button name ='btn' value = 'btn' onclick = "test2();" />
+<input type = button name ='chg' value = 'chg' onclick = "test3();" />
+<!--<input type = button name ='a2' value = 'test4' onclick = "test4();" />
+<input type = button name ='a2' value = 'test5' onclick = "test5();" />
+-->
+</form>
+</body>
+</html>

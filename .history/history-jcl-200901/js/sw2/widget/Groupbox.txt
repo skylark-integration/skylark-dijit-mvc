@@ -1,0 +1,135 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.GroupBox",
+	superc		: sw2.widget.Container,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"GroupBox");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Container._defineProperties(propInfo);
+            propInfo.put("title", String);
+            propInfo.put("expanded", Boolean);
+		}
+	},
+	instances	: {
+		_active 			: false,
+		_expanded			: true,
+		_showExpandButton	: true,
+		_title				: "abc",
+
+		_elTitle			: null,
+		_elExpBtn			: null,
+
+		_TAGNAME			: "FIELDSET",
+		_rwClassName		: "GroupBox",
+
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+
+			UIElement.addCssClass(el,"GroupBox");
+
+			this._elFieldSet = UIElement._createElement("FIELDSET",el);
+    		this._elLegend = UIElement._createElement("LEGEND",this._elFieldSet,"Title");
+
+			this._elTable = UITable.create(2,1,this._elLegend);
+		
+ 			UITable.setColWidth(this._elTable,0,"auto");
+ 			UITable.setColWidth(this._elTable,1,"auto");
+			this._elTitle = UITable.cells(this._elTable,1,0);
+			UIElement.setLeftPadding(this._elTitle,5);
+
+			if (this._showExpandButton) {
+				var elTd = UITable.cells(this._elTable,0,0);
+				this._elExpBtn = UIImg.create(sw2.ResLibPath + "/images/groupbox/groupbox_expanded.gif",elTd);
+			};
+
+			this._elContent = UIDiv.create(el,"Container2");
+
+			return el;
+		},
+
+		_getClientElement	: function() {
+			return this._elContent;
+		},
+
+        _doAddChild 	: function(oChild) {
+			this._elContent.appendChild(oChild._el);
+			System.execMethod(this,"_doAddChild",[oChild],W.Container);
+		},
+
+		_doRemoveChild	: function(oChild) {
+			this._elContent.removeChild(oChild._el);
+			System.execMethod(this,"_doRemoveChild",[oChild],W.Container);
+		},
+
+
+		_doClick	: function() {
+            var el = mouse._mouseinEl;
+			if (el == this._elExpBtn) {
+				this.setExpanded(!this._expanded);
+			} else if (el == this._elTitle)  {
+            }
+		},
+
+		getTitle	: function() {
+			return UITableCell.getText(this._elTitle);
+		},
+
+		setTitle	: function (title) {
+			UITableCell.setText(this._elTitle,title);
+		},
+
+		getShowExpandButton	: function () {
+			return this._showExpandButton;
+		},
+
+		setShowExpandButton	: function (bShow) {
+			this._showExpandButton = bShow;
+		},
+
+		getExpanded	: function () {
+			return this._expanded;
+		},
+
+		setExpanded	:function (bExpanded) {
+            if (this._expanded == bExpanded)
+                return;
+            this._expanded = bExpanded;
+            if (this._elExpBtn != null) {
+                if (bExpanded) {
+                    this._elExpBtn.src = sw2.ResLibPath + "/images/groupbox/groupbox_expanded.gif";
+                    System.execMethod(this, 
+                       "setBounds", 
+                        [this.getLeft(), this.getTop(), this.getWidth(), this._expandHeight], 
+                        W.Container);
+ 					UIDiv.setVisible(this._elContent,true);
+             	} else {
+                    this._expandHeight = this.getHeight();
+					UIDiv.setVisible(this._elContent,false);
+                    System.execMethod(this, 
+                        "setBounds", 
+                        [this.getLeft(), this.getTop(), this.getWidth(), 16], 
+                        W.Container);
+					
+                    this._elExpBtn.src = sw2.ResLibPath + "/images/groupbox/groupbox_collapseed.gif";
+                }
+            }
+		},
+
+
+		expand	: function() {
+			this.setExpanded(true);
+		},
+
+
+		collapse	: function() {
+			this.setExpanded(false);
+		}
+	}
+});

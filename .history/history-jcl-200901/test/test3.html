@@ -1,0 +1,134 @@
+<html>
+<head>
+<script language ='javascript' >
+
+/**
+ * JavaScriptオブジェクトのObject、Functionを退避します。
+ */ 
+var _$O = Object;
+var _$F = Function;
+
+delete Object;
+delete Function;
+
+/**
+ * ObjectクラスのJavascriptオブジェクトを定義しておきます。
+ */ 
+var Object = function() {};
+
+Object.prototype.get1 = function() {
+	return "1";
+};
+
+/**
+ * オブジェクトタイプの定数を定義します。
+ */ 
+Object.OT_INSTANCE = "instance";
+Object.OT_NAMESPACE = "namespace";
+Object.OT_CLASS = "class";
+Object.OT_METHOD = "method";
+
+/**
+ * HashクラスのJavascriptオブジェクトを定義しておきます。
+ */ 
+var Hash = function() {};
+var Hash1 = function() {};
+Hash1.prototype = new Hash();
+Hash1.prototype.constructor = Hash1;
+Hash.aaa= "ddddd";
+Hash1.aaa= "2ddddd";
+
+/**
+ * MethodクラスのJavascriptオブジェクトを定義しておきます。
+ */ 
+var Method = function() {
+	var script = "new _$F(";
+	for (var i=0;i<arguments.length;i++) {
+		if (i>0) {
+			script = script +",";
+		}
+		script = script + "'"+arguments[i]+"'";
+	}
+	script = script + ")";
+	return eval(script);
+};
+
+/**
+ * UNSUPPOREDMETHODエラーナンバー定数を定義します。
+ */ 
+Error.EN_UNSUPPOREDMETHOD = 0xA001;
+
+/**
+ * オブジェクトのタイプを返します。
+ * （内部用）NamespaceとClassはこのメソッドをオーバライドします。
+ * @method objType
+ * @param  
+ * @return {String}  
+ */ 
+_$O.prototype.objType = function() {
+	var type = typeof(this);
+	if (type == "function") {
+			return Object.OT_METHOD;
+	} else {
+		return Object.OT_INSTANCE;
+	}
+};
+
+/**
+ * インスタンスのClassオブジェクトを返します。
+ * （内部用）Instanceはこのメソッドをオーバライドします。
+ * @method getClass
+ * @param  
+ * @return {Class}  
+ */ 
+_$O.prototype.getClass = function() {
+	var ot = this.objType();
+	if (ot == Object.OT_INSTANCE) {
+		var type = typeof(this);
+		if (type == "number") {
+			return Number;
+		} else if (type == "string") {
+			return String;
+		} else if (type == "boolean") {
+			return Boolean;
+		} else if (this.constructor) {
+			if (this.constructor == _$O) {
+				return Hash;
+			} else {
+				return this.constructor;
+			}
+		} else {
+			return Hash;
+		}
+	} else if (ot == Object.OT_CLASS){
+		return Hash;
+	} else if (ot == Object.OT_NAMESPACE) {
+		return Hash;
+	} else if (ot == Object.OT_METHOD) {
+		return Method;
+	} else {
+		return undefined;
+	}
+};
+
+
+
+function test2() {
+	try {
+		Number.prototype = new Hash();
+//		Number.prototype.constructor = Number;
+	} catch (e) {
+		alert(e);
+	}
+//	var o = new Hash1();
+	alert((322).constructor.aaa);
+};
+</script>
+</head>
+<body>
+<form>
+<input type = button name ='a1' value = 'test1' onclick = "test1();" />
+<input type = button name ='a2' value = 'test2' onclick = "test2();" />
+</form>
+</body>
+</html>

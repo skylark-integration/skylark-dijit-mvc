@@ -1,0 +1,101 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+
+System.defineClass({
+	name		: "sw2.widget.Desktop",
+	superc		: sw2.widget.Container,
+	statics		: {
+		_desk				: null,
+		_deskClass			: null,
+
+		_initialize : function () {
+			this.setDeskClass(this);
+		},
+
+		_finalize	: function () {
+			this._elDesktop = null;
+		},
+
+
+		getDeskClass	: function() {
+			return this._deskClass;
+		},
+		
+		setDeskClass	: function(cDesk) {
+			this._deskClass = cDesk;
+		},
+
+		getDesk		: function() {
+			return this._desk;
+		},
+
+		start		: function() {
+			if (!this._deskClass) {
+				throw new Error("the desktop class is not defined");
+			}
+
+			this._desk = new this._deskClass(null);
+			UIElement.initSw2Container(this._desk);
+
+			System.defineName("desk",this._desk);
+		}
+
+	},
+	instances	: {
+		_initialize : function () {
+			System.execMethod(this,"_initialize",null,W.Container);
+			this.setDock(W.Dock.client);	
+		},
+
+		_finalize  : function() {
+			System.execMethod(this,"_finalize",null,W.Container);	
+		},
+
+
+		_dispatchMessage	: function(msg) {
+			var capture = W.Control.getCapture();
+			if (capture) {
+				capture._handleMessage(msg);
+			} else {
+				msg.getTarget()._handleMessage(msg);
+			}
+		},
+
+
+		_doAddChild 	: function(oChild) {
+			this._el.appendChild(oChild._el);
+			System.execMethod(this,"_doAddChild",[oChild],W.Container);
+		},
+				
+
+		isDesktop	: function() {
+			return true;
+		},
+		
+		setParent		: function() {
+		},
+		
+		setBounds : function(nLeft, nTop, nWidth, nHeight) {
+			return;
+		},
+
+		_currentCursor		: null,
+
+		getCurrentCursor	: function() {
+			return this._currentCursor;
+		},
+
+		setCurrentCursor	: function(oCursor) {
+			if (System.getClass(oCursor)!=W.Cursor) {
+				aeler();
+			}
+			this._currentCursor = oCursor;
+			if (UIElement.getStyle(this._el,"cursor") != W.Cursor._CURSORS[oCursor._value])
+			UIElement.setStyle(this._el,"cursor",W.Cursor._CURSORS[oCursor._value]);
+		}
+
+	}
+});

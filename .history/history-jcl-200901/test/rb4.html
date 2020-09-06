@@ -1,0 +1,52 @@
+<html>
+<head>
+<script language = 'javascript' >
+	var _theme_root = "../css/themes/default";
+</script>
+<script language ='javascript' src = '../js/ui/basic.js'>
+</script>
+<script language ='javascript' src = '../js/ui/common.js'>
+</script>
+<script language ='javascript' src = '../js/ui/control.js'>
+</script>
+<script language ='javascript' src = '../js/ui/dataset.js'>
+</script>
+<script language ='javascript' src = '../js/ui/dropdown.js'>
+</script>
+<script language ='javascript' src = '../js/ui/editor.js'>
+</script>
+<script language ='javascript' src = '../js/ui/menu.js'>
+</script>
+<script language ='javascript' src = '../js/ui/pagepilot.js'>
+</script>
+<script language ='javascript' src = '../js/ui/table.js'>
+</script>
+<script language ='javascript' src = '../js/ui/updateresult.js'>
+</script>
+<script language ='javascript' src = '../js/ui/tree.js'>
+</script>
+<link href="../css/themes/default/extra.css" rel="stylesheet" type="text/css" >
+<script language = "javascript">
+function test1() {
+	var menu = createMenu("m");
+//	initMenu(menu);
+	var item = _createMenuItem(menu,menu.topItem);
+	item.label = "aaaaaaaaaaa";
+    showButtonMenu(menu,document.forms[0].a1);
+};
+function test2() {
+	document.forms[0].a1.style.position = "absolute";
+	document.forms[0].a1.style.left = "200pt";
+	document.forms[0].a2.style.position = "absolute";
+	document.forms[0].a2.style.left = "600pt";
+};
+</script>
+</head>
+
+<body>
+<form>
+<input type = button name ='a1' value = 'test1' onclick = "test1();" />
+<input type = button name ='a2' value = 'test2' onclick = "test2();" />
+</form>
+</body>
+</html>

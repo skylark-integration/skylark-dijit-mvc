@@ -1,0 +1,559 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+
+System.defineClass({
+	name		: "sw2.widget.MenuItemActionEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender) {
+			System.execMethod(this,"_initialize",["Action",oSender],sw2.Event);	
+		},
+
+		_finalize	: function() {
+			System.execMethod(this,"_finalize",null,sw2.Event);	
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.MenuItem",
+	superc		: sw2.Component,
+	statics		: {
+		_defaultMenuItem : null
+	},
+	instances	: {
+        _text 	: "",
+        _icon 		: null,
+        _disableIcon: null,
+        _disabled 	: false,
+        _visible 	: true,
+        _command 	: null,
+		
+		_subMenu	: null,
+
+        _toolBarIcon	        : null,
+		_toolBarDisableIcon	 	: null,
+        _toolBarTips            : "",
+
+		_initialize : function () {
+			System.execMethod(this,"_initialize",null,sw2.Component);	
+		},
+
+		getText : function() {
+			return this._text;
+		},
+
+		setText : function(sCaption) {
+			this._text = sCaption;
+		},
+
+		getIcon : function() {
+			return this._icon;
+		},
+
+		setIcon : function(icon) {
+			this._icon = icon;
+		},
+
+		setToolBarIcon : function(icon) {
+			this._toolBarIcon = icon;
+		},
+
+		getDisableIcon : function() {
+			return this._disableIcon;
+		},
+
+		setDisableIcon : function($pD) {
+			this._disableIcon = $pD;
+		},
+
+		getDisabled : function() {
+			return this._disabled;
+		},
+
+		setDisabled : function(disabled) {
+			this._disabled = disabled;
+		},
+
+		getVisible : function() {
+			return this._visible;
+		},
+
+		setVisible : function(bVisible) {
+			this._visible = visible;
+		},
+
+
+		getSubMenu : function() {
+			if (this._subMenu == null) {
+				this._subMenu = new sw2.widget.Menu();
+			}
+			return this._subMenu;
+		},
+
+		setSubMenu	: function(oSubMenu) {
+			this._subMenu = oSubMenu;
+		},
+
+		hasSubMenu	: function() {
+			return (this._subMenu && this._subMenu.getCount()>0);
+		},
+
+		executeAction	: function() {
+			var evt = new W.MenuItemActionEvent(this);
+			this.notifyEvent(evt);
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.Menu",
+	superc		: sw2.Component,
+	statics		: {},
+	instances	: {
+		_items	: null,
+
+		_initialize : function () {
+			System.execMethod(this,"_initialize",null,sw2.Component);
+			this._items = new Array();	
+		},
+
+		_finalize  : function() {
+			for (var i=0;i<this._items.length;i++) {
+				var oItem = this._items[i];
+				System.dispose(oItem);
+			}
+			System.dispose(this._items);
+			this._items = null;
+			System.execMethod(this,"_finalize",null,sw2.Component);	
+		},
+
+		_doCanAddChild	: function(oChild){
+			return (oChild && System.instanceOf(oChild,W.MenuItem)) 
+		},
+
+		getItems	: function() {
+			return this._items;
+		},
+
+		getItem	: function(nIdx) {
+			return this._items[nIdx];
+		},
+		
+		addItem : function(oMenuItem) {
+			return this._items.push(oMenuItem);
+		},
+
+		removeItem	: function(oMenuItem){
+			return this._items.remove(oMenuItem);
+		},
+
+		getCount	: function() {
+			return this._items.length;
+		},
+
+		loadFromArray	: function(oArray) {
+			this.beginUpdate();
+			for (var i =0;i<oArray.length;i++) {
+				var oHash = oArray[i];
+				
+				var text = oHash["text"];
+				var icon = oHash["icon"];
+				var expandedIcon = oHash["expandedIcon"];
+//				var checkable = oHash["checkable"];
+//				var checked = oHash["checked"];
+
+				var oMenuItem = new W.MenuItem()
+				if (text) {
+					oMenuItem.setText(text);
+				}
+				if (icon) {
+					oMenuItem.setIcon(icon);
+				}
+				this.addItem(oMenuItem);
+
+				var children = oHash["children"];
+				if (children) {
+					oMenuItem.getSubMenu().loadFromArray(children);
+				}
+
+			}
+			this.endUpdate();
+		},
+
+		loadFromXmlNode : function(xmlNode) {
+			var childNodes = xmlNode.childNodes;
+			for (var i = 0; i < childNodes.length; i++) {
+				var childNode = childNodes[i];
+				if (ctx.isIE || childNode.nodeName.charAt(0) != '#') {
+					var subItem = new sw2.widget.MenuItem(childNode.getAttribute("name"));
+					subItem._text = childNode.getAttribute("caption");
+					subItem._icon = childNode.getAttribute("icon");
+					subItem._disableIcon = childNode.getAttribute("disableIcon");
+					subItem._disabled = parseBoolean(childNode.getAttribute("disabled"));
+					var visible = childNode.getAttribute("visible");
+					if (visible != null) {
+ 						subItem._visible = parseBoolean(visible);
+					};
+					subItem._command = childNode.getAttribute("command");
+					subItem._tag = childNode.getAttribute("tag");
+					this.loadFromXmlNode(subItem, childNode);
+					item.addItem(subItem);
+				}
+			}
+		}
+
+	}
+});
+
+
+
+System.defineClass({
+	name		: "sw2.widget.PopupMenu",
+	superc		: sw2.widget.Control,
+	statics		: {
+	},
+	instances	: {
+		_menu			: null,
+
+		_parentMenuBox	: null,
+		_subMenuBox		: null,
+		_activeItem		: null,
+
+
+		_elTable		: null,
+		_elItems	: null,
+
+		_doCreateUIElement	: function() {
+//			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			var el = UITable.create(1,0,this._el,"Control");
+			UIElement.addCssClass(el,"PopupMenu");
+
+			return el;
+		},
+
+		getMenu		: function() {
+			return this._menu;
+		},
+
+		setMenu		: function(oMenu) {
+
+
+			if (this._menu == oMenu) {
+				return;
+			}
+			this._menu = oMenu;
+			
+			if(this._elTable) {
+				UIElement.removeElement(this._elTable);
+				this._elTable = null;
+			}
+
+			if (this._elItems) {
+				this._elItems.clear();
+				this._elItems = null;
+			}
+
+
+			if (oMenu) {
+				this._menu = oMenu;
+
+//				this._elTable = UITable.create(1,0,this._el,"MenuBox_Table");
+
+				this._elTable = this._el;
+				
+				this._elItems = new Array();
+				
+				var items = oMenu.getItems();
+				for (var i = 0; i < items.length; i++) {
+					var oItem = items[i];
+					if (!oItem._visible) {
+						continue;
+					}
+
+					var elCell = UITableRow.cells(UITable.appendRow(this._elTable,"MenuItem_Row"),0);
+					var elItem = UIDiv.create(elCell,"MenuItem",true)
+					
+					var elItemHorz = UIHorz.create(elItem,"MenuItem_Table");
+
+					UIHorz.appendCell(elItemHorz,"MenuItem_Icon")
+					UIHorz.appendCell(elItemHorz,"MenuItem_Deli")
+					UIHorz.appendCell(elItemHorz,"MenuItem_Text")
+					UIHorz.appendCell(elItemHorz,"MenuItem_Indi")
+
+					
+					var uriIcon;
+					if (oItem._disabled && oItem._disableIcon != null) {
+						uriIcon = oItem._disableIcon;
+					} else {
+						uriIcon = oItem._icon;
+					};
+
+
+					if (uriIcon != null) {
+						UIImg.create(uriIcon,UIHorz.cells(elItemHorz,0));
+					} 
+
+					
+					UILabel.create(UIHorz.cells(elItemHorz,2),"",oItem._text);
+
+					if (oItem._subMenu != null) {
+						UIImg.create(sw2.ResLibPath + "/images/menu/menu_indicator.gif",UIHorz.cells(elItemHorz,3));
+					} 
+
+					elItem._menuItem = oItem;
+					this._elItems.push(elItem);
+				}
+				items = null;
+			}
+		},
+
+		
+		showSubBox	: function (elItemButton) {
+			if (elItemButton != this._activeItem) {
+				return;
+			}
+			var oMenuItem = elItemButton._menuItem;
+			if (oMenuItem._disabled || !oMenuItem.hasSubMenu()) {
+				return;
+			}
+			var subMenuBox = new W.PopupMenu();
+			subMenuBox.setMenu(oMenuItem.getSubMenu());
+			window.subpop = subMenuBox;
+
+			var posXY = UIElement.getDeskXY(elItemButton);
+			var x = posXY.getX();
+			var y = posXY.getY();
+			var w = UIElement.getOffsetWidth(elItemButton);
+			var h = UIElement.getOffsetHeight(elItemButton);
+
+			subMenuBox.popup(x+w,y,this);
+
+			this._subMenuBox = subMenuBox;
+			subMenuBox._parentMenuBox = this;
+			
+		},
+
+
+		_doMouseMove		: function(x,y) {
+			var el = mouse._mouseinEl;
+			if (el != this._activeItem) {
+				if (this._activeItem) {
+					UIElement.replaceAllCssClass(this._activeItem, "MenuItem");
+					this._activeItem = null;
+				}
+
+				if (this._elItems.indexOf(el) > -1 ) {
+					UIElement.replaceAllCssClass(el,"HotMenuItem");
+					this._activeItem = el;
+					this.showSubBox(el);
+				}
+			} 
+
+		},
+
+		_doMouseLeave		: function() {
+			if (this._activeItem) {
+				UIElement.replaceAllCssClass(this._activeItem, "MenuItem");
+				this._activeItem = null;
+			}
+		},
+
+	_doClick		: function() {
+			var el = mouse._mouseinEl;
+			var nIndex = this._elItems.indexOf(el);
+			if (nIndex > -1 ) {
+				var menuItem = this._menu.getItem(nIndex);
+				if (menuItem._subMenu) {
+					this.showSubMenu(el,menuItem,menuItem._subMenu);
+				} else {
+					menuItem.executeAction();
+					System.asyncExecMethod(W.Control,W.Control._clearPopup,[],0);
+				}
+			}
+		}
+
+
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.MenuBar",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"MenuBar");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_menu	: null,
+		_elItems		: null,
+		_activeMenuBtn	: null,
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"MenuBar");
+			return el;
+		},
+
+		getMenu		: function() {
+			if (!this._menu) {
+				this._menu = new W.Menu();
+			}
+			return this._menu;
+		},
+
+
+		ifFitWidth		: function() {
+			return this._fitWidth;
+		},
+
+		getBlankPanel	: function() {
+			return this._blankPanel;
+		},
+
+
+		setMenu		: function(oMenu) {
+			if (this._menu == oMenu) {
+				return;
+			}
+			this._menu = oMenu;
+			
+			if(this._elHorz) {
+				UIElement.removeElement(this._elHorz);
+				this._elHorz = null;
+			}
+
+			if (this._elItems) {
+				this._elItems.clear();
+				this._elItems = null;
+			}
+			
+			if (oMenu) {
+				this._elHorz = UIHorz.create(this._el,"MenuBar_Table");
+				UIHorz.setCellPadding(this._elHorz,2);
+				this._elItems = new Array();
+
+				var items = oMenu.getItems();
+				for (var i = 0; i <items.length; i++) {
+					var item = items[i];
+					if (!item._visible) {
+						continue;
+					}
+
+					var elCell = UIHorz.appendCell(this._elHorz);
+					var elItem = UIDiv.create(elCell,"MenuBarButton",true)
+
+
+					var elItemHorz = UIHorz.create(elItem)
+					UIHorz.setCellPadding(elItemHorz,1);
+
+					if (item._icon != null) {
+						UIImg.create(item._icon,UIHorz.appendCell(elItemHorz,"MenuBar_Icon"));
+					}
+
+					UILabel.create(UIHorz.appendCell(elItemHorz,"MenuItem_Text"),null,item._text);
+
+					this._elItems.push(elItem);
+				};
+
+
+				UIHorz.appendCell(this._elHorz,"MenuBar_Blank");
+			}
+		},
+
+		hotMenuButton		: function (button,bHot) {
+			if (bHot) {
+				button.className = "MenuBarHotButton";
+			} else {
+				button.className = "MenuBarButton";
+			}
+
+		},
+
+		showSubMenu		: function(oButton,oMenuItem,oSubMenu) {
+
+			if (oMenuItem._disabled)
+				return;
+			
+			if (!(oSubMenu && oSubMenu.getCount()>0)) {
+				return;
+			}
+			var $_j;
+			var popup = new sw2.widget.PopupMenu();
+			popup.setMenu(oSubMenu);
+
+			var posXY = UIElement.getDeskXY(oButton);
+			var x = posXY.getX();
+			var y = posXY.getY();
+			var w = UIElement.getOffsetWidth(oButton);
+			var h = UIElement.getOffsetHeight(oButton);
+
+			if (x + popup.getWidth() >desk.getWidth()) {
+				x = desk.getWidth() - popup.getWidth();
+			};
+			if (x < 0) {
+				x = 0;
+			}
+			y = y + h + 2;
+
+			popup.popup(x,y);
+
+		},
+
+		_doClick		: function() {
+			var el = mouse._mouseinEl;
+			var nIndex = this._elItems.indexOf(el);
+			if (nIndex > -1 ) {
+				var menuItem = this._menu.getItem(nIndex);
+				if (menuItem._subMenu) {
+					this.showSubMenu(el,menuItem,menuItem._subMenu);
+				} else {
+					menuItem.executeAction();
+					System.asyncExecMethod(W.Control,W.Control._clearPopup,[],0);
+				}
+			}
+		},
+
+		_doMouseMove		: function(x,y) {
+			var el = mouse._mouseinEl;
+			if (el != this._activeMenuBtn) {
+				if (this._activeMenuBtn) {
+					this.hotMenuButton(this._activeMenuBtn,false);
+					this._activeMenuBtn = null;
+				}
+
+				var nIndex = this._elItems.indexOf(el);
+				if (nIndex > -1 ) {
+					this.hotMenuButton(el,true);
+					if (this.getFocused()) {
+						var menuItem = this._menu.getItem(nIndex);
+						var subMenu = menuItem.getSubMenu();
+						this.showSubMenu(el,menuItem,subMenu);
+					}
+					this._activeMenuBtn = el;
+				}
+			} 
+
+		},
+
+		_doMouseLeave	: function(){
+			if (this._activeMenuBtn) {
+				this.hotMenuButton(this._activeMenuBtn,false);
+				this._activeMenuBtn = null;
+			}
+		}
+	}
+});
+

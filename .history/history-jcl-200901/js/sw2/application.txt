@@ -1,0 +1,47 @@
+/**
+ * クラスsw2.Applicationを定義します。
+ *
+ */
+System.defineClass({
+	name		: "sw2.Application",
+	superc		: sw2.Component,
+	statics		: {
+		_userAppCalss	: null,
+
+		setUserAppClass	: function(cApp) {
+			this._userAppClass = cApp;
+		},
+
+		loadUserFormClass	: function(sUrl) {
+		},
+
+		loadUserDataSetSchema	: function(sUrl) {
+		},
+
+		loadUserServiceClass	: function(sUrl) {
+		},
+
+		initialize	: function(cUserApp,xConfig) {
+		},
+
+		run			: function() {
+		}
+	},
+	instances	: {
+		_forms		: null,
+		_datasets	: null,
+		_services	: null,
+		_desktop	: null,
+
+		getDesktop	: function(){
+			return this._desktop;
+		},
+
+		getContextPath	: function(){
+		},
+
+		setContextPath	: function(){
+		}
+
+	}
+});

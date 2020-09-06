@@ -1,0 +1,146 @@
+System.defineClass({
+	name		: "sw2.srv.Service",
+	superc		: sw2.Component,
+	statics		: {
+		
+		loadUserService		: function() {
+		}
+	},
+	instances	: {
+		_async	: false,
+
+		_doExecute	: function(req) {
+			var evt = new S.ExecuteEvent(this);
+			this.notifyEvent(evt);
+		},
+
+		execute	: function(req) {
+			return this._doExecute(req);
+		},
+
+		getAsync	: function() {
+			return this._async;
+		},
+
+		setAsync	: function(bAsync) {
+			this._async = bAsync;
+		},
+
+	}
+});
+
+System.defineClass({
+	name		: "sw2.srv.Request",
+	superc		: sw2.Component,
+	statics		: {
+		
+		loadUserService		: function() {
+		}
+	},
+	instances	: {
+	}
+});
+
+System.defineClass({
+	name		: "sw2.srv.Response",
+	superc		: sw2.Component,
+	statics		: {
+		
+		loadUserService		: function() {
+		}
+	},
+	instances	: {
+	}
+});
+
+System.defineClass({
+	name		: "sw2.srv.ExecuteEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances		: {
+		_req		: null,
+
+		_initialize	: function(sType,oSender,req) {
+			System.execMethod(this,"_initialize",[sType,oSender],sw2.Event);	
+			this._req = req;
+		},
+
+		_finalize	: function() {
+			this._req = null;
+			System.execMethod(this,"_finalize",null,sw2.Event);	
+		},
+
+		getRequest	: function(){
+			return this._req;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.srv.LocalService",
+	superc		: sw2.srv.Service,
+	statics		: {
+	},
+	instances	: {
+		_doExecute	: function(req) {
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.srv.RemoteService",
+	superc		: sw2.srv.Service,
+	statics		: {
+	},
+	instances	: {
+		_doExecute	: function(req) {
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.srv.FillDataset",
+	superc		: sw2.srv.RemoteService,
+	statics		: {
+	},
+	instances	: {
+		_doExecute	: function(req) {
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.srv.UpdateDataset",
+	superc		: sw2.srv.RemoteService,
+	statics		: {
+	},
+	instances	: {
+		_doExecute	: function(req) {
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.srv.FileDowload",
+	superc		: sw2.srv.RemoteService,
+	statics		: {
+	},
+	instances	: {
+		_doExecute	: function(req) {
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.srv.FileUpload",
+	superc		: sw2.srv.RemoteService,
+	statics		: {
+	},
+	instances	: {
+		_doExecute	: function(req) {
+		}
+	}
+});
+
+

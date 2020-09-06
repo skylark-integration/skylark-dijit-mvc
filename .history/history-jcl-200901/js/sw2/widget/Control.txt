@@ -1,0 +1,3221 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+var KEY = {
+  BACKSPACE: 8,
+  TAB:       9,
+  RETURN:   13,
+  ESC:      27,
+  LEFT:     37,
+  UP:       38,
+  RIGHT:    39,
+  DOWN:     40,
+  DELETE:   46,
+  SPACE	:   32
+};
+
+System.defineClass({
+	name		: "sw2.widget.Message",
+	statics		: {
+		KEYDOWN 	: "keydown",
+		KEYPRESS	: "keypress",
+		KEYUP		: "keyup",
+
+		MOUSEDOWN 	: "mousedown",
+		MOUSEMOVE 	: "mousemove",
+		MOUSELEAVE 	: "mouseleave",
+		MOUSEENTER 	: "mouseenter",
+		MOUSEUP 	: "mouseup",
+		CLICK		: "click",
+		DBLCLICK	: "dblclick"
+	},
+
+	instances	: {
+		_target		: null,
+		_type		: "",
+		_result		: 0,
+
+		_keyCode	: 0,
+
+		_btn		: null,
+		_x			: 0,
+		_y			: 0,
+
+		_initialize : function(target,type,para1,para2,para3) {
+			this._target = target;
+			this._type = type;
+			switch (type) {
+				case W.Message.KEYDOWN:
+				case W.Message.KEYPRESS:
+				case W.Message.KEYUP:
+					this._keyCode = para1;
+					break;
+				case W.Message.MOUSEDOWN:
+				case W.Message.MOUSEUP:
+					this._btn = para3;
+				case W.Message.MOUSEMOVE:
+					this._x = para1;
+					this._y = para2;
+					break;
+			}
+		},
+
+		_finalize : function() {
+		},
+
+		getTarget	: function() {
+			return this._target;
+		},
+
+		getType	: function() {
+			return this._type;
+		},
+
+		setType	: function(sType) {
+			this._type = sType;
+		},
+
+		getResult : function() {
+			return this._result;
+		},
+
+		setResult : function(nResult) {
+			this._result = nResult;
+		},
+
+		getKeyCode	: function(){
+			return this._keyCode;
+		},
+
+		getX	: function() {
+			return this._x;
+		},
+
+		getY	: function() {
+			return this._y;
+		},
+
+		getButton	: function() {
+			return this._btn;
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.KbdEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances		: {
+		_keyCode	: 0,
+
+		_initialize	: function(sType,oSender,keyCode) {
+			System.execMethod(this,"_initialize",[sType,oSender],sw2.Event);	
+			this._keyCode = keyCode;
+		},
+
+		_finalize	: function() {
+			System.execMethod(this,"_finalize",null,sw2.Event);	
+		},
+
+		getKeyCode	: function(){
+			return this._keyCode;
+		},
+
+		setKeyCode	: function(nKeyCode) {
+			this._keyCode = nKeyCode;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.KeyDownEvent",
+	superc		: sw2.widget.KbdEvent,
+	statics		: {
+	},
+	instances		: {
+		_initialize	: function(oSender,keyCode) {
+			System.execMethod(this,"_initialize",["KeyDown",oSender,keyCode],W.KbdEvent);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.KeyPressEvent",
+	superc		: sw2.widget.KbdEvent,
+	statics		: {
+	},
+	instances		: {
+		_initialize	: function(oSender,keyCode) {
+			System.execMethod(this,"_initialize",["KeyPress",oSender,keyCode],W.KbdEvent);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.KeyUpEvent",
+	superc		: sw2.widget.KbdEvent,
+	statics		: {
+	},
+	instances		: {
+		_initialize	: function(oSender,keyCode) {
+			System.execMethod(this,"_initialize",["KeyUp",oSender,keyCode],W.KbdEvent);	
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.MouseButton",
+	statics		: {
+		_MBUTTONS	: ["left","middle","right"],
+
+		left	: null,
+		middle	: null,
+		right	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._MBUTTONS.length; i++) {
+				var oMButton = new W.MouseButton();
+				oMButton._value = i;
+				this[this._MBUTTONS[i]] = oMButton;
+			}
+		},
+
+		vtos	: function(o) {
+			return W.MouseButton._MBUTTONS[o._value];
+		},
+
+		vfroms	: function(sValue) {
+			if (this._MBUTTONS.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+			}
+		}
+	},
+	instances	: {
+		_value	: 0
+
+
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.MouseEvent",
+	superc		: sw2.Event,
+	statics		: {
+		MET_MOUSEDOWN 	: "mousedown",
+		MET_MOUSEMOVE 	: "mousemove",
+		MET_MOUSEOUT 	: "mouseout",
+		MET_MOUSEOVER 	: "mouseover",
+		MET_MOUSEUP 	: "mouseup",
+		MET_CLICK		: "click",
+		MET_DBLCLICK	: "dblclick",
+		MET_MOUSEENTER	: "mouseenter",
+		MET_MOUSELEAVE	: "mouseleave"
+	},
+	instances	: {
+		_button	: null,
+		_x		: 0,
+		_y		: 0,
+		_delta  : 0, 
+	
+
+		_initialize	: function(sType,oSender,x,y,oBtn) {
+			System.execMethod(this,"_initialize",[sType,oSender],sw2.Event);	
+			this._x = x;
+			this._y = y;
+			this._button = oBtn;
+		},
+
+		_finalize	: function() {
+			this._button = null;
+			System.execMethod(this,"_finalize",null,W.MKEvent);	
+		},
+
+		getButton : function() {
+			return this._button;
+		},
+
+		getDelta : function() {
+			return this._delta;
+		},
+
+		getX	: function() {
+			return this._x;
+		},
+
+		getY	: function() {
+			return this._y;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.MouseDownEvent",
+	superc		: sw2.widget.MouseEvent,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender,x,y,oBtn) {
+			System.execMethod(this,"_initialize",["MouseDown",oSender,x,y,oBtn],W.MouseEvent);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.MouseUpEvent",
+	superc		: sw2.widget.MouseEvent,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender,x,y,oBtn) {
+			System.execMethod(this,"_initialize",["MouseUp",oSender,x,y,oBtn],W.MouseEvent);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.MouseMoveEvent",
+	superc		: sw2.widget.MouseEvent,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender,x,y) {
+			System.execMethod(this,"_initialize",["MouseMove",oSender,x,y],W.MouseEvent);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.MouseEnterEvent",
+	superc		: sw2.widget.MouseEvent,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender,x,y) {
+			System.execMethod(this,"_initialize",["MouseEnter",oSender,x,y],W.MouseEvent);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.MouseLeaveEvent",
+	superc		: sw2.widget.MouseEvent,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender,x,y) {
+			System.execMethod(this,"_initialize",["MouseLeave",oSender,x,y],W.MouseEvent);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.ClickEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender) {
+			System.execMethod(this,"_initialize",["Click",oSender],sw2.Event);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.DblClickEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender) {
+			System.execMethod(this,"_initialize",["DblClick",oSender],sw2.Event);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.FocusEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender) {
+			System.execMethod(this,"_initialize",["Focus",oSender],sw2.Event);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.BlurEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender) {
+			System.execMethod(this,"_initialize",["Blur",oSender],sw2.Event);	
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.DragEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_x		: 0,
+		_y		: 0,
+		_src	: null,
+		_target : null,
+
+		_initialize	: function(sType,oSender,x,y,src,target) {
+			System.execMethod(this,"_initialize",[sType,oSender],sw2.Event);	
+			this._x = x;
+			this._y = y;
+			this._src = src;
+			this._target = target;
+		},
+
+		_finalize	: function() {
+			this._src = null;
+			this._target = null;
+			System.execMethod(this,"_finalize",null,W.MKEvent);	
+		},
+
+		getX	: function() {
+			return this._x;
+		},
+
+		getY	: function() {
+			return this._y;
+		},
+		
+		getSrc  : function() {
+			return this._src;
+		},
+
+		getTarget	: function() {
+			return this._target;
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.DragEnterEvent",
+	superc		: sw2.widget.DragEvent,
+	statics		: {
+	},
+	instances	: {
+		_src	: null,
+		_accept	: false,
+	
+
+		_initialize	: function(oSender,x,y,src) {
+			System.execMethod(this,"_initialize",["DragEnter",oSender,x,y,src,oSender],sw2.widget.DragEvent);	
+		},
+
+		getAccept	: function(){
+			return this._accept;
+		},
+
+		setAccept	: function(bAccept){
+			this._accept = bAccept;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.DragMoveEvent",
+	superc		: sw2.widget.DragEvent,
+	statics		: {
+	},
+	instances	: {
+		_accept	: false,
+
+		_initialize	: function(oSender,x,y,src,bAccept) {
+			System.execMethod(this,"_initialize",["DragMove",oSender,x,y,src,oSender],sw2.widget.DragEvent);	
+			this._accept = bAccept;
+		},
+
+		getAccept	: function(){
+			return this._accept;
+		},
+
+		setAccept	: function(bAccept){
+			this._accept = bAccept;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.DragLeaveEvent",
+	superc		: sw2.widget.DragEvent,
+	statics		: {
+	},
+	instances	: {
+		_accept	: false,
+
+		_initialize	: function(oSender,x,y,src,bAccept) {
+			System.execMethod(this,"_initialize",["DragLeave",oSender,x,y,src,oSender],sw2.widget.DragEvent);	
+			this._accept = bAccept;
+		},
+
+		getAccept	: function(){
+			return this._accept;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.DragDropEvent",
+	superc		: sw2.widget.DragEvent,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender,x,y,src) {
+			System.execMethod(this,"_initialize",["DragDrop",oSender,x,y,src,oSender],sw2.widget.DragEvent);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.DragStartEvent",
+	superc		: sw2.widget.DragEvent,
+	statics		: {
+	},
+	instances	: {
+		_dragObject	: null,
+
+		_initialize	: function(oSender,x,y) {
+			System.execMethod(this,"_initialize",["DragStart",oSender,x,y,oSender,null],sw2.widget.DragEvent);	
+		},
+
+		getDragObject : function() {
+			return this._dragObject;
+
+		},
+
+		setDragObject : function(oDragObj) {
+			this._dragObject = oDragObj;
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.DragEndEvent",
+	superc		: sw2.widget.DragEvent,
+	statics		: {
+	},
+	instances	: {
+		_accept	: false,
+
+		_initialize	: function(oSender,x,y,target,bAccept) {
+			System.execMethod(this,"_initialize",["DragEnd",oSender,x,y,oSender,target],sw2.widget.DragEvent);	
+			this._accept = bAccept;
+		},
+
+		getAccept	: function(){
+			return this._accept;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Orient",
+	statics		: {
+		_ORIENTS: ["horz","vert"],
+
+		horz	: null,
+		vert	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._ORIENTS.length; i++) {
+				var oOrient = new W.Orient();
+				oOrient._value = i;
+				this[this._ORIENTS[i]] = oOrient;
+			}
+		},
+
+		vtos	: function(o) {
+			return this._ORIENTS[o._value];
+		},
+
+		vfroms	: function(sValue) {
+			if (this._ORIENTS.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+			}
+		}
+	},
+	instances	: {
+		_value	: 0
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.Dock",
+	statics		: {
+		_DOCKS	: ["none","left","top","bottom","right","client"],
+
+		none	: null,
+		left	: null,
+		top		: null,
+		bottom	: null,
+		right	: null,
+		client	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._DOCKS.length; i++) {
+				var oDock = new W.Dock();
+				oDock._value = i;
+				this[this._DOCKS[i]] = oDock;
+			}
+		},
+
+		vtos	: function(o) {
+			return this._DOCKS[o._value];
+		},
+
+		vfroms	: function(sValue) {
+			if (this._DOCKS.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+			}
+		}
+	},
+	instances	: {
+		_value	: 0
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.ControlStyle",
+	superc		: spw.Set,
+	statics		: {
+		_STYLES	: ["resizable","movable","hscrollable","vscrollable"],
+
+		resizable	: null,
+		movable		: null,
+		hscrollable : null,
+		vscrollable : null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._STYLES.length; i++) {
+				this[this._STYLES[i]] = this._STYLES[i];
+			}
+		},
+        vfroms	: function(sValue) {
+			if (this._STYLES.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+                return null;
+			}
+		},
+
+        vtos	: function(ctlStyle) {
+            if (ctlStyle._items != null) {
+                return ctlStyle._items.toString();
+            }
+            return null;
+		}
+	},
+	instances	: {
+		include	: function(o) {
+			if (W.ControlStyle._STYLES.indexOf(o)>-1) {
+				System.execMethod(this,"include",[o],spw.Set);	
+			} else {
+				throw new Error("invalid parameter");
+			}
+		},
+
+		exclude	: function(o) {
+			if (W.ControlStyle._STYLES.indexOf(o)>-1) {
+				System.execMethod(this,"exclude",[o],spw.Set);	
+			} else {
+				throw new Error("invalid parameter");
+			}
+		}
+
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.ControlState",
+	superc		: spw.Set,
+	statics		: {
+		_STATES		: ["resizing","moving","dragging"],
+
+		resizing	: null,
+		moving		: null,
+		dragging	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._STATES.length; i++) {
+				this[this._STATES[i]] = this._STATES[i];
+			}
+		}
+	},
+	instances	: {
+		include	: function(o) {
+			if (W.ControlState._STATES.indexOf(o)>-1) {
+				System.execMethod(this,"include",[o],spw.Set);	
+			} else {
+				throw new Error("invalid parameter");
+			}
+		},
+
+		exclude	: function(o) {
+			if (W.ControlState._STATES.indexOf(o)>-1) {
+				System.execMethod(this,"exclude",[o],spw.Set);	
+			} else {
+				throw new Error("invalid parameter");
+			}
+		}
+
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Size",
+	superc		: sw2.Persistent,
+	statics		: {
+		vtos	: function(o) {
+			var w = o.getW();
+			var h = o.getH();
+			return W.MeasureObject.vtos(w)+" " + W.MeasureObject.vtos(h);
+		},
+
+		vfroms	: function(s) {
+			s = s.trim();
+			var wh = s.split(" ");
+			if (wh.length == 2) {
+				var w = W.MeasureObject.vfroms(wh[0]);
+				var h = W.MeasureObject.vfroms(wh[1]);
+				var size = new W.Size();
+				size.setW(w);
+				size.setH(h);
+				return size;
+			} else {
+				throw new Error(0,"invalid parameter");
+			}
+		}
+
+	},
+	instances	: {
+		_c		: null,
+
+		_w		: null,
+		_h		: null,
+
+
+		_initialize	: function(c) {
+			if (c) {
+				this._c = c;
+			} else {
+				this._w = new W.MeasureObject();
+				this._h = new W.MeasureObject();
+			}
+		},
+
+		_finalize	: function() {
+			this._c = null;
+			this._w = null;
+			this._h = null;
+		},
+
+		getW	: function() {
+			if (this._c) {
+				return UIElement.getWidth(this._c._el);
+			} else {
+				return this._w;
+			}
+
+		},
+
+		setW	: function(w) {
+			if (this._c) {
+				 UIElement.setWidth(this._c._el,w);
+				 if (!this.isUpdating()) {
+					 this._c._layout();
+				 }
+			} else {
+				var s;
+				if (System.instanceOf(w,String)) {
+					s = w;
+					w = W.MeasureObject.vfroms(s);
+				} 
+				this._w = w;
+			}
+		},
+
+		getH	: function() {
+			if (this._c) {
+				return UIElement.getHeight(this._c._el);
+			} else {
+				return this._h;
+			}
+
+		},
+
+		setH	: function(h) {
+			if (this._c) {
+				 UIElement.setHeight(this._c._el,h);
+				 if (!this.isUpdating()) {
+					 this._c._layout();
+				 }
+			} else {
+				var s;
+				if (System.instanceOf(h,String)) {
+					s = h;
+					h = W.MeasureObject.vfroms(s);
+				} 
+				this._h = h;
+			}
+		},
+
+		_doEndUpdate	: function(){
+			if (this._c) {
+				this._c._layout();
+			}
+		},
+
+		assign	: function(o) {
+			this.beginUpdate();
+			this.setW(o.getW());
+			this.setH(o.getH());
+			this.endUpdate();
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Location",
+	superc		: sw2.Persistent,
+	statics		: {
+		vtos	: function(o) {
+			var x = o.getX();
+			var y = o.getY();
+			return W.MeasureObject.vtos(x)+" " + W.MeasureObject.vtos(y);
+		},
+
+		vfroms	: function(s) {
+			s = s.trim();
+			var xy = s.split(" ");
+			if (xy.length == 2) {
+				var x = W.MeasureObject.vfroms(xy[0]);
+				var y = W.MeasureObject.vfroms(xy[1]);
+				var loc = new W.Location();
+				loc.setX(x);
+				loc.setY(y);
+				return loc;
+			} else {
+				throw new Error(0,"invalid parameter");
+			}
+		}
+
+	},
+	instances	: {
+		_c		: null,
+
+		_x		: null,
+		_y		: null,
+
+		_initialize	: function(c) {
+			if (c) {
+				this._c = c;
+			} else {
+				this._x = new W.MeasureObject();
+				this._y = new W.MeasureObject();
+			}
+		},
+
+		_finalize	: function() {
+			this._c = null;
+			this._x = null;
+			this._y = null;
+		},
+
+		getX	: function() {
+			if (this._c) {
+				return UIElement.getLeft(this._c._el);
+			} else {
+				return this._x;
+			}
+
+		},
+
+		setX	: function(x) {
+			if (this._c) {
+				 UIElement.setLeft(this._c._el,x);
+				 if (!this.isUpdating()) {
+					 this._c._layout();
+				 }
+			} else {
+				var s;
+				if (System.instanceOf(x,String)) {
+					s = x;
+					x = W.MeasureObject.vfroms(s);
+				} 
+
+				this._x = x;
+			}
+		},
+
+		getY	: function() {
+			if (this._c) {
+				return UIElement.getTop(this._c._el);
+			} else {
+				return this._y;
+			}
+
+		},
+
+		setY	: function(y) {
+			if (this._c) {
+				 UIElement.setTop(this._c._el,y);
+				 if (!this.isUpdating()) {
+					 this._c._layout();
+				 }
+			} else {
+				var s;
+				if (System.instanceOf(y,String)) {
+					s = y;
+					y = W.MeasureObject.vfroms(s);
+				} 
+				this._y = y;
+			}
+		},
+
+		_doEndUpdate	: function(){
+			if (this._c) {
+				this._c._layout();
+			}
+		},
+
+		assign	: function(o) {
+			this.beginUpdate();
+			this.setX(o.getX());
+			this.setY(o.getY());
+			this.endUpdate();
+		}
+
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.Borders",
+	superc		: sw2.Persistent,
+	statics		: {
+		_defineProperties	: function(propInfo) {
+			sw2.Persistent._defineProperties(propInfo);
+			propInfo.put("styles",W.BorderStyles);
+			propInfo.put("widths",W.BorderWidths);
+			propInfo.put("colors",W.BorderColors);
+		}	
+	},
+	instances	: {
+		_c		: null,
+
+		_ws		: null,
+		_ss		: null,
+        _cs		: null,
+		
+		_initialize	: function(c) {
+			this._c = c;
+		},
+
+		_finalize	: function() {
+		},
+
+		getStyles	: function() {
+			var ss ;
+			if (this._c){
+				ss = UIElement.getBorderStyles(this._c._el);
+			} else {
+				ss = this._ss;
+			}
+			return ss;
+		},
+
+		setStyles	: function(oStyles) {
+			if (this._c){
+				UIElement.setBorderStyles(this._c._el,oStyles);
+			} else {
+				if (System.instanceOf(oStyles,String)) {
+					this._ss = W.BorderStyles.vfroms(oStyles);
+				} else {
+					this._ss = oStyles;
+				}
+			}
+		},
+
+		getWidths	: function() {
+			var ws ;
+			if (this._c){
+				ws = UIElement.getBorderWidths(this._c._el);
+			} else {
+				ws = this._ws;
+			}
+			return ws;
+		},
+
+		setWidths	: function(oWidths) {
+			if (this._c){
+				UIElement.setBorderWidths(this._c._el,oWidths);
+			} else {
+				if (System.instanceOf(oWidths,String)) {
+					this._ws = W.BorderWidths.vfroms(oWidths);
+				} else {
+					this._ws = oWidths;
+				}
+			}
+		},
+
+		getColors	: function() {
+			var cs ;
+			if (this._c){
+				cs = UIElement.getBorderColors(this._c._el);
+			} else {
+				cs = this._cs;
+			}
+			return cs;
+		},
+
+		setColors	: function(oColors) {
+			if (this._c){
+				UIElement.setBorderColors(this._c._el,oColors);
+			} else {
+				if (System.instanceOf(oColors,String)) {
+					this._cs = W.BorderColors.vfroms(oColors);
+				} else {
+					this._cs = oColors;
+				}
+			}
+		},
+
+		assign		: function(oBorders) {
+			this.setWidths(oBorders.getWidths());
+			this.setStyles(oBorders.getStyles());
+			this.setColors(oBorders.getColors());
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.Font",
+	superc		: sw2.Persistent,
+	statics		: {
+		_defineProperties	: function(propInfo) {
+			sw2.Persistent._defineProperties(propInfo);
+			propInfo.put("name",String);
+			propInfo.put("size",Number);
+			propInfo.put("unit",W.Unit);
+			propInfo.put("bold",Boolean);
+			propInfo.put("italic",Boolean);
+			propInfo.put("underline",Boolean);
+			propInfo.put("strikeout",Boolean);
+			propInfo.put("color",W.Color);
+		}	
+	},
+	instances	: {
+		_c		: null,
+		_name	: null,
+		_size	: null,
+		_unit	: null,
+		_color	: null,
+
+		_b		: false,
+		_i		: false,
+		_u		: false,
+		_s		: false,
+
+		
+
+		_initialize	: function(c) {
+			this._c = c;
+		},
+
+		_finalize	: function() {
+			this._c = null;
+		},
+
+		getName	: function() {
+			if (this._c) {
+				return UIElement.getFontName(this._c._el);
+			} else {
+				return this._name;
+			}
+		},
+
+		setName	: function(name) {
+			if (this._c) {
+				UIElement.setFontName(this._c._el,name);
+			} else {
+				this._name = name;
+			}
+
+		},
+		
+		getBold	: function() {
+			if (this._c) {
+				return UIElement.getFontBold(this._c._el);
+			} else {
+				return this._b;
+			}
+		},
+
+		setBold	: function(bBold) {
+			if (this._c) {
+				UIElement.setFontBold(this._c._el,bBold);
+			} else {
+				this._b = bBold;
+			}
+
+		},
+
+		getItalic	: function() {
+			if (this._c) {
+				return UIElement.getFontItalic(this._c._el);
+			} else {
+				return this._i;
+			}
+		},
+
+		setItalic	: function(bItalic) {
+			if (this._c) {
+				UIElement.setFontItalic(this._c._el,bItalic);
+			} else {
+				this._b = bItalic;
+			}
+		},
+
+		getUnderline	: function() {
+			if (this._c) {
+				return UIElement.getFontUnderline(this._c._el);
+			} else {
+				return this._u;
+			}
+		},
+
+		setUnderline	: function(bUnderline) {
+			if (this._c) {
+				UIElement.setFontUnderline(this._c._el,bUnderline);
+			} else {
+				this._u = bUnderline;
+			}
+		},
+
+		getStrikeout	: function() {
+			if (this._c) {
+				return UIElement.getFontStrikeout(this._c._el);
+			} else {
+				return this._s;
+			}
+		},
+
+		setStrikeout	: function(bStrikeout) {
+			if (this._c) {
+				UIElement.setFontStrikeout(this._c._el,bStrikeout);
+			} else {
+				this._s = bStrikeout;
+			}
+		},
+
+		getUnit	: function() {
+			if (this._c) {
+				return UIElement.getFontUnit(this._c._el);
+			} else {
+				return this._unit;
+			}
+		},
+
+		setUnit	: function(unit) {
+			if (this._c) {
+				UIElement.setFontUnit(this._c._el,unit);
+			} else {
+				this._unit = unit;
+			}
+		},
+
+		getSize	: function() {
+			if (this._c) {
+				return UIElement.getFontSize(this._c._el);
+			} else {
+				return this._size;
+			}
+		},
+
+		setSize	: function(size) {
+			if (this._c) {
+				UIElement.setFontSize(this._c._el,size);
+			} else {
+				this._size = size;
+			}
+		},
+
+		getColor	: function() {
+			if (this._c) {
+				return UIElement.getFontColor(this._c._el);
+			} else {
+				return this._color;
+			}
+		},
+
+		setColor	: function(oColor){
+			if (this._c) {
+				UIElement.setFontColor(this._c._el,oColor);
+			} else {
+				if (System.instanceOf(oColor,String)){
+					this._color = W.Color.vfroms(oColor);
+				} else {
+					this._color = oColor;
+				}
+			}
+
+		},
+
+		assign	: function(oFont) {
+			this.setName(oFont.getName());
+			this.setBold(oFont.getBold());
+			this.setItalic(oFont.getItalic());
+			this.setUnderline(oFont.getUnderline());
+			this.setStrikeout(oFont.getStrikeout());
+			this.setUnit(oFont.getUnit());
+			this.setSize(oFont.getSize());
+		}
+	}
+});
+
+
+
+
+System.defineClass({
+	name		: "sw2.widget.Background",
+	superc		: sw2.Persistent,
+	statics		: {
+		_defineProperties	: function(propInfo) {
+			sw2.Persistent._defineProperties(propInfo);
+			propInfo.put("color",W.Color);
+		}	
+	},
+	instances	: {
+		_c			: null,
+		_color		: null,
+		_image		: null,
+		_repeat		: null,
+
+		_initialize	: function(c) {
+			this._c = c;
+		},
+
+		_finalize	: function() {
+			this._c = null;
+		},
+
+
+		getColor	: function() {
+			if (this._c) {
+				return UIElement.getBgColor(this._c._el);
+			} else {
+				return this._color;
+			}
+		},
+
+		setColor	: function(oColor){
+			if (this._c) {
+				UIElement.setBgColor(this._c._el, oColor);
+			} else {
+				if (System.instanceOf(oColor,String)){
+					this._color = W.Color.vfroms(oColor);
+				} else {
+					this._color = oColor;
+				}
+			}
+
+		},
+
+		getImage	: function() {
+			if (this._c) {
+				return  UIElement.getBgImage(this._c._el);
+			} else {
+				return this._image;
+			}
+		},
+
+		setImage	: function(sUrl){
+			if (this._c) {
+				UIElement.setBgImage(this._c._el,sUrl);
+			} else {
+				this._image = sUrl;
+			}
+		},
+
+		getRepeat	: function() {
+			if (this._c) {
+				return UIElement.getBgImgRepeat(this._c._el);
+			} else {
+				return this._repeat;
+			}
+		},
+
+		setRepeat	: function(oRepeat) {
+			if (this._c) {
+				UIElement.setBgImgRepeat(this._c._el, oRepeat);
+			} else {
+				if (System.instanceOf(oRepeat,String)){
+					this._repeat = W.BgImgRepeatType.vfroms(oRepeat);
+				} else {
+					this._repeat = oRepeat;
+				}
+			}
+		}
+
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.Control",
+	superc		: sw2.Component,
+	statics		: {
+		CA_CLIENT		: "client",
+		CA_TITLE		: "title",
+		CA_OUTER		: "",
+		CA_LBORDER		: "w-resize",
+		CA_TBORDER		: "n-resize",
+		CA_RBORDER		: "e-resize",
+		CA_BBORDER		: "s-resize",
+		CA_LTCORNER		: "nw-resize",
+		CA_RTCORNER		: "ne-resize",
+		CA_LBCORNER		: "sw-resize",
+		CA_RBCORNER		: "se-resize",
+		CA_RSCROLL		: "rscroll",
+		CA_BSCROLL		: "bscroll",
+
+		_popups			: null,
+
+		_capture		: null,
+
+		_focusedC		: null,
+		
+
+		_dragObject		: null,
+
+		_initialize		: function() {
+			this._popups = new Array();
+		},
+		
+		_finalize		: function() {
+		},
+		
+		_defineProperties	: function(propInfo) {
+			sw2.Component._defineProperties(propInfo);
+			propInfo.put("left",Number);
+			propInfo.put("top",Number);
+			propInfo.put("width",Number);
+			propInfo.put("height",Number);
+			propInfo.put("visible",Boolean);
+			propInfo.put("enabled",Boolean);
+			propInfo.put("dock",W.Dock);
+			propInfo.put("borders",W.Borders);
+			propInfo.put("background",W.Background);
+			propInfo.put("font",W.Font);
+			propInfo.put("location",W.Location);
+			propInfo.put("size",W.Size);
+		
+			propInfo.put("hint",String);
+		},
+
+		_clearPopup		: function(nFromIndex) {
+			if (!nFromIndex) {
+				nFromIndex = 0;
+			}
+			var nLen = this._popups.length;
+			for (var i = nLen-1; i>=nFromIndex;i--) {
+				var c = this._popups.pop();
+				c.setParent(null);
+			}
+		},
+
+
+		getCapture		: function() {
+			return this._capture;
+		},
+
+		setCapture		: function(oCapture) {
+			this._capture = oCapture;
+		},
+
+		find			: function(x,y,o){
+			function checkControl(c,p) {
+				var r = c.getBoundRect(true);
+				if (r.containPoint(p)) {
+						if (System.instanceOf(c,W.Container)) {
+							for (var i =c._children.length-1;i>=0;i--){
+							var oChild = c._children[i];
+							var c1 = checkControl(oChild,p);
+							if (c1){
+								return c1;
+							}
+						}
+					}
+					return c;
+				} else {
+					return null;
+				}
+			};
+
+			if (!o) {
+				o = desk;
+			}
+			var p = new W.Point(x,y);
+			return checkControl(o,p);
+		}
+
+
+	},
+	instances	: {
+		_uel		: null,
+
+		_TAGNAME	: "DIV",
+
+
+		_tabIndex	: 0,
+
+		_location	: null,
+		_size		: null,
+
+		_borders	: null,
+		_font		: null,
+		_bg			: null,
+
+
+		_left		: 0,
+		_top		: 0,
+		_width		: 0,
+		_height		: 0,
+
+		_visible	: false,
+		_enabled	: true,
+
+		_hint		: "",
+
+
+		_dock		: null,
+		_cursor		: null,
+
+		_controlStyle	: null,
+
+		_dragKind	: null,
+		_dragMode	: null,
+		_dragCursor : null,
+		_dragImage	: null,
+
+		_popupMenu	: null,
+
+		_minWidth	: 3,
+		_minHeight  : 3,
+
+
+		_startX		: 0,
+		_startY		: 0,
+		_startW		: 0,
+		_startH		: 0,
+		_mouseDownX : 0,
+		_mouseDownY : 0,
+		_deltaX		: 0,
+		_deltaY		: 0,
+	
+		_mouseDowned: false,
+		_controlState	: null,
+
+		_state      	: "",
+
+		_ncsize			: null,
+		_ncSizeCalced 	: false,
+
+		_popuped		: false,
+
+		_parent			: null,
+
+		_l:0,_t:0,_w:0,_h:0,_ori : "",		
+
+		_initialize : function(owner) {
+			System.execMethod(this,"_initialize",[owner],sw2.Component);	
+
+			this._el = this._doCreateUIElement();
+
+			UIElement.bindtoControl(this._el,this);
+
+			this._ncsize = new Hash();
+			this._ncsize.putAll({
+									lborder : 0,
+									tborder : 0,
+									rborder	: 0,
+									bborder : 0,
+									title   : 0,
+									rscroll : 0,
+									bscroll : 0
+								 });
+
+			this._location = new W.Location(this);
+			this._size = new W.Size(this);
+			this._dock = W.Dock.none;
+
+			this._borders = new W.Borders(this);
+			this._font	= new W.Font(this);
+			this._bg = new W.Background(this);
+
+			
+			this._controlStyle = new W.ControlStyle();
+			this._controlState = new W.ControlState();
+
+			this._cursor = W.Cursor.pointer;
+			
+			this._dragCursor = W.Cursor.move;
+		},
+
+		_finalize : function() {
+			var p = this.getParent();
+			if (p) {
+				this.setParent(null);
+			}
+			System.dispose(this._ncsize);
+			this._ncsize = null;
+
+			this._popupMenu  = null;
+
+			System.dispose(this._location);
+			this._location = null;
+
+			System.dispose(this._size);
+			this._size = null;
+
+			System.dispose(this._borders);
+			this._borders = null;
+
+			System.dispose(this._font);
+			this._font = null;
+
+			System.dispose(this._bg);
+			this._bg = null;
+
+			this._dock = null;
+
+
+			System.dispose(this._controlStyle);
+			this._controlStyle = null;
+
+			System.dispose(this._controlState);
+			this._controlState = null;
+
+//			UIElement.setControl(this._el,null);
+
+//			UIElement.destroySw2Element(this._el);
+			System.execMethod(this,"_finalize",null,sw2.Component);	
+		},
+
+		_doCreateUIElement	: function() {
+			return UIDiv.create(null,"Control");
+		},
+
+		_handleMessage	: function(msg){
+			if (this._disposed) {
+				return;
+			}
+			var evt = null;
+			switch (msg.getType()) {
+				case W.Message.KEYDOWN : {
+					this._doKeyDown(msg.getKeyCode());
+					evt = new W.KeyDownEvent(this,msg.getKeyCode());
+					break;
+				};
+				case W.Message.KEYPRESS : {
+					this._doKeyPress(msg.getKeyCode());
+					var evt = new W.KeyPressEvent(this,msg.getKeyCode());
+					break;
+				};
+				case W.Message.KEYUP : {
+					this._doKeyUp(msg.getKeyCode());
+					var evt = new W.KeyUpEvent(this,msg.getKeyCode());
+					break;
+				};
+				case W.Message.MOUSEDOWN : {
+//					System.asyncExecMethod(this,this.focus,[],0);
+					this.focus();
+					var x = msg.getX();
+					var y = msg.getY();
+					var btn = msg.getButton();
+
+					this._doMouseDown(btn,x,y);
+
+					var evt = new W.MouseDownEvent(this,x,y,btn);
+
+					break;
+				};
+				case W.Message.MOUSEMOVE : {
+//					var btn = msg.getButton();
+					var x = msg.getX();
+					var y = msg.getY();
+
+					this._doMouseMove(x,y);
+
+					var evt = new W.MouseMoveEvent(this,x,y);
+					break;
+				};
+				case W.Message.MOUSEUP : {
+					var btn = msg.getButton();
+					var x = msg.getX();
+					var y = msg.getY();
+
+					this._doMouseUp(btn,x,y);
+					var evt = new W.MouseUpEvent(this,x,y,btn);
+					break;
+				};
+				case W.Message.MOUSEENTER : {
+					this._doMouseEnter();
+					var evt = new W.MouseEnterEvent(this);
+					break;
+				};
+				case W.Message.MOUSELEAVE : {
+					this._doMouseLeave();
+					var evt = new W.MouseLeaveEvent(this);
+					break;
+				};
+				case W.Message.CLICK : {
+					this._doClick();
+					var evt = new W.ClickEvent(this);
+					break;
+				};
+				case W.Message.DBLCLICK : {
+					this._doDblClick();
+					var evt = new W.DblClickEvent(this);
+					break;
+				};
+			}
+			if (evt) {
+				this.notifyEvent(evt);
+			}
+		},
+
+		_savePosSizeInfo	: function() {
+			this._l = this.getLeft();
+			this._t = this.getTop();
+			this._w = this.getWidth();
+			this._h = this.getHeight();
+		},
+
+		_saveMouseDownInfo	: function(x,y) {
+			this._startX = this.getLeft();
+			this._startY = this.getTop();
+			this._startW = this.getWidth();
+			this._startH = this.getHeight();
+
+			this._mouseDownX = x;
+			this._mouseDownY = y;
+			var pt =this.getDeskLocation();
+			this._deltaX = x - pt.getX();
+			this._deltaY = y - pt.getY();
+		},
+
+		_clearMouseDownInfo	: function() {
+			this._startX = -1;
+			this._startY = -1;
+			this._startW = -1;
+			this._startH = -1;
+			this._mouseDownX = -1;
+			this._mouseDownY = -1;
+		},
+
+
+		_validateAutoMove	: function(x,y,el) {
+			var ca = this.hitTest(x,y);
+			if (ca == W.Control.CA_CLIENT) {
+				return W.Cursor.pointer;
+			} else {
+				return null;
+			}
+		},
+
+		_validateAutoResize : function(x,y,el) {
+			var oCursor = null;
+			var ca = this.hitTest(x,y);
+			switch (ca) {
+				case W.Control.CA_LBORDER :
+						oCursor =  W.Cursor.wresize;
+						break;
+				case W.Control.CA_TBORDER :
+						oCursor =  W.Cursor.nresize;
+						break;
+                case W.Control.CA_RBORDER :
+						oCursor =  W.Cursor.eresize;
+						break;
+                case W.Control.CA_BBORDER :
+						oCursor =  W.Cursor.sresize;
+						break;
+                case W.Control.CA_LTCORNER :
+						oCursor =  W.Cursor.nwresize;
+						break;
+                case W.Control.CA_RTCORNER :
+						oCursor =  W.Cursor.neresize;
+						break;
+                case W.Control.CA_LBCORNER :
+						oCursor =  W.Cursor.swresize;
+						break;
+                case W.Control.CA_RBCORNER : 
+						oCursor =  W.Cursor.seresize;
+						break;
+			}
+			return oCursor;
+		},
+
+
+		_doMouseDown	: function(btn,x,y) {
+			this._saveMouseDownInfo(x,y);
+			if (btn == W.MouseButton.left) {
+				var cs = this.getControlStyle();
+
+				if (cs.contains(W.ControlStyle.resizable)) {
+					if (this._validateAutoResize(x,y,mouse._mouseinEl)) {
+						W.DragObject._dragInit(this,W.DragObject.DT_RESIZE);
+						return;
+					}
+				}
+
+				if (cs.contains(W.ControlStyle.movable)) {
+					if (this._validateAutoMove(x,y,mouse._mouseinEl)) {
+						W.DragObject._dragInit(this,W.DragObject.DT_REPOS);
+						return;
+					}
+				}
+				
+			}
+		},
+
+		_doMouseMove	: function(x,y) {
+			var cs = this.getControlStyle();
+			var ca = null;
+		 	if (cs.contains(W.ControlStyle.resizable)) {
+				ca = this._validateAutoResize(x,y,mouse._mouseinEl);
+			}
+
+			if (!ca && cs.contains(W.ControlStyle.movable)) {
+				ca = this._validateAutoMove(x,y,mouse._mouseinEl)
+			}
+
+			if (ca) {
+				desk.setCurrentCursor(ca);
+			} else {
+				desk.setCurrentCursor(this.getCursor());
+			}
+		},
+
+
+		_doMouseUp	: function(btn,x,y) {
+		},
+
+		_doMouseEnter	: function() {
+		},
+
+		_doMouseLeave	: function() {
+		},
+
+		_doClick		: function() {
+		},
+
+		_doDblClick		: function() {
+		},
+		
+		_doFocus		: function() {
+			var evt = new W.FocusEvent(this);
+			this.notifyEvent(evt);
+		},
+
+		_doBlur			: function() {
+			var evt = new W.BlurEvent(this);
+			this.notifyEvent(evt);
+			return true;
+		},
+
+		_doKeyDown		: function(keyCode) {
+		},
+
+		_doKeyPress		: function(keyCode) {
+		},
+
+		_doKeyUp		: function(keyCode) {
+		},
+
+		_doDragEnter		: function(x,y,src) {
+			var evt = new W.DragEnterEvent(this,x,y,src);
+			this.notifyEvent(evt);
+			return evt.getAccept();
+		},
+
+		_doDragMove		: function(x,y,src,accept) {
+			var evt = new W.DragEnterEvent(this,x,y,src,accept);
+			this.notifyEvent(evt);
+			return evt.getAccept();
+		},
+
+		_doDragLeave	: function(x,y,src,accept) {
+			var evt = new W.DragLeaveEvent(this,x,y,src,accept);
+			this.notifyEvent(evt);
+			return evt.getAccept();
+		},
+
+		_doDragDrop		: function(x,y,src) {
+			var evt = new W.DragDropEvent(this,x,y,src);
+			this.notifyEvent(evt);
+		},
+
+		_doDragStart	: function(x,y) {
+			this._saveMouseDownInfo(x,y);
+			var evt = new W.DragStartEvent(this,x,y);
+			this.notifyEvent(evt);
+			return null;
+		},
+
+
+		_doDragEnd		: function(x,y,accept,target) {
+			var evt = new W.DragEndEvent(this,x,y,target,accept);
+			this.notifyEvent(evt);
+		},
+
+
+		_doBeginAutoMove	: function(x,y){
+			this._savePosSizeInfo();
+		},
+
+
+		_doEndAutoMove		: function(x,y) {
+		},
+
+		_doBeginAutoResize	: function(x,y,ori) {
+			this._savePosSizeInfo();
+		},
+
+		_doEndAutoResize	: function(x,y) {
+		},
+
+		_doAutoMoving		: function(x, y) {
+			var dx = x-mouse.getDownX();
+			var dy = y-mouse.getDownY();
+
+			this.setLeft(this._l+dx);
+			this.setTop(this._t+dy);
+       },
+
+		_resizeRect			: function(x,y,cursor,rect){
+			var nLeft  = rect.getLeft();
+			var nTop   = rect.getTop();
+			var nWidth = rect.getWidth();
+			var nHeight = rect.getHeight();
+			var nRight = nLeft + nWidth;
+			var nBottom = nTop + nHeight;
+
+			var dx = x-mouse.getDownX();
+			var dy = y-mouse.getDownY();
+
+			switch (cursor) {
+				case W.Cursor.eresize :
+					{
+						nWidth = nWidth + dx;
+						if (nWidth < 3 ) {
+							nWidth = 3;
+						}
+						break;
+					};
+				case W.Cursor.wresize :
+					{
+						nLeft = nLeft +  dx;
+						if (nLeft > nRight - 3) {
+							nLeft = nRight -3 ;
+						}
+						nWidth = nRight - nLeft;
+						break;
+					};
+				case W.Cursor.nresize :
+					{
+						nTop = nTop+dy;
+						if (nTop > nBottom - 3) {
+							nTop = nBottom -3 ;
+						}
+						nHeight = nBottom - nTop;
+						break;
+					};
+				case W.Cursor.sresize :
+					{
+						nHeight = nHeight+dy;
+						if (nHeight < 3 ) {
+							nHeight = 3;
+						}
+						break;
+					};
+				case W.Cursor.neresize :
+					{
+						nWidth = nWidth + dx;
+						if (nWidth < 3 ) {
+							nWidth = 3;
+						}
+						nTop = nTop+dy;
+						if (nTop > nBottom - 3) {
+							nTop = nBottom -3 ;
+						}
+						nHeight = nBottom - nTop;
+						break;
+					};
+				case W.Cursor.nwresize :
+					{
+						nTop = nTop+dy;
+						if (nTop > nBottom - 3) {
+							nTop = nBottom -3 ;
+						}
+						nHeight = nBottom - nTop;
+						nLeft = nLeft +  dx;
+						if (nLeft > nRight - 3) {
+							nLeft = nRight -3 ;
+						}
+						nWidth = nRight - nLeft;
+						break;
+					};
+				case W.Cursor.seresize :
+					{
+						nHeight = nHeight+dy;
+						if (nHeight < 3 ) {
+							nHeight = 3;
+						}
+						nWidth = nWidth + dx;
+						if (nWidth < 3 ) {
+							nWidth = 3;
+						}
+						break;
+					};
+				case W.Cursor.swresize :
+					{
+						nHeight = nHeight+dy;
+						if (nHeight < 3 ) {
+							nHeight = 3;
+						}
+						nLeft = nLeft +  dx;
+						if (nLeft > nRight - 3) {
+							nLeft = nRight -3 ;
+						}
+						nWidth = nRight - nLeft;
+						break;
+					};
+			}
+			
+			return new W.Rect(nLeft,nTop,nWidth,nHeight);
+		},
+
+		_doAutoResizing		: function(x,y,cursor){
+			var rect = new W.Rect(this._l,this._t,this._w,this._h);
+			rect =	this._resizeRect(x,y,cursor,rect);
+			System.asyncExecMethod(this,this.setBounds,[rect.getLeft(),rect.getTop(),rect.getWidth(),rect.getHeight()],0);
+//			this.setBounds(rect.getLeft(),rect.getTop(),rect.getWidth(),rect.getHeight());
+		},
+
+
+		_doCanSetParent	: function(oParent){
+			return true;
+		},
+
+		_doEndUpdate	: function() {
+			this._layout();
+		},
+
+		_layout : function(bInvalidate) {
+			if (this.isUpdating()) {
+				return ;
+			}
+			this._ncSizeCalced = false;
+
+			if (this.getDock() != W.Dock.none) {
+				var p = this.getParent();
+				if (p) {
+					p._requestDock();
+				}
+			}
+			if (this.getWidth() != this._oldWidth || this.getHeight()!=this._oldHeight) {
+				this._oldWidth = this.getWidth();
+				this._oldHeight = this.getHeight();
+            	this._doResize();
+			}
+		},
+
+		getControlStyle	: function() {
+			return this._controlStyle;
+		},
+
+		getControlState : function(){
+			return this._controlState;
+		},
+
+		getDragMode	:	function () {
+			return this._dragMode;
+		},
+
+		setDragMode	: function(sDragMode) { 
+			this._dragMode = sDragMode;
+		},
+
+
+		getVisible : function() {
+			return UIElement.getVisible(this._el);
+		},
+	   
+		setVisible : function(bVisible) {
+			UIElement.setVisible(this._el,bVisible);
+		},
+
+		getEnabled	: function() {
+			return UIElement.getEnabled(this._el);
+		},
+
+		setEnabled	: function(bEnabled) {
+			UIElement.setEnabled(this._el,bEnabled);
+		},	
+
+		getClientLeft	: function() {
+
+			var ncLeft = 0;
+			var cel = this._getClientElement();
+			if (cel!=this._el) {
+				ncLeft = UIElement.getOffsetLeft(cel,this._el);
+			}
+			ncLeft += UIElement.getClientLeft(cel);
+			return ncLeft;
+		},
+
+		getClientTop	: function() {
+			var ncTop = 0;
+			var cel = this._getClientElement();
+			if (cel!=this._el) {
+				ncTop = UIElement.getOffsetTop(cel,this._el);
+			}
+			ncTop += UIElement.getClientTop(cel);
+			return ncTop
+		},
+
+		getClientWidth	: function() {
+			return UIElement.getClientWidth(this._getClientElement());
+		},
+
+		getClientHeight	: function() {
+			return UIElement.getClientHeight(this._getClientElement());
+		},
+
+		getLocation	: function(){
+			return this._location;
+		},
+
+		setLocation	: function(o) {
+			this._location.assign(o);
+		},
+
+		getSize		: function(){
+			return this._size;
+		},
+
+		setSize		: function(o){
+			this._size.assign(o);
+		},
+
+		getBorders	: function() {
+			return this._borders;
+		},
+
+		setBorders	: function(oBorders) {
+			this._borders.assign(oBorders);
+
+		},
+
+		getBackground	: function() {
+			return this._bg;
+		},
+		
+		setBackground	: function(bg) {
+			this._bg.assign(bg);
+		},
+
+
+		getFont			: function() {
+			return this._font;
+		},
+
+		setFont			: function(oFont) {
+			this._font.assign(oFont);
+		},
+
+
+		getLeft : function() {
+			var p = this.getParent();
+			if (p) {
+				return UIElement.getOffsetLeft(this._el,p._el)-p.getClientLeft();
+			} else {
+				return 0;
+			}
+		},
+
+		getRight : function() {
+			return this.getLeft() + this.getWidth();
+		},
+
+		getTop : function() {
+			var p = this.getParent();
+			if (p) {
+				return UIElement.getOffsetTop(this._el,p._el)-p.getClientTop();
+			} else {
+				return 0;
+			}
+		},
+
+		getBottom : function() {
+			return this.getTop() + this.getHeight();
+		},
+
+		getWidth : function() {
+			return UIElement.getOffsetWidth(this._el);
+		},
+
+		getHeight : function() {
+			return UIElement.getOffsetHeight(this._el);
+		},
+
+		setLeft : function(nLeft) {
+			if (nLeft != this.getLeft()) {
+				this._location.setX(nLeft.toString());
+			}
+		},
+
+		setTop : function(nTop) {
+			if (nTop != this.getTop()) {
+				this._location.setY(nTop.toString());
+			}
+		},
+
+		setWidth : function(nWidth) {
+			nWidth = nWidth<this._minWidth? this._minWidth:nWidth;
+			if (nWidth != this.getWidth()) {
+				this._size.setW(nWidth.toString());
+			}
+		},
+
+		setHeight : function(nHeight) {
+			nHeight = nHeight<this._minHeight? this._minHeight:nHeight;
+			if (nHeight != this.getHeight()) {
+				this._size.setH(nHeight.toString());
+			}
+		},
+
+		getMinWidth	: function() {
+			return this._minWidth;
+		},
+
+		getMinHeight	: function() {
+			return this._minHeight;
+		},
+
+		setMinWidth	: function(nMinWidth) {
+			this._minWidth = nMinWidth;
+		},
+
+		setMinHeight	: function(nMinHeight){
+			this._minHeight = nMinHeight;
+		},
+
+
+		getDock		: function () {
+			return this._dock;
+		},
+
+		setDock		: function (dock) {
+			if (this._dock == dock) {
+				return;
+			}
+
+			this._dock = dock;
+			var p = this.getParent();
+			if (p) {
+				p._alChildren.remove(this);
+				if (dock != W.Dock.none) {
+					p._alChildren.push(this);
+				}
+				p._requestDock();
+			}
+		},
+
+		getCol	: function() {
+		},
+
+		getRow	: function() {
+		},
+
+		getCell	: function() {
+		},
+
+
+		getCursor	: function() {
+			return this._cursor;
+		},
+
+		setCursor	: function(oCursor) {
+			this._cursor = oCursor;
+		},
+
+		getDragCursor	: function() {
+			return this._dragCursor;
+		},
+
+		setDragCursor	: function(oCursor) {
+			this._dragCursor = oCursor;
+		},
+
+		getPopupMenu	: function() {
+			return this._popupMenu;
+		},
+
+		setPopupMenu	: function(oPopupMenu) {
+			this._popupMenu = oPoupuMenu;
+		},
+
+
+		getParent : function() {
+			return this._parent;
+		},
+
+		setParent : function(p) {
+			if (p) {
+				p.addChild(this);
+			} else if (this._parent) {
+				this._parent.removeChild(this);
+			}
+		},
+
+
+		sendtoBack	: function() {
+			var p = this._parent;
+			if (p) {
+				p._moveChildToBottom(this);
+			}
+		},
+
+		bringtoFront	: function() {
+			var p = this._parent;
+			if (p) {
+				p._moveChildToTop(this);
+			}
+		},
+
+        // Added by wanghl start
+        _doResize    : function () {
+        },
+        // Added by wanghl end
+
+		setBounds : function(nLeft, nTop, nWidth, nHeight) {
+			var x = this.getLeft();
+			var y = this.getTop();
+			var w = this.getWidth();
+			var h = this.getHeight();
+			nWidth = nWidth<this._minWidth? this._minWidth:nWidth;
+			nHeight = nHeight<this._minHeight? this._minHeight:nHeight;
+
+			if (x != nLeft
+				|| y != nTop
+				|| w != nWidth
+				|| h != nHeight) {
+				this.beginUpdate();
+
+				this._location.setX(nLeft.toString());
+				this._location.setY(nTop.toString());
+				this._size.setW(nWidth.toString());
+				this._size.setH(nHeight.toString());
+
+				this.endUpdate();
+//				this._layout();
+			}
+		},
+
+		getDeskLocation	: function () {
+			return UIElement.getDeskXY(this._el)
+		},
+
+		getBoundRect	: function (bDesk) {
+			var r = null;
+			if (bDesk) {
+				var p = this.getDeskLocation();
+				r = new W.Rect(p.getX(),p.getY(),this.getWidth(),this.getHeight());
+			} else {
+				r = new W.Rect(this.getLeft(),this.getTop(),this.getWidth(),this.getHeight());
+			}
+			return r;
+
+		},
+
+		beginDrag	: function() {
+			W.DragObject._dragInit(this,W.DragObject.DT_IMGDRAG);
+		},
+
+		endDrag		: function(bDrop) {
+			W.DragObject._dragDone(bDrop);
+		},
+
+		dragging	: function() {
+			var cst = this.getControlState();
+			return cst.contains(W.ControlState.dragging);
+		},
+
+
+		hitTest	: function(x,y) {
+			var lborder = UIElement.getNLeftBorderWidth(this._el);
+			var tborder = UIElement.getNTopBorderWidth(this._el);
+			var rborder = UIElement.getNRightBorderWidth(this._el);
+			var bborder = UIElement.getNBottomBorderWidth(this._el);
+
+			var ctop	= this.getClientTop();
+			var cleft   = this.getClientLeft();
+			var cwidth  = this.getClientWidth();
+			var cheight = this.getClientHeight();
+			
+			var width   = this.getWidth();
+			var height  = this.getHeight();
+
+			var deskPos = this.getDeskLocation();
+			var dx = deskPos.getX();
+			var dy = deskPos.getY();
+
+			var de = x - dx;
+			var dw = dx + width - x;
+			var dn = y - dy;
+			var ds = dy + height - y;
+			if (de>=0 && de < lborder) {
+				if (dn>=0 && dn < tborder) {
+					return W.Control.CA_LTCORNER;
+				} else if (ds>=0 && ds < bborder) {
+					return W.Control.CA_LBCORNER;
+				} else if (dn>0 && ds>0) {
+					return W.Control.CA_LBORDER;
+				}
+			} else if (dw>=0 && dw < lborder) {
+				if (dn>=0 && dn < tborder) {
+					return W.Control.CA_RTCORNER;
+				} else if (ds>=0 && ds < bborder) {
+					return W.Control.CA_RBCORNER;
+				} else if (dn>0 && ds>0) {
+					return W.Control.CA_RBORDER;
+				}
+			} else if (de>=0 && dw>=0 && dn>=0 && dn < tborder) {
+				return W.Control.CA_TBORDER;
+
+			} else if (de>=0 && dw>=0 &&  ds>=0 && ds < bborder)  {
+				return W.Control.CA_BBORDER;
+
+			} else if (de>=0 && dw>=0 && dn>=0 && dn < ctop)  {
+				return W.Control.CA_TITLE;
+
+			} else if (de>=0 && dw>=0 &&  ds>=0 && ds < height-ctop-cheight)  {
+				return W.Control.CA_BSCROLL;
+			
+			} else if (dn>=0 && ds>=0 &&  dw>=0 && dw < width-cleft-cwidth)  {
+				return W.Control.CA_RSCROLL;
+
+			} else if (de>=0 && dw>=0 && dn>=0 && ds>=0) {
+				return W.Control.CA_CLIENT;
+			} 
+
+			return W.Control.CA_OUTER;
+		},
+
+		_doSetFocus	: function() {
+			UIElement.focus(this._el);
+		},
+
+		focus		: function(){
+			if (this._popuped) {
+				return;
+			}
+			if (W.Control._focusedC != this) {
+				if (W.Control._focusedC && !W.Control._focusedC._disposed) {
+					
+					W.Control._focusedC._doBlur();
+				}
+				this._doSetFocus();
+				W.Control._focusedC = this;
+				if (!this._popuped) {
+					W.Control._clearPopup();
+				}
+
+				this._doFocus();
+			}
+		},
+
+		getFocused	: function() {
+			return (W.Control._focusedC == this) && true;
+		},
+
+		getHint : function() {
+			return this._el.title;
+		},
+
+		setHint : function(hint) {
+			this._el.title = hint;
+		},
+		
+
+		isDesktop	: function() {
+			return false;
+		},
+
+		isForm		: function() {
+			return false;
+		},
+
+		getOpacity	: function() {
+			return UIElement.getOpacity(this._el);
+		},
+
+		setOpacity	: function(nVal) {
+			UIElement.setOpacity(this._el,nVal)
+		},
+
+		getForm	: function() {
+			var c = this;
+			while (c) {
+				if (System.instanceOf(c,W.Form)) {
+					return c;
+				}
+				c = c.getParent();
+			}
+			return null;
+		},
+
+		popup			: function(x,y,p) {
+			if (!p) {
+				W.Control._clearPopup();
+			} else {
+				var nIdx = W.Control._popups.indexOf(p);
+				if (nIdx == -1) {
+					throw new Error("invalid parameter");
+				}
+
+				W.Control._clearPopup(nIdx+1);
+			}
+
+			this.setParent(desk);
+			this._popuped = true;
+			this.setLeft(x);
+			this.setTop(y);
+			
+			W.Control._popups.push(this);
+		},
+
+		closeup		: function() {
+			if (this._popuped) {
+				var nIdx = W.Control._popups.indexOf(this);
+				W.Control._clearPopup(nIdx);
+			}
+		},
+
+
+		_getClientElement	: function() {
+			return this._el;
+		},
+
+		_doRenderGraphic 	: function(graphic){
+				var heClient = this._getClientElement();
+				heClient.appendChild(graphic._el);
+		},
+
+		_doUnRenderGraphic	: function(graphic){
+			var heClient = this._getClientEl();
+			heClient.removeChild(graphic._el);
+		},
+
+		renderGraphic	: function(graphic,bClipChild,nLeft,nTop){
+			if (nLeft && nTop) {
+				graphic.setLocation(nLeft,nTop);
+			}
+			
+			UIElement.setStyle(graphic._el,"position","absolute");
+			if (bClipChild) {
+				UIElement.setStyle(graphic._el,"zIndex",0);
+			} else {
+				UIElement.setStyle(graphic._el,"zIndex",1000);
+			}
+
+			if (graphic._c != this) {
+				this._doRenderGraphic(graphic);
+				graphic._c = this;
+			} 
+		},
+
+		unRenderGraphic	: function(graphic) {
+			if (graphic._c == this) {
+				this._doUnRenderGraphic(graphic);
+				graphic._c = null;
+			}
+		},
+
+
+		pointToDesk		: function(p) {
+			var p1 = this.getDeskLocation();
+			p1.move(this.getClientLeft(),this.getClientTop());
+			p1.move(p.getX(),p.getY());
+			return p1;
+		},
+
+		pointFromDesk	: function(p) {
+			var p1 = this.getDeskLocation();
+			p1.move(this.getClientLeft(),this.getClientTop());
+			return new W.Point(p.getX()-p1.getX(),p.getY()-p1.getY());
+		},
+
+
+		getDragImage	: function() {
+			if (!this._dragImage) {
+				this._dragImage = new W.DftCtrlDragImg(this);
+			}
+			return this._dragImage;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Graphic",
+	superc		: sw2.Persistent,
+	statics		: {
+		_initialize	: function() {
+		},
+
+		_finalize	: function() {
+		}
+
+	},
+	instances	: {
+		_TAGNAME	: "DIV",
+		
+		_el			: null,
+
+		_initialize	: function() {
+			System.execMethod(this,"_initialize",null,sw2.Persistent);	
+			this._el = ctx.createSw2Element(this._TAGNAME);
+		},
+
+		_doResize	: function(nOldWidth,nOldHeight) {
+		},
+
+		getLeft : function() {
+			return UIElement.getElLeft(this._el);
+		},
+
+		getRight : function() {
+			return ctx.getElLeft(this._el)+ctx.getElWidth(this._el);
+		},
+
+		getTop : function() {
+			return ctx.getElTop(this._el);
+		},
+
+		getBottom : function() {
+			return ctx.getElTop(this._el)+ctx.getElHeight(this._el);
+		},
+
+		setLeft : function(nLeft) {
+			if (nLeft != this.getLeft()) {
+				ctx.setElLeft(this._el,nLeft);
+			}
+		},
+
+		setTop : function(nTop) {
+			if (nTop != this.getTop()) {
+				ctx.setElTop(this._el,nTop);
+			}
+		},
+
+		getWidth : function() {
+			return ctx.getElWidth(this._el);
+		},
+
+		getHeight : function() {
+			return ctx.getElHeight(this._el);
+		},
+
+
+		setWidth : function(nWidth) {
+			this.setSize(nWidth,this.getHeight());
+		},
+
+		setHeight : function(nHeight) {
+			this.setSize(this.getWidth(),nHeight);
+		},
+
+		setLocation	: function(nLeft,nTop) {
+		},
+
+
+		setSize	 : function(nWidth,nHeight) {
+			var nOldWidth = this.getWidth();
+			var nOldHeight = this.getHeight();
+			var bResize = false;
+			if (nWidth != nOldWidth) { 
+				ctx.setElWidth(this._el,nWidth);
+				bResize = true;
+			}
+			if (nHeight != nOldHeight) {
+				ctx.setElHeight(this._el,nHeight);
+				bResize = true;
+			}
+			if (bResize) {
+				this._doResize(nOldWidth,nOldHeight);
+			}
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.ControlGrahic",
+	superc		: sw2.widget.Graphic,
+	statics		: {
+	},
+	instances	: {
+		_c	: null,
+
+		_initialize : function (c) {
+			System.execMethod(this,"_initialize",null,W.Graphic);
+			UIElement.addCssClass(this._el,"ControlGraphic");
+			this._c= c;
+			var r = c.getBoundRect(true);
+			this.setBounds(r.getLeft(),r.getTop(),r.getWidth(),r.getHeight());
+		},
+
+		_finalize  : function() {
+			this._c = null;
+			System.execMethod(this,"_finalize",null,W.Graphic);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.DftCtrlDragImg",
+	statics		: {
+	},
+	instances	: {
+		_graphic	: null,
+
+		_initialize : function () {
+		},
+
+		_finalize  : function() {
+			this.hideDragImage();
+		},
+
+		showDragImage	: function(x,y) {
+			var dragObj = W.DragObject._dragObject;
+			var c = dragObj._dragControl;
+			if (!this._graphic) {
+				this._graphic = new W.ControlGrahic(c);
+			} 
+			desk.renderGraphic(this._graphic,false,x - c._deltaX,y-c._deltaY);
+		},
+
+		hideDragImage	: function() {
+			if (this._graphic) {
+				System.dispose(this._graphic);
+				this._graphic = null;
+			}
+		}
+	}
+});
+
+
+
+System.defineClass({
+	name		: "sw2.widget.Container",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+		},
+
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_alChildren	: null,
+		_children   : null,
+
+		_initialize : function(cOwner) {
+			System.execMethod(this,"_initialize",[cOwner],W.Control);	
+
+			this._children = new Array();
+			this._alChildren = new Array();
+		},
+
+		_finalize : function() {
+
+			for (var i = 0;i<this._children.length;i++){
+				var oChild = this._children[i];
+				System.dispose(oChild);
+				this._children[i] = null;
+			}
+			System.dispose(this._children);
+			this._children = null;
+
+			System.dispose(this._alChildren);
+			this._alChildren = null;
+
+			System.execMethod(this,"_finalize",null,W.Control);	
+		},
+
+		_doCheckClildDock 	: function() {
+			var elClient = this._getClientElement();
+			var bContain = this.containDockedChild();
+			if (bContain) {
+				elClient.style.overflow = "hidden";
+			} else {
+				elClient.style.overflow = "auto";
+			}
+		},
+
+		_rebuildChildrenZorder : function() {
+			var cs = this.getChildren();
+			var zIndex = 1;
+			for (var i = 0; i< cs.length;i++) {
+				var c = cs[i];
+				if (System.instanceOf(c,W.Control)) {
+					UIElement.setStyle(c._el,"zIndex",zIndex++);
+				}
+			}
+		},
+
+		_moveChildToBottom 	: function(oChild) {
+			var i = this._children.indexOf(oChild)
+			var len = this._children.length;
+			if (i>0) {
+				this._children.removeAt(i);
+				this._children.insertAt(oChild,0);
+				this._rebuildChildrenZorder();
+			}
+		},
+
+		_moveChildToTop 	: function(oChild) {
+			var i = this._children.indexOf(oChild)
+			var len = this._children.length;
+			if (i>-1 && i<len-1) {
+				this._children.removeAt(i);
+				this._children.push(oChild);
+				this._rebuildChildrenZorder();
+			}
+		},
+
+		_doCanAddChild	: function(oChild){
+			return true;
+		},
+
+		_doCanRemoveChild	: function(oChild){
+			return true;
+		},
+
+
+		_doAddChild 	: function(oChild) {
+			var elClient = this._getClientElement();
+			if (elClient) {
+				elClient.appendChild(oChild._el);
+			}
+
+		},
+
+		_doRemoveChild	: function(oChild) {
+			var elClient = this._getClientElement();
+			if (elClient) {
+				elClient.removeChild(oChild._el);
+			}
+		},
+
+		_requestDock	: function() {
+			if (this._requestDocking) {
+				return ;
+			}
+			this._requestDocking = true;
+			
+			this._doCheckClildDock();
+			var cs = this._alChildren;
+			var l = cs.length;
+			
+			var npLeft = 0;
+			var npTop  = 0;
+			var npWidth = this.getClientWidth();
+		    var npHeight = this.getClientHeight();
+
+			for (var i = 0; i < l; i++) {
+				var oChild = cs[i];
+
+				var nLeft = oChild.getLeft();
+				var nTop  = oChild.getTop();
+				var nWidth = oChild.getWidth();
+				var nHeight = oChild.getHeight();
+
+				switch (oChild.getDock()) {
+					case W.Dock.top : {
+						nTop = npTop;
+						nLeft = npLeft;
+						nWidth = npWidth;
+
+						npTop += nHeight;
+						npHeight -= nHeight;
+
+						break;
+					};
+					case W.Dock.bottom : {
+						nLeft = npLeft;
+						nTop = npTop+npHeight-nHeight;
+						nWidth = npWidth;
+
+						npHeight -= nHeight;
+						break;
+					};
+					case W.Dock.right : {
+						nLeft 	= npLeft + npWidth- nWidth;
+						nTop 	= npTop;
+						nHeight = npHeight;
+
+						npWidth -= nWidth;
+						break;
+
+						break;
+					};
+					case W.Dock.left : {
+						nTop = npTop;
+						nLeft = npLeft;
+
+						nHeight = npHeight;
+
+						npLeft  += nWidth;
+						npWidth -= nWidth;
+
+						break;
+					};
+				}
+				oChild.setBounds(nLeft,nTop,nWidth,nHeight);
+			}
+			for (var i = 0; i < l; i++) {
+				var oChild = cs[i];
+				if ( oChild.getDock() == W.Dock.client) {
+					oChild.setBounds(npLeft,npTop,npWidth,npHeight);
+				}
+			}
+			this._requestDocking = false;
+
+		},
+
+		_layout : function(bInvalidate) {
+			if (this.isUpdating()) {
+				return ;
+			}
+
+			this._requestDock();
+
+			System.execMethod(this,"_layout",[bInvalidate],W.Control);	
+		},
+
+		_getNextDockedControl	: function(c) {
+			var idx = this._alChildren.indexOf(c)
+			for (var i= idx-1;i>=0;i--) {
+				var cNext = this._alChildren[i];
+				if (cNext._dock == c._dock) {
+					return cNext;
+				}
+			}
+
+			return null;
+		},
+
+
+		addChild : function(oChild) {
+			var p = oChild.getParent();
+			if (p == this) {
+				return;
+			}
+			if (this._doCanAddChild(oChild)) {
+				if (p != null) {
+					p.removeChild(oChild);
+				}
+				this._children.push(oChild);
+				oChild._parent = this;
+				this._doAddChild(oChild);
+				UIElement.setStyle(oChild._el,"position","absolute");
+				this._rebuildChildrenZorder();
+
+				if (oChild.getDock() != W.Dock.none) {
+					this._alChildren.push(oChild);
+					this._requestDock();
+				}
+			}
+		},
+		
+		removeChild : function(oChild) {
+			if (oChild._parent != this) {
+				throw new Error("Can only remove children");
+			}
+			if (this._doCanRemoveChild(oChild)) {
+				oChild._parent = null;
+				this._children.remove(oChild);
+				this._doRemoveChild(oChild);
+				this._rebuildChildrenZorder();
+				return oChild;
+			} else {
+				return null;
+			}
+		},
+
+		removeAllChild : function() {
+			var cs = this.getChildren();
+			var l = cs.length;
+			for (var i = 0; i < l; i++) {
+				this.remove(cs[i]);
+				System.dispose(cs[i]);
+			}
+		},
+
+		getChildren : function() {
+			var res =[];
+			var cs = this._children;
+			var l = cs.length;
+			for (var i = 0; i < l; i++) {
+				res.push(cs[i]);
+			}
+			return res;
+		},
+
+		hasChildren : function() {
+			var cs = this._children;
+			return cs.length > 0;
+		},
+
+		getChildrenCount	: function() {
+			return this._children.length;
+		},
+
+		getChild	: function(idx) {
+			if (idx>=0 && idx< this._children.length) {
+				return this._children[idx];
+			} else {
+				return null;
+			}
+		},
+
+		getChildIndex	: function(oChild) {
+			return this._children.indexOf(oChild);
+		},
+
+		contains : function(oDescendant) {
+			if (oDescendant == null)
+				return false;
+			if (oDescendant == this)
+				return true;
+			var p = oDescendant._parent;
+			return this.contains(p);
+		},
+
+		containDockedChild 	: function() {
+			return this._alChildren.length > 0 ;
+		},
+
+		_doChildDockChange : function() {
+
+		}
+
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.GridContainerColumnWidths",
+	statics		: {
+		vtos	: function(o) {
+			var heTable = o._c._elTable;
+			var colCount = $HTUtil.getColCount(heTable);
+			var colWidths = new Array();
+			for (var i = 0;i<colCount; i++) {
+				colWidths.push($HTUtil.getColWidth(heTable,i));
+			}
+			return colWidths.join(" ");
+		},
+
+		vfroms	: function(s) {
+			s = s.trim();
+			var wh = s.split(" ");
+			var colCount = $HTUtil.getColCount(heTable);
+			for (var i = 0;i<ColCount && i<wh.length;i++) {
+				$HTUtil.setColWidth(heTable,i,wh[i])
+			}
+			
+			for (var i = wh.length;i<ColCount;i++) {
+				$HTUtil.setColWidth(heTable,i,"auto")
+			}
+		}
+
+	},
+	instances	: {
+		_c		: null,
+
+
+		_initialize	: function(c) {
+			this._c = c;
+		},
+
+		_finalize	: function() {
+			this._c = null;
+		},
+
+		getColWidth		: function(nCol) {
+			var heTable = o._c._elTable;
+			var s = $HTUtil.getColWidth(heTable,nCol);
+			if (s) {
+				return W.MeasureObject.vfroms(s)
+			}
+			return null;
+		},
+
+		setColWidth		: function(nCol,x) {
+			var s;
+			if (System.instanceOf(x,String)) {
+				s = x;
+				x = W.MeasureObject.vfroms(s);
+			} 
+
+			if (!s) {
+				s = W.MeasureObject.vtos(x);
+			}
+			var heTable = o._c._elTable;
+			$HTUtil.setColWidth(heTable,nCol,s);
+		},
+
+		assign	: function(o) {
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.GridContainerRowHeights",
+	statics		: {
+		vtos	: function(o) {
+			var heTable = o._c._elTable;
+			var rowCount = $HTUtil.getRowCount(heTable);
+			var rowHeights = new Array();
+			for (var i = 0;i<rowCount; i++) {
+				rowHeights.push($HTUtil.getRowHeight(heTable,i));
+			}
+			return rowHeights.join(" ");
+		},
+
+		vfroms	: function(s) {
+			s = s.trim();
+			var wh = s.split(" ");
+			var rowCount = $HTUtil.getRowCount(heTable);
+			for (var i = 0;i<rowCount && i<wh.length;i++) {
+				$HTUtil.setRowHeight(heTable,i,wh[i])
+			}
+			
+			for (var i = wh.length;i<rowCount;i++) {
+				$HTUtil.setRowHeight(heTable,i,"auto")
+			}
+		}
+
+	},
+	instances	: {
+		_c		: null,
+
+
+		_initialize	: function(c) {
+			this._c = c;
+		},
+
+		_finalize	: function() {
+			this._c = null;
+		},
+
+		getRowHeight		: function(nRow) {
+			var heTable = o._c._elTable;
+			var s = $HTUtil.getRowHeight(heTable,nRow);
+			if (s) {
+				return W.MeasureObject.vfroms(s)
+			}
+			return null;
+		},
+
+		setColWidth		: function(nRow,x) {
+			var s;
+			if (System.instanceOf(x,String)) {
+				s = x;
+				x = W.MeasureObject.vfroms(s);
+			} 
+
+			if (!s) {
+				s = W.MeasureObject.vtos(x);
+			}
+			var heTable = o._c._elTable;
+			$HTUtil.setRowHeight(heTable,nRow,s);
+		},
+
+		assign	: function(o) {
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.GridContainer",
+	superc		: sw2.widget.Container,
+	statics		: {
+		_initialize : function() {
+		},
+
+		_defineProperties	: function(propInfo) {
+			W.Container._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_elTable : null,
+
+		_initialize : function(cOwner,nCol,nRow) {
+			System.execMethod(this,"_initialize",[cOwner],W.Container);	
+			nCol = nCol?nCol:1;
+			nRow = nRow?nRow:1;
+			this._elTable = $HTUtil.createTable(nCol,nRow);
+		},
+
+		_finalize : function() {
+			this._elTable = null;
+			System.execMethod(this,"_finalize",null,W.Container);	
+		},
+
+		_rebuildChildrenZorder : function() {
+		},
+
+		_moveChildToBottom 	: function(oChild) {
+		},
+
+		_moveChildToTop 	: function(oChild) {
+		},
+
+		_doCanAddChild	: function(oChild,nCol,nRow){
+			var colCount = $HTUtil.getColCount(this._elTable);
+			var rowCount = $HTUtil.getRowCount(this._elTable);
+			if (nCol<0 || nCol>= colCount || nRow<0 || nRow>=rowCount) {
+				return false;
+			}
+			var c = this.getCellControl(nCol,nRow) ;
+			if (c) {
+				return false;
+			}
+			return true;
+		},
+
+		_doCanRemoveChild	: function(oChild){
+			return true;
+		},
+
+
+		_doAddChild 	: function(oChild,nCol,nRow) {
+			var heCell = $HTUtil.getCell(this._elTable,nCol,nRow);
+			heCell.appendChild(oChild._el);
+
+		},
+
+		_doRemoveChild	: function(oChild) {
+			var nCol = oChild.getCol();
+			var nRow = oChild.getRow();
+			var heCell = $HTUtil.getCell(this._elTable,nCol,nRow);
+			heCell.removeChild(oChild._el);
+		},
+
+		_requestDock	: function() {
+		},
+
+		_layout : function(bInvalidate) {
+		},
+
+
+		addChild : function(oChild,nCol,nRow) {
+			if (this._doCanAddChild(oChild,nCol,nRow)) {
+				var p = oChild._parent;
+				if (p != null) {
+					p.removeChild(oChild);
+				}
+				this._children.push(oChild);
+				oChild._parent = this;
+				this._doAddChild(oChild);
+			}
+		},
+		
+		removeChild : function(oChild) {
+			if (oChild._parent != this) {
+				throw new Error("Can only remove children");
+			}
+			if (this._doCanRemoveChild(oChild)) {
+				oChild._parent = null;
+				this._children.remove(oChild);
+				this._doRemoveChild(oChild);
+				return oChild;
+			} else {
+				return null;
+			}
+		},
+
+		getCellChild   : function(nCol,nRow) {
+			var heCell = $HTUtil.getCell(this._elTable,nCol,nRow);
+			if (heCell) {
+				var heChild = heCell.firstChild;
+				if (heChild && heChild._C) {
+					return heChild._C;
+				}
+			}
+			return null;
+		},
+
+		removeAllChild : function() {
+			var cs = this.getChildren();
+			var l = cs.length;
+			for (var i = 0; i < l; i++) {
+				this.remove(cs[i]);
+				System.dispose(cs[i]);
+			}
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Images",
+	superc		: sw2.Component,
+	statics		: {
+	},
+	instances	: {
+		_images	: null,
+
+		_initialize : function (oControl) {
+			this._images = new Array();
+			System.execMethod(this,"_initialize",null,sw2.Component);	
+		},
+
+		_finalize  : function() {
+			System.dispose(this._images);
+			this._images  = null;
+			System.execMethod(this,"_finalize",null,W.Control);	
+		}
+		
+	}
+});
+

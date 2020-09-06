@@ -1,0 +1,44 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name  		:"sw2.widget.PictureBox",
+	superc		: W.Control,
+	statics		: {
+	},
+
+	instances	: {
+		_elImg	: null,
+
+		_initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Control);	
+		},
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"PictureBox");
+
+			this._elImg = UIImg.create(null,el);
+	
+			return el;
+		},
+
+
+		getImgSrc	: function() {
+			if (this._elImg) {
+				return UIImg.getSrc(this._elImg);
+			} else {
+				return null;
+			}
+		},
+
+		setImgSrc	: function(uri){
+			if (this._elImg) {
+				return UIImg.setSrc(this._elImg,uri);
+			} 
+		}
+
+	}
+});

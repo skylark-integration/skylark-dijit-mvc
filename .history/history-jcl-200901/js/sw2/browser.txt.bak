@@ -1,0 +1,45 @@
+/**
+ * クラスsw2.Hostを定義します。
+ *
+ */
+System.defineClass({
+	name		: "sw2.host.Browser",
+	superc		: spw.Object,
+	statics		: {
+		isOpera 		: false,
+        isSafari		: false,
+        isGecko 		: false,
+		isIE 			: false,
+
+		_initialize : function() {
+			var uaStr = navigator.userAgent;
+			this.isOpera   = (/Opera/.test(uaStr)   && !!window.opera);
+			this.isOpera7  = (/Opera.7/.test(uaStr) && !!window.opera);
+			this.isOpera8  = (/Opera.8/.test(uaStr) && !!window.opera);
+			this.isOpera85 = (/Opera.8\.[5-9]/.test(uaStr)  && !!window.opera);
+			this.isOpera9  = (/Opera.9/.test(uaStr) && !!window.opera);
+			this.isGecko   = (navigator.product == "Gecko") && !/Safari/.test(uaStr);
+			this.isMacIE   = (/MSIE 5.+Mac/   .test(uaStr)  && document.all && !this.isOpera);
+			this.isWinIE   = (/MSIE [56].+Win/.test(uaStr)  && document.all && !this.isOpera);
+			this.isIE = this.isMacIE || this.isWinIE;
+    	    this.isSafari= /Safari/ .test(uaStr) ;
+/*
+		    var ua = navigator.userAgent.toLowerCase();
+
+	        this.isOpera = (ua.indexOf('opera') > -1);
+    	    this.isSafari= (ua.indexOf('safari') > -1);
+        	this.isGecko = (!this.isOpera && !this.isSafari && ua.indexOf('gecko') > -1);
+        	this.isIE 	= (!this.isOpera && ua.indexOf('msie') > -1);
+*/			
+			System.defineName("browser",this);
+
+		},
+
+		_finalize : function() {
+		}
+
+	},
+	instances	: {
+	}
+});
+alert('1');

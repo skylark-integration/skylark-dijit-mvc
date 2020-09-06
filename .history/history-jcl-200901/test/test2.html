@@ -1,0 +1,98 @@
+<html>
+<head>
+<script language ='javascript' >
+//var _Object = Object;
+
+var _Number = Number;
+
+delete Number;
+//var Object = function() {};
+
+var _Function = Function;
+
+delete Function;
+
+var Hash = function() {};
+Hash.toString = function() {
+	return "Class Hash";
+}
+
+//Object.OT_INSTANCE = "instance";
+//Object.OT_NAMESPACE = "namespace";
+//Object.OT_CLASS = "class";
+
+//_Object._prototype = _Object.prototype;
+//delete _Object.prototype;
+
+//delete._Object.constructor;
+
+Object.prototype.objType = function() {
+	return "aaa" ;
+};
+
+
+var Method = function() {
+	var script = "new _Function(";
+	for (var i=0;i<arguments.length;i++) {
+		if (i>0) {
+			script = script +",";
+		}
+		script = script + "'"+arguments[i]+"'";
+	}
+	script = script + ")";
+	return eval(script);
+};
+
+Object.prototype.keys =  function() {
+	var res =[];
+	alert(this);
+	for (var k in this) {
+//		if (this.hasOwnProperty(k)) {
+			res.push(k);
+	alert(k);
+//		}
+	}
+	alert('keys');
+	return res;
+};
+
+Object.prototype.getClass = function() {
+	var type = typeof(this);
+	alert(type);
+	if (type == "function") {
+		return Method;
+	} else {
+		return Hash;
+	}
+};
+delete Object;
+
+function test1() {
+	try {
+		alert((12).toString(16));
+		var f = new Method('a','b','return a+b');
+		alert(f.getClass());
+		var h = {};
+		alert(h.getClass());
+
+	} catch(e) {
+		alert(e);
+	}
+
+};
+
+function test2() {
+	document.forms[0].a2.style.textDecoration = "line-through";
+	document.forms[0].a2.style.textVAlign = "top";
+
+}
+
+</script>
+</head>
+<body>
+<form>
+<input type = button name ='a1' value = 'test1' onclick = "test1();" />
+<input type = button name ='a2' value = 'test2' onclick = "test2();" />
+</form>
+</body>
+</html>

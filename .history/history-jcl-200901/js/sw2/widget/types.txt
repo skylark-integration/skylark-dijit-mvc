@@ -1,0 +1,1269 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineNs("sw2.widget");
+System.defineName("W",sw2.widget);
+
+System.defineClass({
+	name		: "sw2.widget.Position",
+	statics		: {
+		_POSITIONS	: ["static","relative","absolute"],
+
+		static		: null,
+		relative	: null,
+		absolute	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._POSITIONS.length; i++) {
+				var oType = new this();
+				oType._value = i;
+				this[this._POSITIONS[i]] = oType;
+			}
+		},
+
+		vtos	: function(o) {
+			var s = this._POSITIONS[o._value];
+			return s;
+		},
+
+		vfroms	: function(sValue) {
+			sValue = sValue.trim();
+			var i = this._POSITIONS.indexOf(sValue);
+			if (i > -1) {
+				return this[this._POSITIONS[i]];
+			} else {
+				return null;
+			}
+		}
+
+	},
+	instances	: {
+		_value	: 0 
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.MeasureType",
+	statics		: {
+		_MEASURETYPES	: ["absolute","percent","auto"],
+
+		absolute	: null,
+		percent		: null,
+		auto		: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._MEASURETYPES.length; i++) {
+				var oType = new this();
+				oType._value = i;
+				this[this._MEASURETYPES[i]] = oType;
+			}
+		},
+
+		vtos	: function(o) {
+			var s = this._MEASURETYPES[o._value];
+			return s;
+		},
+
+		vfroms	: function(sValue) {
+			sValue = sValue.trim();
+			var i = this._MEASURETYPES.indexOf(sValue);
+			if (i > -1) {
+				return this[this._MEASURETYPES[i]];
+			} else {
+				return null;
+			}
+		}
+
+	},
+	instances	: {
+		_value	: 0 
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.MeasureObject",
+	statics		: {
+		_ABS_R	: /^([-]?[0-9]+)(px)?$/i,
+		_AUTO_R	: /^auto$/i ,
+		_PCT_R	: /([0-9]+)%/,
+
+		vtos	: function(o) {
+			switch (o._measureType) {
+				case this.absolute :
+					return o._value +"";
+					break;
+				case this.percent :
+					return o._value + "%";
+					break;
+				case this.auto :
+					return "auto";
+					break;
+				default :
+					return "";
+			}
+		},
+
+		vfroms	: function(s) {
+			s = s.trim();
+			var measureType,value;
+			var c = this._ABS_R.exec(s);
+			if (c && c.length >= 2) {
+				value = Math.parseInt(c[1]);
+				measureType = this.absolute;
+			} else {
+				c = W.MeasureObject._PCT_R.exec(s);	
+				if (c && c.length >= 2) {
+					value = Math.parseInt(c[1]);
+					measureType = this.percent;
+				} else {
+					c = W.MeasureObject._AUTO_R.exec(s);
+					if (c) {
+						value = null;
+						measureType = this.auto;
+					} else {
+						throw new Error(0,"invalid parameter");
+					}
+				}
+			}
+
+			return new this(measureType,value);
+		}
+	
+	},
+	instances	: {
+		_value			: 0,
+		_measureType	: W.MeasureType.absolute,
+
+		_initialize	: function(measureType,value) {
+			if (measureType) {
+				this._measureType = measureType;
+			}
+			if (value) {
+				this._value = value;
+			}
+		},
+
+		_finalize	: function() {
+			this._value = null;
+			this._measureType = null;
+		},
+
+		getValue	: function() {
+			return this._value;
+		},
+
+		setValue	: function(value) {
+			this._value = value;
+		},
+
+		getMeasureType	: function(){
+			return this._measureType;
+		}
+
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Color",
+	statics		: {
+		_HEX_R		: /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})$/i,
+		_TRANS_R	: /^transparent|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)$/i ,
+		_SYSTEM_R	: /^(ActiveBorder|ActiveCaption|AppWorkspace|Background|ButtonFace|ButtonHighlight|ButtonShadow|ButtonText|CaptionText|GrayText|Highlight|HighlightText|InactiveBorder|InactiveCaption|InactiveCaptionText|InfoBackground|InfoText|Menu|MenuText|Scrollbar|ThreeDDarkShadow|ThreeDFace|ThreeDHighlight|ThreeDLightShadow|ThreeDShadow|Window|WindowFrame|WindowText)$/i ,
+		_RGB_R		: /^rgb\(([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\)$/i,
+		_HEX3_R		: /^#?([0-9A-F]{1})([0-9A-F]{1})([0-9A-F]{1})$/i,
+
+		_X11NAMES   : (new Hash()).putAll({
+			'aliceblue'            : '#F0F8FF',
+			'antiquewhite'         : '#FAEBD7',
+			'aqua'                 : '#00FFFF',
+			'aquamarine'           : '#7FFFD4',
+			'azure'                : '#F0FFFF',
+			'beige'                : '#F5F5DC',
+			'bisque'               : '#FFE4C4',
+			'black'                : '#000000',
+			'blanchedalmond'       : '#FFEBCD',
+			'blue'                 : '#0000FF',
+			'blueviolet'           : '#8A2BE2',
+			'brown'                : '#A52A2A',
+			'burywood'             : '#DEB887',
+			'cadetblue'            : '#5F9EA0',
+			'chartreuse'           : '#7FFF00',
+			'chocolate'            : '#D2691E',
+			'coral'                : '#FF7F50',
+			'cornflowerblue'       : '#6495ED',
+			'cornsilk'             : '#FFF8DC',
+			'crimson'              : '#DC143C',
+			'cyan'                 : '#00FFFF',
+			'darkblue'             : '#00008B',
+			'darkcyan'             : '#008B8B',
+			'darkgoldenrod'        : '#B8860B',
+			'darkgray'             : '#A9A9A9',
+			'darkgreen'            : '#006400',
+			'darkkahki'            : '#BDB76B',
+			'darkmagenta'          : '#8B008B',
+			'darkolivegreen'       : '#556B2F',
+			'darkorange'           : '#FF8C00',
+			'darkorchid'           : '#9932CC',
+			'darkred'              : '#8B0000',
+			'darksalmon'           : '#E9967A',
+			'darkseagreen'         : '#8FBC8F',
+			'darkslateblue'        : '#483D8B',
+			'darkslategray'        : '#2F4F4F',
+			'darkturquoise'        : '#00CED1',
+			'darkviolet'           : '#9400D3',
+			'deeppink'             : '#FF1493',
+			'deepskyblue'          : '#00BFFF',
+			'dimgray'              : '#696969',
+			'dodgerblue'           : '#1E90FF',
+			'firebrick'            : '#B22222',
+			'floralwhite'          : '#FFFAF0',
+			'forestgreen'          : '#228B22',
+			'fuchsia'              : '#FF00FF',
+			'gainsboro'            : '#DCDCDC',
+			'ghostwhite'           : '#F8F8FF',
+			'gold'                 : '#FFD700',
+			'golodenrod'           : '#DAA520',
+			'gray'                 : '#808080',
+			'green'                : '#008000',
+			'greenyellow'          : '#ADFF2F',
+			'honeydew'             : '#F0FFF0',
+			'hotpink'              : '#FF69B4',
+			'indianred'            : '#CD5C5C',
+			'indigo'               : '#4B0082',
+			'ivory'                : '#FFFFF0',
+			'khaki'                : '#F0E68C',
+			'lavender'             : '#E6E6FA',
+			'lavenderblush'        : '#FFF0F5',
+			'lawngreen'            : '#7CFC00',
+			'lemonchiffon'         : '#FFFACD',
+			'lightblue'            : '#ADD8E6',
+			'lightcoral'           : '#F08080',
+			'lightcyan'            : '#E0FFFF',
+			'lightgoldenrodyellow' : '#FAFAD2',
+			'lightgreen'           : '#90EE90',
+			'lightgrey'            : '#D3D3D3',
+			'lightpink'            : '#FFB6C1',
+			'lightsalmon'          : '#FFA07A',
+			'lightseagreen'        : '#20B2AA',
+			'lightskyblue'         : '#87CEFA',
+			'lightslategray'       : '#778899',
+			'lightsteelblue'       : '#B0C4DE',
+			'lightyellow'          : '#FFFFE0',
+			'lime'                 : '#00FF00',
+			'limegreen'            : '#32CD32',
+			'linen'                : '#FAF0E6',
+			'magenta'              : '#FF00FF',
+			'maroon'               : '#800000',
+			'mediumblue'           : '#0000CD',
+			'mediumorchid'         : '#BA55D3',
+			'mediumpurple'         : '#937CDB',
+			'mediumseagreen'       : '#3CB371',
+			'mediumslateblue'      : '#7B68EE',
+			'mediumspringgreen'    : '#00FA9A',
+			'mediumturquoise'      : '#48D1CC',
+			'mediumvioletred'      : '#C71585',
+			'mideumaquamarine'     : '#66CDAA',
+			'midinightblue'        : '#191970',
+			'mintcream'            : '#F5FFFA',
+			'mistyrose'            : '#FFE4E1',
+			'moccasin'             : '#FFE4B5',
+			'navajowhite'          : '#FFDEAD',
+			'navy'                 : '#000080',
+			'oldlace'              : '#FDF5E6',
+			'olive'                : '#808000',
+			'olivedrab'            : '#6B8E23',
+			'orange'               : '#FFA500',
+			'orangered'            : '#FF4500',
+			'orchid'               : '#DA70D6',
+			'palegoldenrod'        : '#EEE8AA',
+			'palegreen'            : '#98FB98',
+			'paleturquoise'        : '#AFEEEE',
+			'palevioletred'        : '#DB7093',
+			'papayawhip'           : '#FFEFD5',
+			'peachpuff'            : '#FFDAB9',
+			'peru'                 : '#CD853F',
+			'pink'                 : '#FFC0CB',
+			'plum'                 : '#DDA0DD',
+			'powderblue'           : '#B0E0E6',
+			'purple'               : '#800080',
+			'red'                  : '#FF0000',
+			'rosybrown'            : '#BC8F8F',
+			'royalblue'            : '#4169E1',
+			'saddlebrown'          : '#8B4513',
+			'salmon'               : '#FA8072',
+			'sandybrown'           : '#F4A460',
+			'seagreen'             : '#2E8B57',
+			'seashell'             : '#FFF5EE',
+			'sienna'               : '#A0522D',
+			'silver'               : '#C0C0C0',
+			'skyblue'              : '#87CEEB',
+			'slateblue'            : '#6A5ACD',
+			'slategray'            : '#708090',
+			'snow'                 : '#FFFAFA',
+			'springgreen'          : '#00FF7F',
+			'steelblue'            : '#4682B4',
+			'tan'                  : '#D2B48C',
+			'teal'                 : '#008080',
+			'thistle'              : '#D8BFD8',
+			'tomato'               : '#FF6347',
+			'turquoise'            : '#40E0D0',
+			'violet'               : '#EE82EE',
+			'wheat'                : '#F5DEB3',
+			'white'                : '#FFFFFF',
+			'whitesmoke'           : '#F5F5F5',
+			'yellow'               : '#FFFF00',
+			'yellowgreen'          : '#9ACD32'
+		}),
+		_X11RGBS	: (new Hash()).putAll({
+			'#F0F8FF' : 'AliceBlue',
+			'#FAEBD7' : 'AntiqueWhite',
+			'#00FFFF' : 'Aqua',
+			'#7FFFD4' : 'Aquamarine',
+			'#F0FFFF' : 'Azure',
+			'#F5F5DC' : 'Beige',
+			'#FFE4C4' : 'Bisque',
+			'#000000' : 'Black',
+			'#FFEBCD' : 'BlanchedAlmond',
+			'#0000FF' : 'Blue',
+			'#8A2BE2' : 'BlueViolet',
+			'#A52A2A' : 'Brown',
+			'#DEB887' : 'Burywood',
+			'#5F9EA0' : 'CadetBlue',
+			'#7FFF00' : 'Chartreuse',
+			'#D2691E' : 'Chocolate',
+			'#FF7F50' : 'Coral',
+			'#6495ED' : 'CornflowerBlue',
+			'#FFF8DC' : 'Cornsilk',
+			'#DC143C' : 'Crimson', 
+//			'#00FFFF' : 'Cyan', 
+			'#00008B' : 'DarkBlue',
+			'#008B8B' : 'DarkCyan',
+			'#B8860B' : 'DarkGoldenrod',
+			'#A9A9A9' : 'DarkGray',
+			'#006400' : 'DarkGreen',
+			'#BDB76B' : 'DarkKahki',
+			'#8B008B' : 'DarkMagenta',
+			'#556B2F' : 'DarkOliveGreen',
+			'#FF8C00' : 'DarkOrange',
+			'#9932CC' : 'DarkOrchid',
+			'#8B0000' : 'DarkRed',
+			'#E9967A' : 'DarkSalmon',
+			'#8FBC8F' : 'DarkSeaGreen',
+			'#483D8B' : 'DarkSlateBlue',
+			'#2F4F4F' : 'DarkSlateGray',
+			'#00CED1' : 'DarkTurquoise',
+			'#9400D3' : 'DarkViolet',
+			'#FF1493' : 'DeepPink',
+			'#00BFFF' : 'DeepSkyBlue',
+			'#696969' : 'DimGray',
+			'#1E90FF' : 'DodgerBlue',
+			'#B22222' : 'FireBrick',
+			'#FFFAF0' : 'FloralWhite',
+			'#228B22' : 'ForestGreen',
+			'#FF00FF' : 'Fuchsia',
+			'#DCDCDC' : 'Gainsboro',
+			'#F8F8FF' : 'GhostWhite',
+			'#FFD700' : 'Gold',
+			'#DAA520' : 'Golodenrod',
+			'#808080' : 'Gray',
+			'#008000' : 'Green',
+			'#ADFF2F' : 'GreenYellow',
+			'#F0FFF0' : 'Honeydew',
+			'#FF69B4' : 'HotPink',
+			'#CD5C5C' : 'IndianRed',
+			'#4B0082' : 'Indigo',
+			'#FFFFF0' : 'Ivory',
+			'#F0E68C' : 'Khaki',
+			'#E6E6FA' : 'Lavender',
+			'#FFF0F5' : 'LavenderBlush',
+			'#7CFC00' : 'LawnGreen',
+			'#FFFACD' : 'LemonChiffon',
+			'#ADD8E6' : 'LightBlue',
+			'#F08080' : 'LightCoral',
+			'#E0FFFF' : 'LightCyan',
+			'#FAFAD2' : 'LightGoldenrodYellow',
+			'#90EE90' : 'LightGreen',
+			'#D3D3D3' : 'LightGrey',
+			'#FFB6C1' : 'LightPink',
+			'#FFA07A' : 'LightSalmon',
+			'#20B2AA' : 'LightSeaGreen',
+			'#87CEFA' : 'LightSkyBlue',
+			'#778899' : 'LightSlateGray',
+			'#B0C4DE' : 'LightSteelBlue',
+			'#FFFFE0' : 'LightYellow',
+			'#00FF00' : 'Lime',
+			'#32CD32' : 'LimeGreen',
+			'#FAF0E6' : 'Linen', 
+//			'#FF00FF' : 'Magenta',
+			'#800000' : 'Maroon',
+			'#0000CD' : 'MediumBlue',
+			'#BA55D3' : 'MediumOrchid',
+			'#937CDB' : 'MediumPurple',
+			'#3CB371' : 'MediumSeaGreen',
+			'#7B68EE' : 'MediumSlateBlue',
+			'#00FA9A' : 'MediumSpringGreen',
+			'#48D1CC' : 'MediumTurquoise',
+			'#C71585' : 'MediumVioletRed',
+			'#66CDAA' : 'MideumAquamarine',
+			'#191970' : 'MidinightBlue',
+			'#F5FFFA' : 'MintCream',
+			'#FFE4E1' : 'MistyRose',
+			'#FFE4B5' : 'Moccasin',
+			'#FFDEAD' : 'NavajoWhite',
+			'#000080' : 'Navy',
+			'#FDF5E6' : 'OldLace',
+			'#808000' : 'Olive',
+			'#6B8E23' : 'OliveDrab',
+			'#FFA500' : 'Orange',
+			'#FF4500' : 'OrangeRed',
+			'#DA70D6' : 'Orchid',
+			'#EEE8AA' : 'PaleGoldenrod',
+			'#98FB98' : 'PaleGreen',
+			'#AFEEEE' : 'PaleTurquoise',
+			'#DB7093' : 'PaleVioletRed',
+			'#FFEFD5' : 'PapayaWhip',
+			'#FFDAB9' : 'PeachPuff',
+			'#CD853F' : 'Peru',
+			'#FFC0CB' : 'Pink',
+			'#DDA0DD' : 'Plum',
+			'#B0E0E6' : 'PowderBlue',
+			'#800080' : 'Purple',
+			'#FF0000' : 'Red',
+			'#BC8F8F' : 'RosyBrown',
+			'#4169E1' : 'RoyalBlue',
+			'#8B4513' : 'SaddleBrown',
+			'#FA8072' : 'Salmon',
+			'#F4A460' : 'SandyBrown',
+			'#2E8B57' : 'SeaGreen',
+			'#FFF5EE' : 'Seashell',
+			'#A0522D' : 'Sienna',
+			'#C0C0C0' : 'Silver',
+			'#87CEEB' : 'SkyBlue',
+			'#6A5ACD' : 'SlateBlue',
+			'#708090' : 'SlateGray',
+			'#FFFAFA' : 'Snow',
+			'#00FF7F' : 'SpringGreen',
+			'#4682B4' : 'SteelBlue',
+			'#D2B48C' : 'Tan',
+			'#008080' : 'Teal',
+			'#D8BFD8' : 'Thistle',
+			'#FF6347' : 'Tomato',
+			'#40E0D0' : 'Turquoise',
+			'#EE82EE' : 'Violet',
+			'#F5DEB3' : 'Wheat',
+			'#FFFFFF' : 'White',
+			'#F5F5F5' : 'WhiteSmoke',
+			'#FFFF00' : 'Yellow',
+			'#9ACD32' : 'YellowGreen'
+		}),
+
+		vtos	: function(o) {
+			return o._value;
+		},
+
+		vfroms	: function(sValue) {
+			return new this(sValue);
+		},
+
+		rgb2hsl	 : function(r, g, b)
+		{
+			var sl_h,sl_s,sl_l;
+			var h,s,l,v,m;
+			r /= 255, g /= 255, b /= 255;
+			v = Math.max(r, g), v = Math.max(v, b);
+			m = Math.min(r, g), m = Math.min(m, b);
+			l = (m+v)/2;
+			if (v == m)  {
+				sl_h = 0, sl_s = 0, sl_l = Math.round(l*255);
+			} else {
+				if (l <= 0.5) s = (v-m)/(v+m);
+				else s = (v-m)/(2-v-m);
+				if (r == v) h = (g-b)/(v-m);
+				if (g == v) h = 2+(b-r)/(v-m);
+				if (b == v) h = 4+(r-g)/(v-m);
+				h *= 60; if (h<0) h += 360;
+				sl_h = Math.round(h/360*255);
+				sl_s = Math.round(s*255);
+				sl_l = Math.round(l*255);
+			}
+			return {h:sl_h,s:sl_s,l:sl_l};
+		},
+		
+		hsl2rgb : function(h, s, l)
+		{
+			var sl_r,sl_g,sl_b;
+			var r, g, b, v, m, se, mid1, mid2;
+			h /= 255, s /= 255, l /= 255;
+			if (l <= 0.5) v = l*(1+s);
+			else v = l+s-l*s;
+			if (v <= 0) {
+				sl_r = 0, sl_g = 0, sl_b = 0;
+			} else {
+				m = 2*l-v,h*=6, se = Math.floor(h);
+				mid1 = m+v*(v-m)/v*(h-se);
+				mid2 = v-v*(v-m)/v*(h-se);
+				switch (se)	{
+					case 0 : r = v;    g = mid1; b = m;    break;
+					case 1 : r = mid2; g = v;    b = m;    break;
+					case 2 : r = m;    g = v;    b = mid1; break;
+					case 3 : r = m;    g = mid2; b = v;    break;
+					case 4 : r = mid1; g = m;    b = v;    break;
+					case 5 : r = v;    g = m;    b = mid2; break;
+				}
+				sl_r = Math.round(r*255);
+				sl_g = Math.round(g*255);
+				sl_b = Math.round(b*255);
+			}
+			return {r:sl_r,g:sl_g,b:sl_b};
+		},
+
+        rgb2hex: function (r,g,b) {
+            return "#"+r.toString(16).toUpperCase() + g.toString(16).toUpperCase() + b.toString(16).toUpperCase();
+        },
+     
+        hex2rgb: function(s) { 
+			var r,g,b;
+			c =this._HEX_R.exec(s);
+			if(c&&c.length==4){
+				r = Math.parseInt(c[1],16),g = Math.parseInt(c[2],16),b = Math.parseInt(c[3],16);
+				return {r:r,g:g,b:b};
+			} else {
+				c=this._RGB_R.exec(s);
+				if(c&&c.length==4){
+					r = Math.parseInt(c[1],10),g = Math.parseInt(c[2],10),b = Math.parseInt(c[3],10);
+					return {r:r,g:g,b:b};
+				} else {
+					c=this._HEX3_R.exec(s);
+					if(c&&c.length==4){
+						r = Math.parseInt(c[1]+c[1],16),g = Math.parseInt(c[2]+c[2],16),b = Math.parseInt(c[3]+c[3],16);
+						return {r:r,g:g,b:b};
+					}
+				}
+			}
+			return ; 
+        }
+
+	},
+	instances	: {
+		_type		: null,
+		_value		: null,
+
+		_initialize	: function(s) {
+			s = s.trim();
+
+			if (W.Color._X11NAMES.hasKey(s.toLowerCase())) {
+				this._value = s;
+				this._type= 0;
+				return ;
+			}
+			var c;
+			c = W.Color._SYSTEM_R.exec(s);
+			if (c) {
+				this._value = s;
+				this._type= 1;
+				return ;
+			}
+
+			var rgb = W.Color.hex2rgb(s);
+			if (rgb) {
+				var sHex = W.Color.rgb2hex(rgb.r,rgb.g,rgb.b);
+				var sKnown = W.Color._X11RGBS.get(sHex);
+				if (sKnown) {
+					this._value = sKnown;
+					this._type = 0;
+				} else {
+					this._value = sHex;
+					this._type = 2;
+				}
+				return;
+			}
+
+			c = W.Color._TRANS_R.exec(s);
+			if (c) {
+				this._value = "transparent";
+				this._type = 3;
+			}
+		},
+
+		_finalize	: function() {
+			this._type = null;
+			this._value = null;
+		},
+
+		isTransparent	: function() {
+			return this._type == 3;
+		},
+
+		isSystemColor	: function() {
+			return this._type == 1;
+		},
+		
+		isX11Color	: function() {
+			return this._type == 0;
+		},
+
+		isRGBColor	: function() {
+			return this._type == 2;
+		},
+
+		toString	: function() {
+		}
+
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.BorderStyle",
+	statics		: {
+		_CSS_BORDERSTYLES	: ["none","solid","ridge","groove","inset","outset","double","dotted","dashed"],
+
+		none	: null,
+		solid	: null,
+		ridge	: null,
+		groove	: null,
+		inset	: null,
+		outset	: null,
+		double	: null,
+		dotted	: null,
+		dashed	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._CSS_BORDERSTYLES.length; i++) {
+				var oStyle = new W.BorderStyle();
+				oStyle._value = i;
+				this[this._CSS_BORDERSTYLES[i]] = oStyle;
+			}
+		},
+
+		vtos	: function(o) {
+			var s = W.BorderStyle._CSS_BORDERSTYLES[o._value];
+			return s;
+		},
+
+		vfroms	: function(sValue) {
+			sValue = sValue.trim();
+			if (this._CSS_BORDERSTYLES.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+			}
+		}
+
+	},
+	instances	: {
+		_value	: 0 
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.TRBLA",
+	statics		: {
+	},
+	instances	: {
+		_l	: null,
+		_t  : null,
+		_r	: null,
+		_b  : null,
+
+		_finalize	: function() {
+			this._l = this._r = this._t = this._b = null;
+		},
+
+		getL	: function() {
+			return this._l;
+		},
+		
+		setL	: function(l) {
+			this._l = l
+		},
+
+		getT	: function() {
+			return this._t;
+		},
+		
+		setT	: function(t) {
+			this._t = t;
+		},
+
+		getR	: function() {
+			return this._r;
+		},
+		
+		setR	: function(r) {
+			this._r = r;
+		},
+
+		getB	: function() {
+			return this._b;
+		},
+		
+		setB	: function(b) {
+			this._b = nB;
+		},
+
+		getAll  : function() {
+			if (this._t == this.b && this._t == this._r && this._r == this._l) {
+				return this._t;
+			} else {
+				return null;
+			}
+		},
+
+		setAll	: function(a) {
+				this._t = this._r = this._l = this._b = a;
+		}
+
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.BorderWidths",
+	superc		: W.TRBLA,
+	statics		: {
+		_WIDTH_R	: /\d+/ ,
+		_WIDTHS_R	: /\d+\D*\s*/g ,
+
+		vtos	: function(o) {
+			var count = 0; 
+			if (o._r == o._l) {
+				if (o._t == o._b){
+					if (o._t == o._r){
+						return o._t.toString();
+					} else {
+						return o._t + " " + o._r;
+					}
+				} else {
+						return o._t + " " + o._r+ " " + o._b ;
+				}
+			} else {
+					return o._t + " " + o._r + " " + o._l+ " " + o._b ;
+			}
+		
+		},
+
+		vfroms	: function(sValue) {
+			return new W.BorderWidths(sValue);
+		}
+	},
+	instances	: {
+		_initialize	: function(s) {
+			if (s) {
+				var a = s.match(W.BorderWidths._WIDTHS_R);
+				if (!a) {
+					return null;
+				}
+				var len = a.length;
+				for (var i = 0;i<len ; i++){
+					a[i] = W.BorderWidths._WIDTH_R.exec(a[i]);
+					a[i] = Math.parseInt(a[i]);
+				}
+				switch (len)	{
+				case 1:
+					this._t = this._r = this._l = this._b = a[0];
+					break;
+				
+				case 2:
+					this._t =  this._b = a[0];
+					this._r =  this._l = a[1];
+					break;
+				case 3:
+					this._t = a[0];
+					this._r =  this._l = a[1];
+					 this._b = a[2]
+					break;
+				case 4:
+					this._t = a[0];
+					this._r = a[1];
+					this._l = a[2]
+					this._b = a[3];
+					break;
+				}
+			} else {
+					this._t = this._r = this._l = this._b = 0;
+			}
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Paddings",
+	superc		: W.TRBLA,
+	statics		: {
+		_WIDTH_R	: /\d+/ ,
+		_WIDTHS_R	: /\d+\D*\s*/g ,
+
+		vtos	: function(o) {
+			var count = 0; 
+			if (o._r == o._l) {
+				if (o._t == o._b){
+					if (o._t == o._r){
+						return o._t.toString();
+					} else {
+						return o._t + " " + o._r;
+					}
+				} else {
+						return o._t + " " + o._r+ " " + o._b ;
+				}
+			} else {
+					return o._t + " " + o._r + " " + o._l+ " " + o._b ;
+			}
+		
+		},
+
+		vfroms	: function(sValue) {
+			return new W.Paddings(sValue);
+		}
+	},
+	instances	: {
+		_initialize	: function(s) {
+			var a = s.match(W.Paddings._WIDTHS_R);
+			var len = a.length;
+			for (var i = 0;i<len ; i++){
+				a[i] = W.Paddings._WIDTH_R.exec(a[i]);
+				a[i] = Math.parseInt(a[i]);
+			}
+			switch (len)	{
+			case 1:
+				this._t = this._r = this._l = this._b = a[0];
+				break;
+			
+			case 2:
+				this._t =  this._b = a[0];
+				this._r =  this._l = a[1];
+				break;
+			case 3:
+				this._t = a[0];
+				this._r =  this._l = a[1];
+				 this._b = a[2]
+				break;
+			case 4:
+				this._t = a[0];
+				this._r = a[1];
+				this._l = a[2]
+				this._b = a[3];
+				break;
+			}
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.BorderColors",
+	superc		: W.TRBLA,
+	statics		: {
+		_COLORS_R	: /\S+\s*/g ,
+
+		vtos	: function(o) {
+			var count = 0; 
+			if (o._r == o._l) {
+				if (o._t == o._b){
+					if (o._t == o._r){
+						return o._t._value;
+					} else {
+						return o._t._value + " " + o._r._value;
+					}
+				} else {
+						return o._t._value + " " + o._r._value+ " " + o._b._value ;
+				}
+			} else {
+					return o._t._value + " " + o._r._value + " " + o._b._value+ " " + o._l._value ;
+			}
+		
+		},
+
+		vfroms	: function(sValue) {
+			return new W.BorderColors(sValue);
+		}
+	},
+	instances	: {
+		_initialize	: function(s) {
+			var a = s.match(W.BorderColors._COLORS_R);
+			var len = a.length;
+			for (var i = 0;i<len ; i++){
+				a[i] = W.Color.vfroms(a[i]);
+			}
+			switch (len)	{
+			case 1:
+				this._t = this._r = this._b = this._l = a[0];
+				break;
+			
+			case 2:
+				this._t =  this._b = a[0];
+				this._r =  this._l = a[1];
+				break;
+			case 3:
+				this._t = a[0];
+				this._r =  this._l = a[1];
+				 this._b = a[2]
+				break;
+			case 4:
+				this._t = a[0];
+				this._r = a[1];
+				this._b = a[2]
+				this._l= a[3];
+				break;
+			}
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.BorderStyles",
+	superc		: W.TRBLA,
+	statics		: {
+		_STYLES_R	: /\S+\s*/g ,
+
+		vtos	: function(o) {
+			var count = 0; 
+
+			with (W.BorderStyle) { 
+				if (o._r == o._l) {
+					if (o._t == o._b){
+						if (o._t == o._r){
+							return vtos(o._t);
+						} else {
+							return vtos(o._t) + " " + vtos(o._r);
+						}
+					} else {
+							return vtos(o._t) + " " + vtos(o._r)+ " " + vtos(o._b) ;
+					}
+				} else {
+						return vtos(o._t) + " " + vtos(o._r) + " " + vtos(o._b)+ " " + vtos(o._l) ;
+				}
+			}
+		
+		},
+
+		vfroms	: function(sValue) {
+			return new W.BorderStyles(sValue);
+		}
+	},
+	instances	: {
+		_initialize	: function(s) {
+			if (s) {
+				var a = s.match(W.BorderStyles._STYLES_R);
+				var len = a.length;
+				for (var i = 0;i<len ; i++){
+					a[i] = W.BorderStyle.vfroms(a[i]);
+				}
+				switch (len)	{
+					case 1:
+						this._t = this._r = this._l = this._b = a[0];
+						break;
+					
+					case 2:
+						this._t =  this._b = a[0];
+						this._r =  this._l = a[1];
+						break;
+					case 3:
+						this._t = a[0];
+						this._r =  this._l = a[1];
+						 this._b = a[2]
+						break;
+					case 4:
+						this._t = a[0];
+						this._r = a[1];
+						this._b = a[2]
+						this._l = a[3];
+						break;
+				}
+			} else {
+				this._t = this._r = this._l = this._b = "none";
+			}
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Unit",
+	statics		: {
+		_CSS_UNITS	: ["px","in","cm","mm","pc","pt"],
+
+		px	: null,
+		'in': null,
+		cm	: null,
+		mm	: null,
+		pc	: null,
+		pt	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._CSS_UNITS.length; i++) {
+				var oUnit = new W.Unit();
+				oUnit._value = i;
+				this[this._CSS_UNITS[i]] = oUnit;
+			}
+		},
+
+		vtos	: function(o) {
+			var s = W.Unit._CSS_UNITS[o._value];
+			return s;
+		},
+
+		vfroms	: function(sValue) {
+			if (this._CSS_UNITS.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+			}
+		}
+
+	},
+	instances	: {
+		_value	: 0 
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.BgImgRepeatType",
+	statics		: {
+		_NAMES			: ["XY","X","Y","NO"],
+		_CSS_REPEATS	: ["repeat","repeat-x","repeat-y","no-repeat"],
+
+		NO	: null,
+		X	: null,
+		Y	: null,
+		XY	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._NAMES.length; i++) {
+				var oType = new W.BgImgRepeatType();
+				oType._value = i;
+				this[this._NAMES[i]] = oType;
+			}
+		},
+
+		vtos	: function(o) {
+			var s = W.BgImgRepeatType._CSS_REPEATS[o._value];
+			return s;
+		},
+
+		vfroms	: function(sValue) {
+			sValue = sValue.trim();
+			var i = this._CSS_REPEATS.indexOf(sValue);
+			if (i > -1) {
+				return this[this._NAMES[i]];
+			} else {
+				return null;
+			}
+		}
+
+	},
+	instances	: {
+		_value	: 0 
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Cursor",
+	statics		: { 
+		_stdCount	: 0,
+		_NAMES		: ["dft","pointer","crosshair","move","text","wait","help","hand","nresize","sresize","wresize","eresize","neresize","nwresize","seresize","swresize"],
+		_CURSORS	: ["default","pointer","crosshair","move","text","wait","help","hand","n-resize","s-resize","w-resize","e-resize","ne-resize","nw-resize","se-resize","sw-resize"],
+
+		dft			: null,
+		pointer		: null,
+		crosshair	: null,
+		move		: null,
+		text		: null,
+		wait		: null,
+		help		: null,
+		hand		: null,
+		nresize		: null,
+		sresize		: null,
+		wresize		: null,
+		eresize		: null,
+		neresize	: null,
+		nwresize	: null,
+		swresize	: null,
+		seresize	: null,
+		
+		ext			: null,
+
+		_initialize	: function() {
+			for (var i = 0;i<this._NAMES.length; i++) {
+				var oCursor = new W.Cursor();
+				oCursor._value = i;
+				this[this._NAMES[i]] = oCursor;
+			}
+			this._stdCount = this._NAMES.length;
+			this.ext = new Hash();
+		},
+
+		vtos	: function(o) {
+			return this._NAMES[o._value];
+		},
+
+		vfroms	: function(sValue) {
+			if (this._NAMES.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+				return null;
+			}
+		},
+
+		installExtCursor	: function(name,url) {
+			this._NAMES.push(name);
+			this._CURSORS.push(url);
+
+			var oCursor = new W.Cursor();
+			oCursor._value = this._NAMES.indexOf(name);
+			this.ext.put(name,oCursor);
+		}
+	},
+	instances		: {
+		_value		: 0,
+
+		toString	: function(){
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Align",
+	statics		: {
+		_ALIGNS	: [ "none",
+					"topLeft","topCenter","topRight",
+					"middleLeft","middleCenter","middleRight",
+					"bottomLeft","bottomCenter","bottomRight"
+				  ],
+
+		none		: null,
+		topLeft		: null,
+		topCenter	: null,
+		topRight	: null,
+		middleLeft	: null,
+		middleCenter: null,
+		middleRight	: null,
+		bottomLeft	: null,
+		bottomCenter: null,
+		bottomRight	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._ALIGNS.length; i++) {
+				var oAlign = new W.Align();
+				oAlign._value = i;
+				this[this._ALIGNS[i]] = oAlign;
+			}
+		},
+
+		vtos	: function(o) {
+			return W.Align._ALIGNS[o._value];
+		},
+
+		vfroms	: function(sValue) {
+			if (this._ALIGNS.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+			}
+		}
+	},
+	instances	: {
+		_value	: 0
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Point",
+	statics		: {
+	},
+	instances	: {
+		_x		: 0,
+		_y		: 0,
+		_initialize	: function(x,y) {
+			this._x = x?x:0;
+			this._y = y?y:0;
+		},
+
+		getX	: function() {
+			return this._x;
+		},
+
+		setX	: function(x) {
+			this._x = x;
+		},
+
+		getY	: function() {
+			return this._y;
+		},
+
+		setY	: function(y) {
+			this._y = y;
+		},
+
+		setXY	: function(x,y){
+			this._x = x;
+			this._y = y;
+		},
+
+		move	: function(dx,dy) {
+			this._x += dx;
+			this._y += dy;
+		}
+		
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.Rect",
+	statics		: {
+	},
+	instances	: {
+		_left		: 0,
+		_top		: 0,
+		_width		: 0,
+		_height		: 0,
+
+		_initialize	: function(l,t,w,h) {
+			this._left = l?l:0;
+			this._top = t?t:0;
+			this._width = w?w:0;
+			this._height = h?h:0;
+		},
+
+		getLeft	: function() {
+			return this._left;
+		},
+
+		setLeft	: function(l) {
+			this._left = l;
+		},
+
+		getTop	: function() {
+			return this._top;
+		},
+
+		setTop	: function(t) {
+			this._top = t;
+		},
+
+		getWidth : function() {
+			return this._width;
+		},
+
+		getHeight : function() {
+			return this._height;
+		},
+
+		setWidth : function(w) {
+			this._width = w;
+		},
+
+		setHeight : function(h) {
+			this._height = h;
+		},
+
+		move	: function(dx,dy) {
+			this._left += dx;
+			this._top += dy;
+		},
+
+		containPoint : function(p) {
+			var x = p.getX();
+			var y = p.getY();
+			return (x>=this._left) && (x<this._left+this._width) && (y>=this._top) && (y<this._top+this._height);
+		}
+
+	}
+});

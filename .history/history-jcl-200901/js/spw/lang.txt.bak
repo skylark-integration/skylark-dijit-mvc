@@ -1,0 +1,1666 @@
+/*----------------------------------------------------------------------------
+ * Javascript Class Framework Version 1.0                                     
+ * Copyright 2007, (www.psteam.co.jp)                                         
+ *                                                                            
+ * This program is free software;                                             
+ * You can redistribute it and/or modify it under the terms of the GNU        
+ * General Public License as published by the Free Software Foundation;       
+ * either version 2 of the License, or (at your option) any later version.    
+ *                                                                            
+ * This program is distributed in the hope that it will be useful, but        
+ * WITHOUT ANY WARRANTY;                                                      
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR        
+ * A PARTICULAR PURPOSE.                                                      
+ * See the GNU General Public License for more details.                       
+ *                                                                            
+ * You have received a copy of the GNU General Public License along           
+ * with this program.                                                         
+ *--------------------------------------------------------------------------*/
+
+/**
+ * JavaScriptオブジェクトのObject、Functionを退避します。
+ */ 
+var _$O = Object;
+var _$F = Function;
+
+delete Object;
+delete Function;
+
+/**
+ * ObjectクラスのJavascriptオブジェクトを定義しておきます。
+ */ 
+var Object = function() {};
+
+
+/**
+ * オブジェクトタイプの定数を定義します。
+ */ 
+Object.OT_CLASS 	= "class";
+Object.OT_INSTANCE  = "instance";
+Object.OT_METHOD 	= "method";
+Object.OT_NAMESPACE = "namespace";
+Object.OT_EXTERNAL 	= "external";
+Object.OT_UNDEFINED = "undefined";
+
+/**
+ * オブジェクトのタイプを返します。
+ * @method objType
+ * @param  {Object} o   オブジェクト
+ * @return {String}  
+ */ 
+Object.objType = function(o) {
+	var type = typeof(o);
+	if (type == "undefined") {
+		return Object.OT_UNDEFINED;
+	}else if (type == "function") {
+		if (o._className) {
+			return Object.OT_CLASS;
+		} else {
+			return Object.OT_METHOD;
+		}
+	} else if (o._nsName) {
+		return Object.OT_NAMESPACE;
+	} else if (o.getClass){
+ 		return Object.OT_INSTANCE;
+	} else  {
+		return Object.OT_EXTERNAL;
+	}
+};
+
+
+/**
+ * HashクラスのJavascriptオブジェクトを定義しておきます。
+ */ 
+var Hash = function() {};
+
+/**
+ * MethodクラスのJavascriptオブジェクトを定義しておきます。
+ */ 
+var Method = function() {
+	var script = "new _$F(";
+	for (var i=0;i<arguments.length;i++) {
+		if (i>0) {
+			script = script +",";
+		}
+		script = script + "'"+arguments[i]+"'";
+	}
+	script = script + ")";
+	return eval(script);
+};
+
+/**
+ * SystemクラスのJavascriptオブジェクトを定義します。
+ *
+ */
+var System = function(){};
+
+/**
+ * UNSUPPOREDMETHODエラーナンバー定数を定義します。
+ */ 
+Error.EN_UNSUPPOREDMETHOD = 0xA001;
+
+
+/**
+ * インスタンスのClassオブジェクトを返します。
+ * （システム用）
+ * @method getClass
+ * @param  
+ * @return {Class}  
+ */ 
+_$O.prototype.getClass = function() {
+	var ot = Object.objType(this);
+	if (ot == Object.OT_INSTANCE) {
+		var type = typeof(this);
+		if (type == "number") {
+			return Number;
+		} else if (type == "string") {
+			return String;
+		} else if (type == "boolean") {
+			return Boolean;
+		} else if (this.constructor) {
+			if (this.constructor == _$O) {
+				return Hash;
+			} else {
+				return this.constructor;
+			}
+		} else {
+			return undefined;
+		}
+	} else if (ot == Object.OT_CLASS){
+		return Hash;
+	} else if (ot == Object.OT_NAMESPACE) {
+		return Hash;
+	} else if (ot == Object.OT_METHOD) {
+		return Method;
+	} else {
+		return undefined;
+	}
+};
+
+/**
+ * クラスのClass名称を返します。
+ * （システム用）
+ * @method getClassName
+ * @param  
+ * @return {String}  
+ */ 
+_$O.prototype.getClassName = function() {
+	var ot = Object.objType(this);
+	if (ot == Object.OT_CLASS){
+		return this._className;
+	} else {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,"getClassName()");
+	}
+};
+
+/**
+ * クラスのClass名称を返します。
+ * （システム用）
+ * @method getNsName
+ * @param  
+ * @return {String}  
+ */ 
+_$O.prototype.getNsName = function() {
+	var ot = Object.objType(this);
+	if (ot == Object.OT_NAMESPACE){
+		return this._nsName;
+	} else {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,"getNsName()");
+	}
+};
+
+/**
+ * クラスの親クラスを返します。
+ * （システム用）
+ * @method getSuperc
+ * @param  
+ * @return {Class}  
+ */ 
+_$O.prototype.getSuperc = function() {
+	var ot = Object.objType(this);
+	if (ot == Object.OT_CLASS){
+		return this._superc;
+	} else {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,"getSuperc()");
+	}
+};
+
+/**
+ * クラスの親クラスを返します。
+ * （システム用）
+ * @method inheritFrom
+ * @param  
+ * @return {Class}  
+ */ 
+_$O.prototype.inheritFrom = function(c) {
+	var ot = Object.objType(this);
+	if (ot == Object.OT_CLASS){
+		c1 = this.getSuperc();
+		while (c1) {
+			if (c1 == c) {
+				return true;
+			}
+			c1 = c1.getSuperc();
+		}
+		return false;
+	} else {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,"inheritFrom()");
+	}
+};
+
+/**
+ * インスタンスが指定されたクラス或いはそのクラスのサブクラスの
+ * インスタンスかどうかを返します。
+ * （システム用）
+ * @method instanceOf
+ * @param  {Class} c  指定されたクラス
+ * @return {Boolean}  
+ */ 
+_$O.prototype.instanceOf = function(c) {
+	var c1 = this.getClass();
+	while (c1) {
+		if (c1 == c) {
+			return true;
+		}
+		c1 = c1.getSuperc();
+	}
+	return false;
+};
+
+/**
+ * オブジェクト作成直後の初期化を行います。
+ * @method _initialize
+ * @param  
+ * @return   
+ */ 
+_$O.prototype._initialize = function () {
+};
+
+/**
+ * オブジェクト廃棄直前のクリーンアップを行います。
+ * @method _finalize
+ * @param  
+ * @return   
+ */ 
+_$O.prototype._finalize  = function() {
+};
+
+
+/**
+ * インスタンスオブジェクトを廃棄します。
+ * （システム用）
+ * @method dispose
+ * @param  
+ * @return   
+ */ 
+_$O.prototype.dispose = function () {
+	var ot = Object.objType(this);
+	if (ot == Object.OT_INSTANCE){
+		this._finalize();
+		this._disposed = true;
+	} else {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,"dispose()");
+	}
+};
+
+_$O._superCallStack = [];
+
+/**
+ * 親クラスのメッソドを呼び出します。
+ * （システム用）
+ * @method superCall
+ * @param  
+ * @return   
+ */ 
+_$O.prototype.superCall = function () {
+	var ot = Object.objType(this);
+	if (ot == Object.OT_INSTANCE){
+		var args = [];
+		for (var i = 0; i<arguments.length;i++) {
+			args.push(arguments[i]);
+		}
+		var sMethod = args.shift();
+		var method	= null;
+
+		var len = _$O._superCallStack.length;
+		var baseo,basec;
+		if (len > 0) {
+			baseo = _$O._superCallStack[len-2];
+			basec = _$O._superCallStack[len-1]
+		}		
+		if (this != baseo) {
+			baseo = this;
+			basec = this.getClass();
+		}
+		var superc = basec.getSuperc();
+		while (superc) {
+			if (superc.prototype.hasOwnProperty(sMethod)) {
+				method = superc.prototype[sMethod];
+				break;
+			}
+			superc = superc.getSuperc();
+		}
+		if (method) {
+			_$O._superCallStack.push(baseo);
+			_$O._superCallStack.push(superc);
+			try {
+				method._apply(baseo,args);
+			} finally {
+				_$O._superCallStack.pop();
+				_$O._superCallStack.pop();
+			}
+		} else {
+			throw new Error(Error.EN_UNSUPPOREDMETHOD,sMethod+"()");
+		}
+	} else {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,"superCall()");
+	}
+};
+
+/**
+ * JavascriptオブジェクトのFunctionのcall、applyメソッドを退避します。
+ */ 
+_$F.prototype._call  = _$F.prototype.call;
+_$F.prototype._apply = _$F.prototype.apply;
+
+/**
+ * メソッドを実行します。
+ * （システム用）
+ * Methodはこのメソッドをそのまま継承し、Classに対して
+ * このメソッドを呼び出すとエラーとなります。
+ * @method call
+ * @param  
+ * @return   
+ */
+ _$F.prototype.call = function() {
+	if (Object.objType(this) != Object.OT_METHOD) {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,"call()");
+	}
+	var args = [];
+	for (var i = 0; i<arguments.length;i++) {
+		args.push(arguments[i]);
+	}
+	var o = args.shift();
+	return this._apply(o,args);
+};
+
+/**
+ * メソッドを実行します。
+ * （システム用）
+ * Methodはこのメソッドをそのまま継承し、Classに対して
+ * このメソッドを呼び出すとエラーとなります。
+ * @method apply
+ * @param  
+ * @return   
+ */ 
+_$F.prototype.apply = function(o,args) {
+	if (Object.objType(this) != Object.OT_METHOD) {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,"apply()");
+	}
+	return this._apply(o,args);
+};
+
+/**
+ * objectに関連づけられた関数(内部で object を this として参照可能)
+ * のインスタンスを返す。 返される関数は、元の関数と同じ引数
+ * (arg1, arg2, ... etc)となる。 
+ * （システム用）
+ * Methodはこのメソッドをそのまま継承し、Classに対して
+ * このメソッドを呼び出すとエラーとなります。
+ * @method bind
+ * @param  {Object} o 関連付けれるオブジェクト。
+ * @return   
+ */ 
+_$F.prototype.bind = function(o) {
+	if (Object.objType(this) != Object.OT_METHOD) {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,"bind()");
+	}
+	var F = this;
+	return function() {
+		return F._apply(o,arguments);
+	};
+};
+
+/**
+ * Hashクラスのインスタンスのメソッドとして呼び出されているかどうか
+ * をチェックします。
+ * （システム用）
+ * @method _checkHashMethod
+ * @param  {String} methodName メソッド名称
+ * @return   
+ */ 
+_$O.prototype._checkHashMethod = function(methodName) {
+	if (this.getClass() != Hash) {
+		throw new Error(Error.EN_UNSUPPOREDMETHOD,methodName);
+	}
+};
+
+/**
+ * Hashクラスのインスタンスとされるオブジェクトにおいて、全てのキーの
+ * リストを返します。
+ * @method keys
+ * @param  
+ * @return {Array｝ キーのリスト
+ */ 
+_$O.prototype.keys =  function() {
+	this._checkHashMethod("keys()");
+	
+	var res =[];
+	for (var k in this) {
+		if (this.hasOwnProperty(k)) {
+			res.push(k);
+		}
+	}
+	var tsName = "toString";
+	if (this.hasOwnProperty(tsName)) {
+		if (res.indexOf(tsName) == -1) {
+			res.push(tsName);
+		}
+	}
+	return res;
+};
+
+/**
+ * Hashクラスのインスタンスとされるオブジェクトにおいて、
+ * 指定されたキーにマップされている値を返します。
+ * @method get
+ * @param  {String} key 	キー
+ * @return {Object} Value 	値
+ */ 
+_$O.prototype.get = function(key) {
+	this._checkHashMethod("get()");
+
+	if (this.hasKey(key)) {
+		return this[key];
+	}
+	return undefined;
+};
+
+/**
+ * Hashクラスのインスタンスとされるオブジェクトにおいて、
+ * 指定された keyを指定されたvalue にマップします。
+ * @method put
+ * @param  {String} key キー
+ * @param  {Object} val 値
+ * @return   
+ */ 
+_$O.prototype.put = function(key, val) {
+	this._checkHashMethod("put()");
+
+	this[key] = val;
+};
+
+_$O.prototype.putAll = function(oHash) {
+	this._checkHashMethod("merge()");
+
+	var keys = oHash.keys();
+	for (var i =0; i<keys.length;i++) {
+		this.put(keys[i],oHash.get(keys[i]));
+	}
+};
+
+/**
+ * Hashクラスのインスタンスとされるオブジェクトにおいて、
+ * 指定されたキーおよびそれに対応する値を削除します
+ * @method remove
+ * @param  {String} key キー
+ * @return   
+ */ 
+_$O.prototype.remove = function(key) {
+	this._checkHashMethod("remove");
+
+	if (this.hasKey(key)) {
+		delete this[key];
+	}
+};
+
+/**
+ * Hashクラスのインスタンスとされるオブジェクトにおいて、
+ * 全てのキー及びそれに対応する値を消去します。  
+ * @method clear
+ * @param  
+ * @return   
+ */ 
+_$O.prototype.clear = function() {
+	this._checkHashMethod("clear()");
+
+	var keys = this.keys();
+	for (var i= 0;i<keys.length;i++) {
+		delete this[keys[i]];
+	}
+};
+
+/**
+ * Hashクラスのインスタンスとされるオブジェクトにおいて、
+ * 指定されたキーが存在するかをチェックします。
+ * @method hasKey
+ * @param  {String} key キー
+ * @return {Boolean}
+ */ 
+_$O.prototype.hasKey = function(key) {
+	return this.hasOwnProperty(key);
+};
+
+/**
+ * Hashクラスのインスタンスとされるオブジェクトにおいて、
+ * 全ての値のリストを返します。
+ * @method values
+ * @param  
+ * @return {Array}   値のリスト 
+ */ 
+_$O.prototype.values = function() {
+	this._checkHashMethod("values()");
+
+	var res =[];
+	for (var k in this) {
+		if (this.hasOwnProperty(k)) {
+			res.push(this[k]);
+		}
+	}
+	return res;
+};
+			
+/**
+ * Hashクラスのインスタンスとされるオブジェクトにおいて、
+ * キー及びそれに対応する値が存在するかないかをチェックします。
+ * @method isEmpty
+ * @param  
+ * @return {Boolean} 
+ */ 
+_$O.prototype.isEmpty  = function() {
+	this._checkHashMethod("isEmpty()");
+
+	return this.count() == 0;
+};
+
+/**
+ * Hashクラスのインスタンスとされるオブジェクトにおいて、
+ * キー及びそれに対応する値のペアの数を返します。。
+ * @method count
+ * @param  
+ * @return {Number}  
+ */ 
+_$O.prototype.count = function() {
+	this._checkHashMethod("count()");
+
+	var keys = this.keys();
+	return keys.length;
+};
+
+
+/**
+ * システムNamespaceの名称
+ */ 
+_$O._spwnsname = "spw";
+
+
+/**
+ * NamespaceとClassを格納するものを定義します。
+ */ 
+_$O._nsroot = {
+		_nsName	: "",
+		spw  	:{ 
+					_nsName	: "spw"
+			  	 }
+};
+
+/**
+ * spwというNamespaceを使えるようにします。
+ */ 
+window["spw"] = _$O._nsroot.spw;
+
+/**
+ * 親クラスのインスタンスプロパティ及びメッソドをサブクラスに引き継がれるようにする
+ *
+ * @method _extendI
+ * @param  {Class} 		subc 	サブクラス 
+ * @param  {Class} 		superc 	スパクラス 
+ * @param  {Boolean} 	isnew	元JSオブジェクト無しフラグ 
+ * @param  {Boolean} 	isAbstract	インスタンス生成なしフラグ 
+ * @return   
+ */
+_$O._extendI = function(subc, superc,isnew,isAbstract) {
+	if (isnew && !isAbstract) {
+		if (superc) {
+		    var F = function() {};
+		    F.prototype=superc.prototype;
+		    subc.prototype=new F();
+		    subc.prototype.constructor=subc;
+		}
+	} 
+    subc._superc= superc;
+};
+
+
+
+/**
+ * クラスのスタティックプロパティ及びメッソドを定義する
+ *
+ * @method _overrideS
+ * @param  {Class} c 　      クラス 
+ * @param  {Hash}  overrides クラスのスタティックプロパティ及びメッソドの集合 
+ * @return {Namespace}  
+ */
+_$O._overrideS = function(c,overrides) {
+    if (overrides) {
+		var keys = overrides.keys()
+        for (var i =0;i<keys.length;i++) {
+            c[keys[i]]=overrides[keys[i]];
+        }
+    }
+};
+
+/**
+ * クラスのインスタンスプロパティ及びメッソドを定義する
+ *
+ * @method _overrideI
+ * @param  {Class} c 　      クラス 
+ * @param  {Hash}  overrides クラスのスタティックプロパティ及びメッソドの集合 
+ * @return {Namespace}  
+ */
+_$O._overrideI = function(c,overrides){
+    if (overrides) {
+		var keys = overrides.keys()
+        for (var i =0;i<keys.length;i++) {
+            c.prototype[keys[i]]=overrides[keys[i]];
+        }
+    }
+};
+
+
+/**
+ * Namespaceを定義します。
+ *
+ * @method defineNs
+ * @param  {String}   fullName   Namespace名称
+ * @return {Namespace}  
+ */
+_$O.defineNs = function(fullName) {
+ 	var pnsName    = "";
+
+	if (fullName == ""  || fullName == this._spwnsname) {
+		return undefined;
+	}
+	
+    var d = fullName.split(".");
+	var pns = this._nsroot;
+    for (j= 0; j<d.length-1; j++) {
+		if (pnsName == "") {
+			pnsName = d[j];
+		} else {
+			pnsName = pnsName + "." + d[j];
+		}
+        pns[d[j]]=pns[d[j]] || {_nsName : pnsName};
+        pns=pns[d[j]];
+    }
+
+	var ns = {_nsName : fullName};
+	pns[d[d.length-1]] = ns;
+
+	if(d[0] != this._spwnsname) {
+		window[d[0]] = _$O._nsroot[d[0]];
+	}
+
+	return ns;
+};
+
+/**
+ * Namespaceをサーチします。
+ *
+ * @method findNs
+ * @static
+ * @private
+ * @param  fullName   Namespace名称
+ * @return {Namespace}  
+ */
+_$O.findNs = function(fullName) {
+    var d = fullName.split(".");
+	var ns = this._nsroot;
+
+    for (j= 0; j<d.length; j++) {
+        ns=ns[d[j]];
+		if (!ns) {
+			break;
+		}
+    }
+
+	return ns;
+};
+
+/**
+ * Namespaceをサーチしてなければ作成します。
+ *
+ * @method findAndDefineNs
+ * @static
+ * @private
+ * @param  {String} name   Namespace名称
+ * @return {Namespace}  
+ */
+_$O.findAndDefineNs = function(fullName) {
+	if (fullName == "") {
+		return null;
+	}
+	var ns = this.findNs(fullName);
+	if (!ns) {
+		ns = this.defineNs(fullName);
+	}
+	return ns;
+};
+
+/**
+ * Namespaceを削除します。
+ *
+ * @method deleteNs
+ * @static
+ * @private
+ * @param  {String}  fullName   Namespace名称
+ * @return {Boolean} 削除成功の場合はTrue、そうではない場合はFalse
+ * 					 を返します。 
+ */
+_$O.deleteNs = function(fullName) {
+	if (fullName == this._spwnsname) {
+		return false;
+	}
+    var d = fullName.split(".");
+	var ns  = this._nsroot;
+	var nsp = null;
+    for (j= 0; j<d.length-1; j++) {
+		nsp = ns;
+        ns=nsp[d[j]];
+		if (!ns) {
+			return false;
+		}
+    }
+	ns[d[d.length - 1]] = undefined;
+	if (ns == this._nsroot) {
+	   window[d[d.length-1]] = undefined;
+	}
+	return true;
+};
+
+/**
+ * Nameを定義します。
+ *
+ * @method defineName
+ * @param  {String}   fullName  オブジェクト名称
+ * @param  {Object}   obj    	オブジェクト
+ * @return   
+ */
+_$O.defineName = function(fullName,obj) {
+	if (fullName == ""  || fullName == this._spwnsname) {
+		return undefined;
+	}
+	
+    var d = fullName.split(".");
+	var pns = this._nsroot;
+
+    for (j= 0; j<d.length-1; j++) {
+		if (pnsName == "") {
+			pnsName = d[j];
+		} else {
+			pnsName = pnsName + "." + d[j];
+		}
+        pns[d[j]]=pns[d[j]] || {_nsName : pnsName};
+        pns=pns[d[j]];
+        var objType = Object.objType(pns);
+        if (objType != Object.OT_NAMESPACE) {
+        	return false;
+        }
+    }
+
+	pns[d[d.length-1]] = obj;
+	if(d[0] != this._spwnsname) {
+		window[d[0]] = _$O._nsroot[d[0]];
+	}
+	
+	return true;
+};
+
+/**
+ * Nameを削除します。
+ *
+ * @method deleteName
+ * @static
+ * @private
+ * @param  {String}  fullName   Namespace名称
+ * @return {Boolean} 削除成功の場合はTrue、そうではない場合はFalse
+ * 					 を返します。 
+ */
+_$O.deleteName = function(fullName) {
+	if (fullName == this._spwnsname) {
+		return false;
+	}
+    var d = fullName.split(".");
+	var ns  = this._nsroot;
+	var nsp = null;
+    for (j= 0; j<d.length-1; j++) {
+		nsp = ns;
+        ns=nsp[d[j]];
+		if (!ns) {
+			return false;
+		}
+    }
+	ns[d[d.length - 1]] = undefined;
+	if (ns == this._nsroot) {
+	   window[d[d.length-1]] = undefined;
+	}
+	return true;
+};
+
+/**
+ * クラスが所属しているNamesapce名称を返します。
+ *
+ * @method getNsNameOfClass
+ * @static
+ * @private
+ * @param  {String} regObjectName   Class名称
+ * @return {String} Namesapce名称
+ */
+_$O.getNsNameOfClass = function(fullName) {
+    var d = fullName.split(".");
+	d.pop();
+	return d.join(".");
+};
+
+/**
+ * クラスのNamespace名称が付いていない名称を返します。
+ *
+ * @method getShortNameOfClass
+ * @static
+ * @private
+ * @param  {String} regObjectName   Class名称
+ * @return {String} ショット名称
+ */
+_$O.getShortNameOfClass = function(fullName) {
+    var d = fullName.split(".");
+	return d[d.length-1];
+};
+
+/**
+ * クラスを定義します。
+ *
+ * @method defineClass
+ * @static
+ * @private
+ * @param  {Hash} cdef   Class名称
+ * 					{String}   name　　　　クラス名称
+ * 					{JSObject} jsobj	 　クラスの元となるJSオブジェクト、無ければnull
+ * 				　　{Class}    superc　　　クラスの親クラス
+ * 					{Hash}     statics　 　クラスのStaticプロパティ
+ * 					{Hash}     instances　 クラスのinstanceプロパティ
+ * 
+ * @return {Class} クラス
+ */
+_$O.defineClass = function(cdef) {
+	var fullName  = cdef.name;
+	var c = cdef.jsobj;
+    var superc = cdef.superc;
+    var statics   = cdef.statics;
+    var instances = cdef.instances;
+	var isnew = false;
+	var isAbstract = false;
+
+	if (!instances) {
+		isAbstract = true;
+	} 
+
+	if (!c) {
+		if (isAbstract) {
+			c  = function() {
+					throw new Error("can not create instance of this class");
+    		};
+		} else {
+			c  = function() {
+				this._disposed = false;
+				if (this._initialize) {
+					this._initialize.apply(this, arguments);
+				}
+    		};
+		}
+		isnew = true;
+	}
+
+	var nsname = this.getNsNameOfClass(fullName);
+	var name =this.getShortNameOfClass(fullName);
+	var ns = this.findAndDefineNs(nsname);
+	if (!ns) {
+		this._nsroot[name] = c;
+		window[name] = c;
+	} else {
+		ns[name] = c;
+	}
+	c._className  =  fullName;
+
+	this._overrideS(c,statics);
+
+	this._extendI(c,superc,isnew,isAbstract);
+	
+	if (!isAbstract) {
+		this._overrideI(c,instances);
+	}	
+	
+	if (c._initialize) {
+        //dbgLog("defineClass execute " + c._className + "._initialize() start");
+		c._initialize();
+        //dbgLog("defineClass execute _initialize() end");
+	}
+
+	return c;
+
+};
+
+/**
+ * クラスをサーチします。
+ *
+ * @method findClass
+ * @static
+ * @private
+ * @param  {String}   fullname　　　　クラス名称
+ * @return {Class} クラス
+*/
+_$O.findClass = function(fullname) {
+	var nsname = this.getNsName(fullname);
+	var name =this.getShortName(fullname);
+	var ns = this.findDs(nsname);
+	var c ;
+	if (ns == null){
+		c = this._nsroot[name]
+	} else {
+		c = ns[name];
+	}
+	if (c && Object.objType(c) == Object.OT_CLASS) {
+		return c;
+	} else {
+		return undefined;
+	}
+};
+
+/**
+ * クラスを削除します。
+ *
+ * @method deleteClass
+ * @static
+ * @private
+ * @param  {String}  fullname　　　　クラス名称
+ * @return {Boolean} 削除成功の場合はTrue、そうではない場合はFalse
+ * 					 を返します。 
+ */
+_$O.deleteClass = function(fullname) {
+	var nsname = this.getNsNameOfClass(fullname);
+	if (nsname == this._spwnsname) {
+		return false;
+	}
+	var shortname =this.getShortNameOfClass(fullname);
+	var ns = this.findNs(nsname);
+	if (ns == null){
+		ns = this._nsroot
+	} 
+	var c = ns[shortname] ;
+
+	if (c && Object.objType(c) == Object.OT_CLASS) {
+		delete ns[shortname];
+		if (ns == this._nsroot) {
+			delete window[shortname];
+		}
+	} else {
+		return false;
+	}
+};
+
+
+/**
+ * クラスspw.Objectを定義します。
+ *
+ */
+_$O.defineClass({
+	name   : "spw.Object",
+	jsobj  : Object,
+	superc : null,
+	statics: {
+	},
+	instances :{
+		_initialize : function () {
+			this._disposed = false;
+		},
+
+		_finalize : function() {
+			this._disposed = true;
+		}
+	}
+}); 
+
+/**
+ * クラスspw.Methodを定義します。
+ *
+ */
+_$O.defineClass({
+	name   : "spw.Method",
+	jsobj  : Method,
+	superc : spw.Object,
+	statics: {},
+	instances :{}
+}); 
+
+
+/**
+ * クラスspw.Arrayを定義します。
+ *
+ */
+_$O.defineClass({
+	name   : "spw.Array",
+	jsobj  : Array,
+	superc : spw.Object,
+	statics: {
+	},
+	instances :{
+		clear : function() {
+		    this.length = 0;
+		},
+
+		contains : function(o){
+			return this.indexOf(o) > -1 ;
+		},
+
+		containsAll : function(a){
+			for (var i=0;i<a.length;i++) {
+				if (this.indexOf(a[i]) == -1 ) {
+					return false;
+				}
+			}
+			return true;
+		},
+
+		first : function() {
+			if (this.length >0) {
+			    return this[0];
+			}else {
+				return undefined;
+			}    
+		},
+
+		get : function(i) {
+			if (i<0 || i>= this.length) {
+				return null
+			} else {
+				return this[i];
+			}
+		},
+
+
+		indexOf : function(o, fromIndex) {
+			if (fromIndex == null) {
+				fromIndex = 0;
+			} else if (fromIndex < 0) {
+				fromIndex = Math.max(0, this.length + fromIndex);
+			}
+			for (var i = fromIndex; i < this.length; i++) {
+				if (this[i] ==  o)
+					return i;
+			}
+			return -1;
+		},
+
+		indexOfSub	: function(aSub,fromIndex) {
+			if (!aSub) {
+				return -1;
+			}
+			if (fromIndex == null) {
+				fromIndex = 0;
+			} else if (fromIndex < 0) {
+				fromIndex = Math.max(0, this.length + fromIndex);
+			}
+			
+			var nLenSub = aSub.length;
+			var nLen 	= this.length;
+			for (var i = fromIndex; i < nLen - nLenSub; i++) {
+				var bAll = true;
+				for (var j = 0;j++;j<nLenSub) {
+					if (this[i+j] != aSub[j]) {
+						bAll = false;
+						break;
+					}
+				}
+				if (bAll) {
+					return i;
+				}
+			}
+			return -1;
+		},
+
+		insertAt : function(o, i) {
+			this.splice(i, 0, o);
+		},
+
+		insertBefore : function(o, o2) {
+			var i = this.indexOf(o2);
+			if (i == -1)
+				this.push(o);
+			else
+				this.splice(i, 0, o);
+		},
+
+		isEmpty : function(){
+			return this.length == 0;
+		},
+
+		last : function() {
+			if (this.length > 0) {
+			    return this[this.length - 1];
+			}else{
+				return undefined;
+			}    
+		},
+
+		lastIndexOf : function(o, fromIndex) {
+			if (fromIndex == null) {
+				fromIndex = this.length - 1;
+			} else if (fromIndex < 0) {
+				fromIndex = Math.max(0, this.length + fromIndex);
+			}
+			for (var i = fromIndex; i >= 0; i--) {
+				if (this[i] ==  o)
+					return i;
+			}
+			return -1;
+		},
+
+		pushAll : function(a) {
+			for (var i=0;i<a.length;i++) {
+				this.push(a[i]);
+			}
+		},
+
+		remove : function(o) {
+			var i = this.indexOf(o);
+			if (i != -1)
+				this.splice(i, 1);
+		},
+
+
+		removeAt : function(i) {
+			this.splice(i, 1);
+		},
+
+
+		removeAll : function(o) {
+			var i = this.indexOf(o);
+			while (i>-1) {
+				this.removeAt(i);
+				i = this.indexOf(o);
+			}
+		},
+
+		removeSub	:function(aSub){
+			var i = this.indexOfSub(aSub);
+			if (i != -1 ){
+				this.splice(i,aSub.length);
+			}
+		},
+
+		forEach : function(f, o) {
+			var l = this.length;
+			for (var i = 0; i < l; i++) {
+				f.call(o, this[i], i, this);
+			}
+		}
+	}
+}); 
+
+/**
+ * クラスspw.Objectを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.Boolean",
+	jsobj		: Boolean,
+	superc		: spw.Object,
+	statics		: {
+		vtos	: function(o) {
+			if (o) {
+				return "true";
+			} else {
+				return "false";
+			}
+		},
+
+		vfroms	: function(sValue) {
+			if (sValue == "true") {
+				return true;
+			} else if (sValue == "false") {
+				return false;
+			} else {
+				throw new Error(0,"invalid parameter");
+			}
+		}
+    },
+	instances	: {}
+});
+
+/**
+ * クラスspw.Dateを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.Date",
+	jsobj		: Date,
+	superc		: spw.Object,
+	statics		: {
+		vtos	: function(o) {
+			return o.toString();
+		},
+
+		vfroms	: function(sValue) {
+			return new Date(sValue);
+		}
+	},
+	instances	: {}
+});
+
+
+/**
+ * クラスspw.Hashを定義します。
+ *
+ */
+_$O.defineClass({
+	name   : "spw.Hash",
+	jsobj  : Hash,
+	superc : spw.Object,
+	statics: {
+	},
+	instances :{
+		_initialize : function () {
+		},
+
+		_finalize  : function() {
+		}
+
+	}
+}); 
+
+
+
+/**
+ * クラスspw.Mathを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.Math",
+	jsobj		: Math,
+	superc		: spw.Object,
+	statics		: {
+		parseInt : function(s,radix) {
+			return parseInt(s,radix);
+		},
+
+		parseFloat	: function(s) {
+			return parseFloat(s);
+		}
+	},
+	instances	: {}
+});
+
+
+/**
+ * クラスspw.Numberを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.Number",
+	jsobj		: Number,
+	superc		: spw.Object,
+	statics		: {
+		vtos	: function(o) {
+			return o.toString();
+		},
+
+		vfroms	: function(sValue) {
+			return Math.parseFloat(sValue);
+		}
+	},
+	instances	: {
+	}
+});
+
+/**
+ * クラスspw.RegExpを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.RegExp",
+	jsobj		: RegExp,
+	superc		: spw.Object,
+	statics		: {},
+	instances	: {}
+});
+
+/**
+ * クラスspw.Stringを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.String",
+	jsobj		: String,
+	superc		: spw.Object,
+	statics		: {},
+	instances	: {
+		trim	: function() {
+	        return this.replace(/^\s+|\s+$/g,'');
+    	},
+		ltrim	: function() {
+	        return this.replace(/^\s+/g,'');
+    	},
+		rtrim	: function() {
+	        return this.replace(/\s+$/g,'');
+    	},
+	}
+});
+
+
+var _timeoutMethods = new Hash();
+
+var _intervalMethods = new Hash();
+
+function _execTimeoutMethod(sTimestamp){
+	var oMethodInfo = _timeoutMethods.get(sTimestamp);
+	if (oMethodInfo) {
+		var id = oMethodInfo.get("id");
+		var o = oMethodInfo.get("o")
+		var m = oMethodInfo.get("m")
+		var args = oMethodInfo.get("args");
+
+		clearTimeout(id);
+		oMethodInfo.dispose();
+		_timeoutMethods.remove(oMethodInfo);
+
+		m.apply(o,args);
+	}
+};
+
+function _execIntervalMethod(sTimestamp){
+	var oMethodInfo = _intervalMethods.get(sTimestamp);
+	if (oMethodInfo) {
+		var o = oMethodInfo.get("o")
+		var m = oMethodInfo.get("m")
+		var args = oMethodInfo.get("args");
+		m.apply(o,args);
+	}
+};
+
+
+
+/**
+ * クラスspw.Systemを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.System",
+	jsobj		: System,
+	statics		: {
+		/**
+		 *
+		 *
+		 * @method findNs
+		 * @static
+		 * @public
+		 * @param  {String} name     
+		 * @return {Namespace}  A reference to the last namespace object created
+		 */
+		findNs :function(name) {
+			return _$O.findNs(name);
+		},
+
+		/**
+		 *
+		 *
+		 * @method defineNs
+		 * @static
+		 * @param  {String}    fullname
+		 * @return {Namespace}  
+		 */
+		defineNs : function(fullname) {
+			return _$O.defineNs(fullname);
+		},
+
+		deleteNs : function(fullname) {
+			return _$O.deleteNs(fullname);
+		},
+
+		findClass : function(n) {
+			return _$O.findClass(n);
+		},
+
+		defineClass : function(cdef) {
+			var cdef1 = {};
+			cdef1.name = cdef.name;
+			cdef1.jsobj = null;
+			cdef1.superc =cdef.superc;
+			cdef1.statics = cdef.statics;
+			cdef1.instances = cdef.instances;
+			if (!cdef1.instances) {
+				cdef1.instances = {
+									_initialize : function () {
+										throw new Error("can't create the instance");
+									}
+								};
+			}
+
+			return _$O.defineClass(cdef1);
+			
+		},
+
+		deleteClass : function(n) {
+			return _$O.delectClass(n);
+		},
+		
+		defineName	: function(name,obj){
+			return _$O.defineName(name,obj);
+		},
+		
+		exec  : function(script) {
+			return eval(script);
+		},
+		
+
+		getHttpConn : function() {
+			var con = null;
+
+		    if (window.XMLHttpRequest) {
+		    	con = new XMLHttpRequest();
+		    } else if (window.ActiveXObject) {
+		    	try {
+		        	con = new ActiveXObject("Msxml2.XMLHTTP");
+		        }
+		        catch(e) {
+		        	try {
+		            	con = new ActiveXObject("Microsoft.XMLHTTP");
+		            }
+		            catch(e){}
+		        }
+		    }
+
+		    return con;
+		},
+
+		execMethod		: function(o,sMethod,args,c) {
+			var method	= null;
+			if (c) {
+				if (!(o.instanceOf(c))) {
+					return null;
+				}
+				while (c) {
+					if (c.prototype.hasOwnProperty(sMethod)) {
+						method = c.prototype[sMethod];
+						break;
+					}
+					c = c.getSuperc();
+				}
+			} else {
+				method = o[sMethod];
+			}
+
+			if (method) {
+				if (!args){
+					args = [];
+				}
+				method._apply(o,args);
+			} else {
+				throw new Error(Error.EN_UNSUPPOREDMETHOD,sMethod+"()");
+			}
+		},
+
+		asyncExecMethod	: function(o,m,args,nMilliseconds) {
+			var now  = new Date();
+			var nSecond = now.getTime();
+			var nMillsec = now.getMilliseconds();
+			var sTimestamp = nSecond.toString() +"_"+ nMillsec.toString();
+  			
+			var oMethodInfo = new Hash();
+			oMethodInfo.put("o",o);
+			oMethodInfo.put("m",m);
+			oMethodInfo.put("args",args);
+
+			var s = "_execTimeoutMethod('"+sTimestamp+"');";
+			var id = setTimeout(s,nMilliseconds);
+			
+			oMethodInfo.put("id",id);
+			
+			_timeoutMethods.put(sTimestamp,oMethodInfo);
+		},
+
+		autoExecMethod	: function(o,m,args,nMilliseconds) {
+			var now  = new Date();
+			var nSecond = now.getTime();
+			var nMillsec = now.getMilliseconds();
+			var sTimestamp = nSecond.toString() +"_"+ nMillsec.toString();
+
+  			
+			var oMethodInfo = new Hash();
+			oMethodInfo.put("o",o);
+			oMethodInfo.put("m",m);
+			oMethodInfo.put("args",args);
+
+			var s = "_execIntervalMethod('"+sTimestamp+"')";
+			var id = setInterval(s,nMilliseconds);
+			
+			oMethodInfo.put("id",id);
+			
+			_intervalMethods.put(sTimestamp,oMethodInfo);
+			return id;
+		},
+
+		stopAutoExecMethod	: function(id) {
+			clearInterval(id);
+			var keys = _intervalMethods.keys();
+			for (var i = 0; i<keys.length; i++) {
+				var value = _intervalMethods.get(keys[i]);
+				if (value.get("id") == id ) {
+					_intervalMethods.remove(keys[i]);
+					value.dispose();
+					break;
+				}
+			}
+			
+		}
+	},
+	instances	: {
+	}
+	
+});
+
+
+/**
+ * クラスspw.Errorを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.Error",
+	jsobj		: Error,
+	superc		: spw.Object,
+	statics		: {},
+	instances	: {}
+});
+
+/**
+ * クラスspw.EvalErrorを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.EvalError",
+	jsobj		: EvalError,
+	superc		: spw.Error,
+	statics		: {},
+	instances	: {}
+});
+
+
+/**
+ * クラスspw.RangeErrorを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.RangeError",
+	jsobj		: RangeError,
+	superc		: spw.Error,
+	statics		: {},
+	instances	: {}
+});
+
+/**
+ * クラスspw.ReferenceErrorを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.ReferenceError",
+	jsobj		: ReferenceError,
+	superc		: spw.Error,
+	statics		: {},
+	instances	: {}
+});
+
+/**
+ * クラスspw.SyntaxErrorを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.SyntaxError",
+	jsobj		: SyntaxError,
+	superc		: spw.Error,
+	statics		: {},
+	instances	: {}
+});
+
+
+/**
+ * クラスspw.TypeErrorを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.TypeError",
+	jsobj		: TypeError,
+	superc		: spw.Error,
+	statics		: {},
+	instances	: {}
+});
+
+
+/**
+ * クラスspw.URIErrorを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.URIError",
+	jsobj		: URIError,
+	superc		: spw.Error,
+	statics		: {},
+	instances	: {}
+});
+
+var Set	= function() {};
+
+/**
+ * クラスspw.Setを定義します。
+ *
+ */
+_$O.defineClass({
+	name		: "spw.Set",
+	jsobj		:  Set,
+	superc		: spw.Object,
+	statics		: {},
+	instances	: {
+		_items	: null,
+
+		_initialize : function () {
+			this._items = new Array();
+		},
+
+		_finalize  : function() {
+			this._items.dispose();
+			this._items = null;
+		},
+
+		include	: function(o) {
+			if (o && this._items.indexOf(o) == -1) {
+				this._items.push(o);
+			}
+		},
+
+		exclude	: function(o) {
+			this._items.remove(o);
+		},
+
+		contains : function(o) {
+			return this._items.indexOf(o)>-1;
+		},
+
+		clear 	: function() {
+			this._items.clear();
+		},
+
+		toArray : function() {
+			var oArray = new Array();
+			oArray.pushAll(this._items);
+			return oArray;
+		}
+	}
+});
+

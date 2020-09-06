@@ -1,0 +1,721 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineNs("sw2.ide");
+System.defineName("I",sw2.ide);
+
+System.defineClass({
+	name		: "sw2.ide.DotSelRect",
+	superc		: sw2.widget.Graphic,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function() {
+			System.execMethod(this,"_initialize",null,W.Graphic);
+			ctx.setElCssClass(this._el,"DotSelRect");
+			ctx.setElOpacity(this._el,25);
+		},
+
+		_finalize	: function() {
+			System.execMethod(this,"_finalize",null,W.Graphic);
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.ide.Selector",
+	superc		: sw2.widget.Control,
+	statics		: {
+	},
+	instances	: {
+		_selection		: null,
+		_designer		: null,
+		_ctrl			: null,
+
+		_elDivInner		: null,
+
+		_elDivBorderL	: null,
+		_elDivBorderR	: null,
+		_elDivBorderT	: null,
+		_elDivBorderB	: null,
+
+
+		_elDivCornerLt	: null,
+		_elDivCornerLm	: null,
+		_elDivCornerLb	: null,
+
+		_elDivCornerMt	: null,
+		_elDivCornerMb	: null,
+
+		_elDivCornerRt	: null,
+		_elDivCornerRm	: null,
+		_elDivCornerRb	: null,
+
+		_cursor 		: null,
+
+		_initialize	: function(selection,ctrl) {
+			System.execMethod(this,"_initialize",null,W.Control);
+
+			this._selection = selection
+			this._designer  = selection._designer;
+
+			var cs = this.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+			if (ctrl) {
+				this.setCtrl(ctrl);
+			}
+		},
+
+		_finalize	: function() {
+			this._selection = null;
+			this._designer = null;
+			this._ctrl = null;
+			
+			this._elDivInner = null;
+			this._elDivCornerLt = null;
+            this._elDivCornerLm = null;
+            this._elDivCornerLb = null;
+                 
+            this._elDivCornerMt = null;
+            this._elDivCornerMb = null;
+                 
+            this._elDivCornerRt = null;
+            this._elDivCornerRm = null;
+            this._elDivCornerRb = null;
+
+			this._elDivBorderL  = null;
+            this._elDivBorderR	= null;
+            this._elDivBorderT	= null;
+            this._elDivBorderB	= null;
+
+			System.execMethod(this,"_finalize",null,W.Control);
+		},
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.replaceCssClass(el,"Control","Selector");
+//			UIElement.addCssClass(el,"Selector");
+
+			this._elDivInner = UIDiv.create(el,"Inner");
+			UIDiv.setType(this._elDivInner,"inner");
+
+			this._elDivBorderL = UIDiv.create(el,"Border");
+			UIDiv.setType(this._elDivBorderL,"border");
+
+			this._elDivBorderR = UIDiv.create(el,"Border");
+			UIDiv.setType(this._elDivBorderR,"border");
+
+
+			this._elDivBorderT = UIDiv.create(el,"Border"); 
+			UIDiv.setType(this._elDivBorderT,"border");
+
+
+			this._elDivBorderB = UIDiv.create(el,"Border");
+			UIDiv.setType(this._elDivBorderB,"border");
+
+
+			this._elDivCornerLt = UIDiv.create(el,"Corner");
+			UIDiv.setType(this._elDivBorderB,"crslt");
+
+			this._elDivCornerLm = UIDiv.create(el,"Corner");
+			UIDiv.setType(this._elDivCornerLm,"crslm");
+
+			this._elDivCornerLb = UIDiv.create(el,"Corner");
+			UIDiv.setType(this._elDivCornerLb,"crslb");
+
+			this._elDivCornerMt = UIDiv.create(el,"Corner");
+			UIDiv.setType(this._elDivCornerMt,"crsmt");
+
+			this._elDivCornerMb = UIDiv.create(el,"Corner");
+			UIDiv.setType(this._elDivCornerMb,"crsmb");
+
+			this._elDivCornerRt = UIDiv.create(el,"Corner");
+			UIDiv.setType(this._elDivCornerRt,"crsrt");
+
+			this._elDivCornerRm = UIDiv.create(el,"Corner");
+			UIDiv.setType(this._elDivCornerRm,"crsrm");
+
+			this._elDivCornerRb = UIDiv.create(el,"Corner");
+			UIDiv.setType(this._elDivCornerRb,"crsrb");
+
+			return el;
+		},
+
+		_validateAutoMove	: function(x,y,el) {
+			var oCursor = null;
+			 switch (UIElement.getType(el)) {
+				case "border":
+					oCursor = W.Cursor.move;
+					break;
+			}
+			return oCursor;
+		},
+
+		_validateAutoResize : function(x,y,el) {
+			var oCursor = null;
+			 switch (UIElement.getType(el)) {
+				case "crslt":
+					oCursor = W.Cursor.nwresize;
+					break;
+				case "crslm":
+					oCursor = W.Cursor.wresize;
+					break;
+				case "crslb":
+					oCursor = W.Cursor.swresize;
+					break;
+				case "crsmt":
+					oCursor = W.Cursor.nresize;
+					break;
+				case "crsmb":
+					oCursor = W.Cursor.sresize;
+					break;
+				case "crsrt":
+					oCursor = W.Cursor.neresize;
+					break;
+				case "crsrm":
+					oCursor = W.Cursor.eresize;
+					break;
+				case "crsrb":
+					oCursor = W.Cursor.seresize;
+					break;
+			}
+
+			return oCursor;
+		},
+
+
+		_doBeginAutoMove	: function(x,y){
+			this._selection.beginMove(x,y);
+		},
+
+
+		_doEndAutoMove		: function(x,y) {
+			this._selection.endMove(x,y);
+		},
+
+		_doAutoMoving		: function(x,y) {
+ 			this._selection.moving(x,y);
+       },
+
+		_doBeginAutoResize	: function(x,y,cursor) {
+			this._selection.beginResize(x,y,cursor);
+		},
+
+		_doEndAutoResize	: function(x,y) {
+			this._selection.endResize(x,y);
+		},
+
+
+		_doAutoResizing		: function(x,y,cursor){
+			this._selection.resizing(x,y,cursor);
+		},
+
+		_savePosSizeInfo	: function() {
+			this._l = this._ctrl.getLeft();
+			this._t = this._ctrl.getTop();
+			this._w = this._ctrl.getWidth();
+			this._h = this._ctrl.getHeight();
+		},
+
+		getCtrl		: function() {
+			return this._ctrl;
+		},
+
+		setCtrl		: function(c) {
+			this._ctrl = c;
+
+			var p= c.getDeskLocation();
+			p = this._designer.pointFromDesk(p);
+			var w = c.getWidth();
+			var h = c.getHeight();
+
+//			this.setBounds(p.getX()-5,p.getY()-5,w+10,h+10);
+			this._doResize();
+			this.setParent(this._designer);
+//			this._designer.renderGraphic(this,c.getLeft()-5,c.getTop()-5);
+		},
+
+		beginMove	: function(x,y){
+			this._savePosSizeInfo();
+			UIElement.replaceCssClass(this._el,"Selector","Selector_Move");
+		},
+
+		moving		: function(x,y){
+			var dx = x-mouse.getDownX();
+			var dy = y-mouse.getDownY();
+
+			var l = this._l + dx;
+			var t = this._t + dy;
+			this._ctrl.setLeft(l);
+			this._ctrl.setTop(t);
+
+			this._doResize();
+		},
+
+		endMove		: function(x,y) {
+			UIElement.replaceCssClass(this._el,"Selector_Move","Selector");
+		},
+
+		beginResize	: function(x,y,cursor) {
+			this._savePosSizeInfo();
+			this._cursor = cursor;
+		},
+
+		resizing	: function(x,y,cursor) {
+			var rect = new W.Rect(this._l,this._t,this._w,this._h);
+			rect =	this._resizeRect(x,y,cursor,rect);
+			this._ctrl.setBounds(rect.getLeft(),rect.getTop(),rect.getWidth(),rect.getHeight());
+			this._doResize();
+		},
+
+		endResize	: function(x,y) {
+		},
+
+		_doResize	: function(nOldWidth,nOldHeight) {
+			var c = this._ctrl;
+
+			var p = c.getDeskLocation();
+			p = this._designer.pointFromDesk(p);
+			var l = p.getX();
+			var t = p.getY();
+			var w = c.getWidth();
+			var h = c.getHeight();
+
+			this.setLeft(l-5);
+			this.setTop(t-5);
+
+			ctx.setElLeft(this._elDivInner,5);
+			ctx.setElTop(this._elDivInner,5);
+			ctx.setElWidth(this._elDivInner,w);
+			ctx.setElHeight(this._elDivInner,h);
+
+			ctx.setElLeft(this._elDivBorderL,0);
+			ctx.setElTop(this._elDivBorderL,5);
+			ctx.setElWidth(this._elDivBorderL,5);
+			ctx.setElHeight(this._elDivBorderL,h);
+
+			ctx.setElLeft(this._elDivBorderR,w+5);
+			ctx.setElTop(this._elDivBorderR,5);
+			ctx.setElWidth(this._elDivBorderR,5);
+			ctx.setElHeight(this._elDivBorderR,h);
+
+			ctx.setElLeft(this._elDivBorderT,5);
+			ctx.setElTop(this._elDivBorderT,0);
+			ctx.setElWidth(this._elDivBorderT,w);
+			ctx.setElHeight(this._elDivBorderT,5);
+
+			ctx.setElLeft(this._elDivBorderT,5);
+			ctx.setElTop(this._elDivBorderT,h+5);
+			ctx.setElWidth(this._elDivBorderT,w);
+			ctx.setElHeight(this._elDivBorderT,5);
+
+			ctx.setElLeft(this._elDivCornerLt,0);
+			ctx.setElTop(this._elDivCornerLt,0);
+			ctx.setElLeft(this._elDivCornerLm,0);
+			ctx.setElTop(this._elDivCornerLm,h/2+3);
+			ctx.setElLeft(this._elDivCornerLb,0);
+			ctx.setElTop(this._elDivCornerLb,h+5);
+
+			ctx.setElLeft(this._elDivCornerMt,w/2+3);
+			ctx.setElTop(this._elDivCornerMt,0);
+			ctx.setElLeft(this._elDivCornerMb,w/2+3);
+			ctx.setElTop(this._elDivCornerMb,h+5);
+
+			ctx.setElLeft(this._elDivCornerRt,w+5);
+			ctx.setElTop(this._elDivCornerRt,0);
+			ctx.setElLeft(this._elDivCornerRm,w+5);
+			ctx.setElTop(this._elDivCornerRm,h/2+3);
+			ctx.setElLeft(this._elDivCornerRb,w+5);
+			ctx.setElTop(this._elDivCornerRb,h+5);
+		}
+
+
+	}
+});
+
+System.defineClass({
+	name		: "sw2.ide.Selection",
+	statics		: {
+	},
+	instances	: {
+		_designer	: null,
+		_items		: null,
+		_state		: 0,
+		_cursor		:"",
+
+
+		_initialize	: function(designer) {
+			this._designer = designer;
+			this._items = new Array();
+		},
+
+		_finalize	: function() {
+			this.clear();	
+			this._items.dispose();
+			this._items = null;
+		},
+
+		clear		: function() {
+			for (var i = 0;i<this._items.length;i++) {
+				this._items[i].dispose();
+				this._items[i] = null;
+			}
+			this._items.clear();
+		},
+
+		replace		: function(c) {
+			var selector = null;
+			for (var i = 0;i<this._items.length;i++) {
+				if (this._items[i].getCtrl() != c) {	
+					//this._items[i].dispose();
+					this._items[i] = null;
+				} else {
+					selector = this._items[i];
+				}
+			}
+			this._items.clear();
+			if (!selector) {
+				selector = new I.Selector(this,c);
+			}
+			this._items.push(selector);
+		},
+
+		add			: function(c) {
+			var selector = null;
+			for (var i = 0;i<this._items.length;i++) {
+				if (this._items[i].getCtrl() == c) {
+					return this._items[i];
+				}	
+			}
+			selector = new I.Selector(this,c);
+			this._items.push(selector);
+		},
+
+		remove		: function(c) {
+			var index = -1;
+			for (var i = 0;i<this._items.length;i++) {
+				if (this._items[i].getCtrl() == c) {
+					this._items[i].dispose();
+					this._items[i] = null;
+					index = i;
+				}	
+			}
+			this._items.removeAt(index);
+		},
+
+
+		getState	: function() {
+			return this._state;
+		},
+
+		beginMove	: function(x,y){
+			for (var i = 0;i<this._items.length;i++){
+				this._items[i].beginMove(x,y);
+			}
+			this._state = 1;
+		},
+
+		moving		: function(x,y){
+			for (var i = 0;i<this._items.length;i++){
+				this._items[i].moving(x,y);
+			}
+		},
+
+		endMove		: function(x,y) {
+			for (var i = 0;i<this._items.length;i++){
+				this._items[i].endMove(x,y);
+			}
+			this._state = 0;
+		},
+
+		beginResize	: function(x,y,cursor) {
+			for (var i = 0;i<this._items.length;i++){
+				this._items[i].beginResize(x,y,cursor);
+			}
+			this._state = 2;
+			this._cursor = cursor;
+		},
+
+		resizing	: function(x,y,cursor) {
+			for (var i = 0;i<this._items.length;i++){
+				this._items[i].resizing(x,y,cursor);
+			}
+		},
+
+		endResize	: function(x,y) {
+			for (var i = 0;i<this._items.length;i++){
+				this._items[i].endResize(x,y);
+			}
+			this._state = 0;
+			this._cursor = "";
+		} 
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.ide.UfMsgHooker",
+	statics		: {
+	},
+	instances	: {
+		_designer : null,
+
+		_initialize	: function(designer) {
+			this._designer = designer;
+		},
+
+		_finalize	: function() {
+			this._designer = null;
+		},
+
+		_handleMessage	: function(msg){
+			if (this._disposed) {
+				return;
+			}
+		document.title = 'aaa';
+			var c = msg.getTarget();
+			var evt = null;
+			switch (msg.getType()) {
+				case W.Message.KEYDOWN : {
+					break;
+				};
+				case W.Message.KEYPRESS : {
+					break;
+				};
+				case W.Message.KEYUP : {
+					break;
+				};
+				case W.Message.MOUSEDOWN : {
+
+					break;
+				};
+				case W.Message.MOUSEMOVE : {
+					desk.setCurrentCursor(this._designer.getCursor());
+					break;
+				};
+				case W.Message.MOUSEUP : {
+					break;
+				};
+				case W.Message.MOUSEENTER : {
+					break;
+				};
+				case W.Message.MOUSELEAVE : {
+					break;
+				};
+				case W.Message.CLICK : {
+					if (kbd.getShiftKey()) {
+						document.title = 'shift';
+						this._designer._selection.add(c);
+					} else {
+						this._designer._selection.replace(c);
+					}
+					break;
+				};
+				case W.Message.DBLCLICK : {
+					break;
+				};
+			}
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.ide.UfcDesigner",
+	superc		: sw2.widget.Container,
+	statics		: {
+		_defineProperties	: function(propInfo) {
+			W.Form._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_state		: 0, //1:select,2:drag,3:resize
+
+		_mdx		: 0,
+		_mdy		: 0,
+
+		_dotSelRect	: null,
+		
+		_selection	: null,
+
+		_ufMsgHooker 	: null,
+
+		_form		: null,
+
+
+		_initialize	: function(dsgFrm) {
+			System.execMethod(this,"_initialize",null,W.Container);
+			this._el.className = "Form";
+			this._selection = new I.Selection(this);
+
+			this._ufMsgHooker = new sw2.ide.UfMsgHooker(this);
+			this._form = new W.Form();
+			this._form.setBounds(10,10,200,200);
+			this._form.setParent(this);
+			desk.installMsgHooker(this._form,this._ufMsgHooker);
+			
+		},
+
+		_finalize	: function() {
+			if (this._dotSelRect) {
+				this._dotSelRect.dispose();
+				this._dotSelRect = null;
+			}
+
+			if (this._selector) {
+				this._selector.dispose();
+				this._selector = null;
+			}
+
+			System.execMethod(this,"_finalize",null,W.Container);
+		},
+		
+
+
+		_doAddChild 	: function(oChild) {
+			this._el.appendChild(oChild._el);
+			System.execMethod(this,"_doAddChild",[oChild],W.Container);
+		},
+
+		_doMouseMove	: function(x,y) {
+			switch (this._selection.getState()) {
+				case -1:
+					if (mouse.getLButton()) {
+						var mdx = mouse.getDownX()-this.getLeft()-this.getClientLeft();
+						var mdy = mouse.getDownY()-this.getTop()-this.getClientTop();
+						var mtx = x -this.getLeft()-this.getClientLeft();
+						var mty = y -this.getTop()-this.getClientTop();
+					
+						var l = mtx>mdx?mdx:mtx;
+						var t = mty>mdy?mdy:mty;
+
+						var w = Math.abs(mtx-mdx);
+						var h = Math.abs(mty-mdy);
+
+						this._dotSelRect.setSize(w,h);
+						this.renderGraphic(this._dotSelRect,l,t);
+					}
+					break;
+				case 1:
+					this._selection.moving(x,y);
+					break;
+				case 2:
+					this._selection.resizing(x,y);
+					break;
+				default :
+					 switch (ctx.getElType(mouse._mouseinEl)) {
+						case "cmrect":
+							desk.setCursor("move");
+							break;
+						case "crslt":
+							desk.setCursor("nw-resize");
+							break;
+						case "crslm":
+							desk.setCursor("w-resize");
+							break;
+						case "crslb":
+							desk.setCursor("sw-resize");
+							break;
+						case "crsmt":
+							desk.setCursor("n-resize");
+							break;
+						case "crsmb":
+							desk.setCursor("s-resize");
+							break;
+						case "crsrt":
+							desk.setCursor("ne-resize");
+							break;
+						case "crsrm":
+							desk.setCursor("e-resize");
+							break;
+						case "crsrb":
+							desk.setCursor("se-resize");
+							break;
+					}
+					break;
+			}		
+			System.execMethod(this,"_doMouseMove",null,W.Container);	
+		},
+
+		_doMouseDown	: function(btn,x,y) {
+			switch (mouse._mouseinEl) {
+				case this._elContainer :
+					if (btn==W.MouseButton.left) {
+						W.Control.setCapture(this);
+						if (!this._dotSelRect) {
+							this._dotSelRect = new sw2.ide.DotSelRect();
+						}
+						this._state = 1;
+					}
+					break;
+				default:
+//					this._oldLeft	= this.
+//					this._oldWidth = this._selector._ctrl.getWidth();
+//					this._oldHeight = this._selector._ctrl.getHeight();
+					
+					 switch (ctx.getElType(mouse._mouseinEl)) {
+						case "cmrect":
+							this._selection.beginMove(x,y);
+							break;
+						case "crslt":
+							this._selection.beginResize(x,y,"lt");
+							break;
+						case "crslm":
+							this._selection.beginResize(x,y,"lm");
+							break;
+						case "crslb":
+							this._selection.beginResize(x,y,"lb");
+							break;
+						case "crsmt":
+							this._selection.beginResize(x,y,"mt");
+							break;
+						case "crsmb":
+							this._selection.beginResize(x,y,"mb");
+							break;
+						case "crsrt":
+							this._selection.beginResize(x,y,"rt");
+							break;
+						case "crsrm":
+							this._selection.beginResize(x,y,"rm");
+							break;
+						case "crsrb":
+							this._selection.beginResize(x,y,"rb");
+							break;
+					}
+					break;
+			}
+
+			System.execMethod(this,"_doMouseDown",null,W.Container);	
+		},
+
+		_doMouseUp	: function(btn,x,y) {
+			W.Control.setCapture(null);
+			switch (this._selection.getState()) {
+				case -1:
+					if (btn==W.MouseButton.left) {
+						if (this._dotSelRect) {
+							this._dotSelRect.dispose();
+							this._dotSelRect = null;
+						}
+					}
+					this._state = 0;
+					break;
+				case 1   :
+						this._selection.endMove(x,y);
+						break;
+				case 2	 :
+						this._selection.endResize(x,y);
+						break;
+				default :
+					this._state = 0;
+					break;
+			}
+			System.execMethod(this,"_doMouseUp",null,W.Container);	
+		}
+		
+	}
+});

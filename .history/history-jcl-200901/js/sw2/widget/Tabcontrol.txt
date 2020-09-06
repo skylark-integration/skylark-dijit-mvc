@@ -1,0 +1,429 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.TabPlacement",
+	statics		: {
+
+        _PLACEMENTS	: ["top","bottom"],
+
+		top			: null,
+		bottom		: null,
+		_initialize : function() {
+			for (var i = 0;i<this._PLACEMENTS.length; i++) {
+				this[this._PLACEMENTS[i]] = this._PLACEMENTS[i];
+			}
+		},
+
+		vfroms	: function(sValue) {
+			if (this._PLACEMENTS.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+                return "";
+			}
+		},
+
+        vtos    : function(tabPlacement) {
+            return tabPlacement;
+        }
+    },
+	instances	: {
+		_value	: 0
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.TabPage",
+	superc		: sw2.widget.Container,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"TabPage");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Container._defineProperties(propInfo);
+            propInfo.put("text", String);
+		}
+	},
+	instances	: { 
+		_text		: "",
+		_visible    : true,
+        _elText     : null,
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Container);
+			UIElement.addCssClass(el,"TabPage");
+			UIElement.setVisible(el,false);
+			
+			return el;
+		},
+
+		_doAddChild 	: function(oChild) {
+			this._el.appendChild(oChild._el);
+			System.execMethod(this,"_doAddChild",[oChild],W.Container);
+		},
+
+		_doCanSetParent	: function(oParent){
+			return System.instanceOf(oParent,W.TabControl);
+		},
+
+		getText : function() {
+			return this._text;
+		},
+
+		setText : function(sText) {
+			this._text = sText;
+			var tabctl = this.getParent();
+			if (tabctl) {
+				tabctl._doBuildTabTable();
+			}
+		},
+
+		getVisible	: function() {
+			return this._visible;
+		},
+
+		setVisible	: function(visible){
+			this._visible = visible;
+			var tabctl = this.getParent();
+			if (tabctl) {
+				tabctl._doBuildTabTable();
+			}
+		},
+
+		setDock   : function(oDock) {
+			System.execMethod(this,"setDock",[W.Dock.none],W.Control);
+		}
+
+    }
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.TabControl",
+	superc		: sw2.widget.Container,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"TabControl");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Container._defineProperties(propInfo);
+            propInfo.put("tabPlacement", W.TabPlacement);
+		}
+	},
+	instances	: {
+		_activePage		: null,
+
+        _alldsp         : true,
+		_visiblePages   : 0,
+        _firstTabPos    : 0,
+		_dspPages		: null,
+
+		_elTabs			: null,
+		_elContainer	: null,
+
+        _elTabsButton1	: null,
+        _elTabsButton2	: null,
+
+		_initialize : function (owner) {
+			System.execMethod(this,"_initialize",[owner],W.Container);	
+            this._tabPlacement = W.TabPlacement.top;
+		},
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"TabSet");
+
+            this._tabs = new Array();
+			this._activePage = null;
+
+ 			this._elTable 	  = UITable.create(1,2,el,"TabControl_Table");
+			this._elTable.tBodies[0].rows[0].style.height = "24px";
+			this._elTable.tBodies[0].rows[1].style.height = "100%";
+			this._elTabs 	  = UIDiv.create(UITable.cells(this._elTable,0,0),"TabsTop");
+			this._elContainer = UIDiv.create(UITable.cells(this._elTable,0,1),"TabSetContentContainer_Top");
+
+			return el;
+		},
+
+		_getClientElement	: function() {
+			return this._elContainer;
+		},
+
+
+		_doCanAddChild	: function(oChild){
+			return System.instanceOf(oChild,W.TabPage);
+		},
+
+		_doAddChild 	: function(oChild) {
+			System.execMethod(this,"_doAddChild",[oChild],W.Container);
+			this._doBuildTabTable();
+			if (this.getChildrenCount()==1) {
+				this.setActivePage(oChild);
+			}
+		},
+
+		_doRemoveChild	: function(oChild) {
+			System.execMethod(this,"_doRemoveChild",[oChild],W.Container);
+			this._doBuildTabTable();
+		},
+
+        _getIndex       : function(tab) {
+            for(var i = 0; i < this._tabs.length; i ++) {
+                if (this._tabs[i] == tab) {
+                    return i;
+                }
+            }
+            return -1;
+        },
+
+		getNextActiveTab	: function (tab) {
+			var tabs = this._tabs;
+			var index = -1;
+			if (tab != null) {
+                index = this._getIndex(tab);
+			};
+			var len = tabs.length;
+			for (var i = index + 1; i < len; i++) {
+				var tab = tabs[i];
+				if (tab._visible) {
+					return tab;
+				}
+			};
+			for (var i = index - 1; i >= 0; i--) {
+				var tab = tabs[i];
+				if (tab._visible) {
+					return tab;
+				}
+			};
+			return null;
+		},
+
+		getActivePage	: function() {
+			return this._activePage;
+		},
+
+		setActivePage	: function(page) {
+			this._doChangeCurrentPage(page);
+		},
+
+		getActivePageIndex	: function() {
+			return this.getChildIndex(this._activePage);
+		},
+
+		setActivePageIndex	: function(idx) {
+			this._doChangeCurrentPage(this._children[idx]);
+		},
+
+		getPageCount: function() {
+			return this.getChildrenCount();
+		},
+
+		getPage		: function(idx) {
+			return this.getChild(idx);
+		},
+
+
+		getTabPlacement	: function() {
+			return this._tabPlacement;
+		},
+
+		setTabPlacement	: function(tabPlacement) {
+			var old = this.getTabPlacement();
+			if (old == tabPlacement) {
+				return;
+			}
+			this._tabPlacement = tabPlacement;
+			if (tabPlacement == W.TabPlacement.bottom) {
+				UITable.moveRow(this._elTable,0,1);
+				UIElement.replaceAllCssClass(this._elContainer,"TabSetContentContainer_bottom");
+				UIElement.replaceAllCssClass(this._elTabs,"TabsBottom");
+			} else {
+				UITable.moveRow(this._elTable,1,0);
+				UIElement.replaceAllCssClass(this._elContainer,"TabSetContentContainer_top");
+				UIElement.replaceAllCssClass(this._elTabs,"TabsTop");
+			}
+			
+		},
+
+		_doChangePageCurrentStatus	 : function(page,current) {
+			UIElement.setVisible(page._el,current?true:false);
+			var	elText = page._elText;
+			if (elText) {
+				var elPre = UIElement.previousSibling(elText);
+				var elNext = UIElement.nextSibling(elText);
+				if (current) {
+					if (UIElement.hasCssClass(elPre,"TabDelimFirst")) {
+						UIElement.addCssClass(elPre,"TabDelimFirstCurrent");
+					} else {
+						UIElement.addCssClass(elPre,"TabCurrentLeft");
+					}
+					UIElement.addCssClass(elText,"TabCurrent");
+					if (UIElement.hasCssClass(elNext,"TabDelimLast")) {
+						UIElement.addCssClass(elNext,"TabDelimLastCurrent");
+					} else {
+						UIElement.addCssClass(elNext,"TabCurrentRight");
+					}
+				} else {
+					if (UIElement.hasCssClass(elPre,"TabDelimFirst")) {
+						UIElement.removeCssClass(elPre,"TabDelimFirstCurrent");
+					} else {
+						UIElement.removeCssClass(elPre,"TabCurrentLeft");
+					}
+					UIElement.removeCssClass(elText,"TabCurrent");
+					if (UIElement.hasCssClass(elNext,"TabDelimLast")) {
+						UIElement.removeCssClass(elNext,"TabDelimLastCurrent");
+					} else {
+						UIElement.removeCssClass(elNext,"TabCurrentRight");
+					}
+				}
+			}
+		},
+
+        _doChangeCurrentPage         : function(page) {
+			var old = this._activePage;
+			if (old == page) {
+				return;
+			}
+			if (old) {
+				this._doChangePageCurrentStatus(old,false);
+			}
+            this._activePage = page;
+			this._doChangePageCurrentStatus(page,true);
+        },
+
+		_doResize	: function() {
+/*
+			if (!this._active || this._tabs.length == 0)
+				return;
+
+			var cw = this.getClientWidth();
+			var ch = this.getClientHeight();
+
+            this.refresh();
+            if (this._activePage._elText != null) {
+                this._doChangeCurrentPage(this._activePage);
+            } else {
+                //var tmpTab = this._activePage;
+                while(this._activePage._elText == null) {
+                    this._activePage = this._tabs[this._getIndex(this._activePage) - 1];
+                }
+                this._doChangeCurrentPage(this._activePage);
+            }
+            System.execMethod(this, "_doResize", null, W.Container);
+*/
+			this._doBuildTabTable();
+		},
+
+		_doClick	: function () {
+            var el = mouse._mouseinEl;
+            if (UIElement.hasCssClass(el,"TabText")) {
+                this.setActivePage(this._dspPages[(UIContainer.childIndex(UIElement.parent(el),el)-1)/2]);
+			} else if (el == this._elTabsButton2) {
+                if (this._alldsp) {
+                    return;
+                }
+                if (this._firstTabPos >= this._visiblePages-1) {
+                    return;
+                }
+                this._firstTabPos++;
+                this._doBuildTabTable();
+            } else if (el == this._elTabsButton1) {
+                if (this._firstTabPos <= 0) {
+                    return;
+                }
+                this._firstTabPos --;
+                this._doBuildTabTable();
+            }
+		},
+
+
+		setBounds : function(nLeft, nTop, nWidth, nHeight) {
+            var minWidth = 105;
+            if (nWidth > minWidth) {
+                minWidth = nWidth;
+            }
+            System.execMethod(this, "setBounds", [nLeft, nTop, minWidth, nHeight], W.Container);
+        },
+
+		_doBuildTabTable		: function () {
+            if (this._tabPlacement == null) return;
+
+
+			this._visiblePages = 0;
+            this._alldsp = true;
+			var elTabs = this._elTabs;
+			UIDiv.removeAllChild(elTabs);
+			for (var i = 0; i < this._children.length; i++) {
+				var page = this._children[i];
+                page._elText = null;
+				UIElement.setVisible(page._el,false);
+				if (page.getVisible()){
+					this._visiblePages++;
+				}
+			};
+
+            this._elTabsButton2 = null;
+            this._elTabsButton1 = null;
+
+            var nWidth = 0;
+			
+			var nWholeWidth = UIDiv.getOffsetWidth(elTabs);
+			
+			var i = 0;
+			var index = 0;
+			var nCount = this.getChildrenCount();
+			this._dspPages = new Array();
+			while (i<nCount) {
+                if (nWidth + 105 > nWholeWidth) {
+                    break;
+                }
+				var tab = this._children[i];
+				if (tab.getVisible()){
+					if (index>=this._firstTabPos) {
+						var elDelim = UISpan.create(elTabs,index==this._firstTabPos?"TabDelimFirst":"TabDelimMiddle");
+		    	        nWidth += UISpan.getOffsetWidth(elDelim);
+						var elTabText = UISpan.create(elTabs,"TabText");
+						UISpan.setText(elTabText,tab._text);
+		 	            nWidth += UISpan.getOffsetWidth(elTabText);
+
+		                tab._elText = elTabText;
+						this._dspPages.push(tab);
+					}
+					index++;
+				}
+				i++;
+			}
+			if (nWidth > 0) {
+				var elDelim = UISpan.create(elTabs,"TabDelimLast");
+ 	            nWidth += UISpan.getOffsetWidth(elDelim);
+			}
+			
+ 			while (i<nCount) {
+				var tab = this._children[i];
+				if (tab.getVisible()){
+	                this._alldsp = false;
+					break;
+				}
+				i++;
+			}
+
+			if (this._firstTabPos>0 || !this._alldsp) {
+                this._elTabsButton1 = UIImg.create(sw2.ResLibPath + "/images/tabcontrol/tabset_scroll1.gif",elTabs,"TabsScroll");
+                this._elTabsButton2 = UIImg.create(sw2.ResLibPath + "/images/tabcontrol/tabset_scroll2.gif",elTabs,"TabsScroll");
+				var nWidth1 = UIImg.getOffsetWidth(this._elTabsButton1)
+				var nWidth2 = UIImg.getOffsetWidth(this._elTabsButton2)
+				UIImg.setLeft(this._elTabsButton1,nWholeWidth-nWidth1-nWidth2);
+				UIImg.setLeft(this._elTabsButton2,nWholeWidth-nWidth2);
+			}
+
+			if (this._activePage) {
+				this._doChangePageCurrentStatus(this._activePage,true);
+			}			
+		}
+
+    }
+});
+
+

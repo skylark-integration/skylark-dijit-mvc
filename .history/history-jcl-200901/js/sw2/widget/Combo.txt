@@ -1,0 +1,171 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.ComboSelectedChanged",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_node	: null,
+		_initialize	: function(oSender) {
+			System.execMethod(this,"_initialize",["SelectedChanged",oSender],sw2.Event);	
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.ComboBox",
+	superc		: sw2.widget.ListControl,
+	statics		: {
+	},
+	instances	: {
+		_currentIndex	: -1,
+
+		_elTable	: null,
+
+		_elText		: null,
+		_elDropDown	: null,
+		_listbox	: null,
+
+
+		_initialize : function() {
+			System.execMethod(this,"_initialize",null,W.ListControl);
+
+			
+			this._listbox = new W.ListBox();
+			this._listbox.addEventListener("Click",this._listBoxItemClick,this);
+			this._listbox.addEventListener("KeyDown",this._listBoxItemKeyDown,this);
+
+			this._listbox.setMouseMoveSelect(true);
+
+		},
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"ComboBox");
+
+			this._elText = UIText.create(el,"ComboText");
+			this._elText.style.position = "absolute";
+	
+
+			this._elButton = UIDiv.create(el,"ComboButton2");
+			this._elButton.style.position = "absolute";
+
+			return el;
+		},
+
+		_listBoxItemClick	: function(evt) {
+			this._close(true);
+		},
+
+		_listBoxItemKeyDown	: function(evt) {
+			var keyCode = evt.getKeyCode();
+			if (keyCode == KEY.RETURN) {
+				this._close(true);
+			}
+		},
+
+		setParent		: function(p) {
+			System.execMethod(this,"setParent",[p],W.ListControl);
+			this._doResize();
+		},
+
+
+		_doResize		: function() {
+
+			this._elButton.style.width  = "15px";
+			var w = UIElement.getOffsetWidth(this._elButton);
+			if (this.getClientWidth()>w+1) {
+				this._elText.style.width = (this.getClientWidth()-w-1)+"px";
+			} else {
+				this._elText.style.width = "0px";
+			}
+			this._elText.style.top =  "0px";
+			this._elText.style.left = "0px";
+			if (this.getClientHeight()>0) {
+				this._elText.style.height = (this.getClientHeight()-1)+"px";
+			}
+
+			this._elButton.style.top =  "0px";
+			this._elButton.style.left = (this.getClientLeft()+this.getClientWidth()-w-1)+"px";
+			if (this.getClientHeight()>0) {
+			this._elButton.style.height = (this.getClientHeight()-1)+"px";
+			}
+		},
+
+		_doMouseDown	: function(btn,x,y){
+			var el = mouse._mouseinEl;
+			if (el == this._elButton) {
+				this._open();
+			}
+		},
+
+		_finalize : function() {
+			this._elUl = null;
+			this._liItems.dispose();
+			this._liItems = null;
+			System.execMethod(this,"_finalize",null,W.ListControl);
+		},
+
+		_doSetFocus	: function() {
+			UIElement.focus(this._elText);
+		},
+
+		_doClearItems	: function(){
+			this._listbox._doClearItems();
+		},
+
+		_doRefreshItems	: function(){
+			this._listbox._doRefreshItems();
+		},
+
+		_doAddItem		: function(item){
+			this._listbox._doAddItem(item);
+		},
+
+		_doRemoveItem	: function(nIdx){
+			this._listbox._doRemoveItem(nIdx);
+		},
+	
+
+		_open		: function() {
+			var p = this.getDeskLocation();
+			this._listbox.setSelectIndex(-1);
+			this._listbox.setWidth(this.getWidth());
+			this._listbox.setHeight(100);
+			this._listbox.popup(p.getX(),p.getY()+this.getHeight());
+			this._listbox.focus();
+		},
+
+		_close		: function(bSelect) {
+			this._listbox.closeup();
+			if (bSelect) {
+				var selIdx = this._listbox.getSelectIndex();
+				if (selIdx > -1) {
+					this.setText(this._listbox.getItemValue(selIdx));
+					this.focus();
+				}			
+				var evt = new W.ComboSelectedChanged(this);
+				this.notifyEvent(evt);
+ 			}
+		},
+
+		getText		: function() {
+			return UIText.getValue(this._elText);
+		},
+
+		setText		: function(sText) {
+			UIText.setValue(this._elText,sText);
+		},
+
+		getSelectIndex	: function() {
+			return this._listbox.getSelectIndex();
+		}
+
+	}
+});
+

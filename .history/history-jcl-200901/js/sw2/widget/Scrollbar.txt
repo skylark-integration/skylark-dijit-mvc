@@ -1,0 +1,737 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+//var $FI = null;
+var $hq = 10;
+/*
+System.defineClass({
+	name		: "sw2.widget.ScrollBarStyle",
+	superc		: spw.Set,
+	statics		: {
+		_STYLES	: ["horizontal","vertical"],
+
+		horizontal	: null,
+		vertical	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._STYLES.length; i++) {
+				this[this._STYLES[i]] = this._STYLES[i];
+			}
+		},
+
+        vfroms	: function(sValue) {
+			if (this._STYLES.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+                return null;
+			}
+		}
+    },
+	instances	: {
+	}
+});*/
+
+System.defineClass({
+	name		: "sw2.widget.CustomScrollBar",
+	superc		: sw2.widget.Control,
+	statics		: {
+		ORIENT_HORZ 		: "horizontal",
+		ORIENT_VERT 		: "vertical",
+
+        _initialize : function() {
+			Component.registerComponentTag(this,"CustomScrollBar");
+		},
+
+        _defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+            propInfo.put("min", Number);
+            propInfo.put("max", Number);
+            propInfo.put("smallChange", Number);
+            propInfo.put("largeChange", Number);
+            propInfo.put("pageSize", Number);
+            propInfo.put("showDraggingTip", Boolean);
+            propInfo.put("orientation", String);
+		}
+    },
+	instances	: {
+		_horz		: true,
+
+		_min		: 0,
+		_max		: 100,
+		_position	: 0,
+		_smallChange: 1,
+		_largeChange: 10,
+		_pageSize	: 0,
+
+		_elBtn1			: null,
+		_elBtn2			: null,
+		_elSlider		: null,
+		_elSliderArea	: null,
+
+		_label		: null,
+        _showDraggingTip    : false,
+
+        _initialize : function (orientation) {
+            System.execMethod(this, "_initialize", null, sw2.widget.Control);
+			var heScrollBar = this._el;
+			heScrollBar.className = "ScrollBar";
+
+            if (orientation != null) {
+                this.setOrientation(orientation);
+            }
+		},
+
+		_finalize  : function() {
+			this._elBtn1 = null;
+			this._elBtn2 = null;
+			this._elSlider = null;
+			this._elSliderArea = null;
+			if (this._label) {
+				System.dispose(this._label);
+				this._label = null;
+			}
+		},
+
+		reset	: function() {
+			this._position = 0;
+			this.refresh();
+		},
+
+		refresh		: function() {
+            if (this._orientation == null) {
+                return;
+            }
+			if (this._max < this._min) {
+				this._max = this._min;
+			};
+			var nRange = (this._max - this._min);
+			if (this._position > this._max)
+				this._position = this._max;
+			if (this._position < this._min)
+				this._position = this._min;
+			if (nRange > 0) {
+				if (this._horz) {
+					var nSliderleft,nSliderWidth;
+					var nAreaWidth = this._elSliderArea.offsetWidth;
+
+//					nSliderWidth = (this._pageSize / (nRange + this._pageSize)) * nAreaWidth;
+//					var nScrollWidth = nAreaWidth - nSliderWidth;
+//					if (nSliderWidth < 12) {
+//						nSliderWidth = 12;
+//						nScrollWidth = nAreaWidth - nSliderWidth;
+//					}
+                    nSliderWidth = this._elSlider.offsetWidth;
+                    nScrollWidth = nAreaWidth - nSliderWidth;
+
+//					nSliderleft = (this._position - this._min) / nRange * nScrollWidth;
+                    nSliderleft = (this._position - this._min)  * nScrollWidth / nRange;
+					ctx.setElLeft(this._elSlider, nSliderleft);
+					this._elSlider._left = nSliderleft;
+				} else {
+                    var nSlidertop, nSliderHeight;
+                    var nAreaHeight = this._elSliderArea.offsetHeight;
+
+                    nSliderHeight = this._elSlider.offsetHeight;
+                    nScrollHeight = nAreaHeight - nSliderHeight;
+                    nSlidertop = (this._position - this._min) * nScrollHeight / nRange;
+                    ctx.setElTop(this._elSlider, nSlidertop);
+                    ctx.setElLeft(this._elSlider, 0);
+                    this._elSlider._top = nSlidertop;
+                    this._elSlider._left = 0;
+//					var top,height;
+//					var $Uf = this._elSliderArea.offsetHeight + 1;
+//					height = (this._pageSize / (nRange + this._pageSize)) * $Uf;
+//					var $73 = $Uf - height;
+//					if (height < $hq) {
+//						$8K = -1;
+//						this.$Fc = $hq - height;
+//						height = $hq;
+//						$73 = $Uf - height;
+//					};
+//					if (this._position == this._max) {
+//						left = $73 + $8K;
+//					} else {
+//						left = (this._position - this._min) / nRange * $73;
+//					};
+//					this._elSlider.style.height = height;
+//					this._elSlider.style.top = left;
+//					this._elSlider._top = left;
+				};
+
+
+				ctx.setElEnabled(this._elBtn1,true);
+				ctx.setElEnabled(this._elBtn2,true);
+				ctx.setElCssClass(this._elBtn1,"ScrollBarButton");
+				ctx.setElCssClass(this._elBtn2,"ScrollBarButton");
+				ctx.setElVisible(this._elSlider,true);
+			} else {
+				ctx.setElEnabled(this._elBtn1,false);
+				ctx.setElEnabled(this._elBtn2,false);
+				ctx.setElCssClass(this._elBtn1,"ScrollBarButton_Disabled");
+				ctx.setElCssClass(this._elBtn2,"ScrollBarButton_Disabled");
+				ctx.setElVisible(this._elSlider,false);
+			}
+		},
+
+		scrollPosition		: function () {
+			var nRange = (this._max - this._min);
+			if (this._horz) {
+				var nAreaWidth = this._elSliderArea.offsetWidth;
+				this.setPosition(
+					this._elSlider._left / (nAreaWidth - this._elSlider.offsetWidth) * nRange + this._min);
+			} else {
+				var $Uf = this._elSliderArea.offsetHeight;
+				this.setPosition(
+					this._elSlider._top / ($Uf - this._elSlider.offsetHeight) * nRange + this._min);
+			}
+		},
+
+        getOrientation  : function() {
+            if (this._orientation != null) {
+                return this._orientation;
+            }
+            return "";
+        },
+
+        setOrientation  : function(orientation) {
+            if (this._orientation != null) return;
+
+//			this._orientation = orientation;//W.ScrollBarStyle.horizontal;//$USB.ORIENT_HORZ ;
+            if (orientation != $USB.ORIENT_HORZ && 
+                orientation != $USB.ORIENT_VERT) {
+                this._orientation = $USB.ORIENT_HORZ;
+            } else {
+                this._orientation = orientation;
+            }
+            if (this._orientation == $USB.ORIENT_VERT) {
+                this._horz = false;
+                if (this.getWidth() != 0 && this.getWidth() < 23) {
+                    this.setWidth(23);
+                }
+            } else {
+                if (this.getHeight() != 0 && this.getHeight() < 23) {
+                    this.setHeight(23);
+                }
+            }
+
+//			this._showDraggingTip = true;
+            //this._showDraggingTip = false;
+
+			var heTable = ctx.createElement("TABLE");
+			heTable.className = "ScrollBar";
+
+//			if (this._orientation == W.ScrollBarStyle.horizontal) {
+//				heTable.style.height = 1;
+//			} else {
+//				heTable.style.width = 1;
+//			};
+			this._el.appendChild(heTable);
+			
+			heTable.style.width = "100%";
+			heTable.style.height = "100%";
+
+			heTable.border = 0;
+			heTable.cellSpacing = 0;
+			heTable.cellPadding = 0;
+			var button = ctx.createElement("IMG");
+			var button2 = ctx.createElement("IMG");
+			var slider = ctx.createElement("IMG");
+			var slideArea = ctx.createElement("TD");
+			slideArea.appendChild(slider);
+			slideArea.style.width = "100%";
+			slideArea.style.height = "100%";
+			slideArea.vAlign = "top";
+			this._elBtn1 = button;
+			this._elBtn2 = button2;
+			this._elSlider = slider;
+			this._elSliderArea = slideArea;
+			var heTbody = ctx.createElement("TBODY");
+			var heTr, heTd;
+
+			if (this._horz) {
+				heTr = ctx.createElement("TR");
+				heTbody.appendChild(heTr);
+				heTd = ctx.createElement("TD");
+				heTr.appendChild(heTd);
+				heTd.appendChild(button);
+                button.style.height = "100%";
+                button.style.vAlign = "middle";
+				heTr.appendChild(slideArea);
+                slider.style.height = "100%";
+                slider.style.vAlign = "middle";
+				heTd = ctx.createElement("TD");
+				heTr.appendChild(heTd);
+				heTd.appendChild(button2);
+                button2.style.height = "100%";
+                button2.style.vAlign = "middle";
+			} else {
+				heTr = ctx.createElement("TR");
+				heTbody.appendChild(heTr);
+				heTd = ctx.createElement("TD");
+				heTr.appendChild(heTd);
+				heTd.appendChild(button);
+                button.style.width = "100%";
+                button.style.align = "center";
+				heTr = ctx.createElement("TR");
+				heTbody.appendChild(heTr);
+				heTr.appendChild(slideArea);
+                slider.style.width = "100%";
+                slider.style.align = "center";
+				heTr = ctx.createElement("TR");
+				heTbody.appendChild(heTr);
+				heTd = ctx.createElement("TD");
+				heTr.appendChild(heTd);
+				heTd.appendChild(button2);
+                button2.style.width = "100%";
+                button2.style.align = "center";
+			};
+			heTable.appendChild(heTbody);
+			button._scrollbar = this;
+			button.className = "ScrollBarButton";
+			button2._scrollbar = this;
+			button2.className = "ScrollBarButton";
+			slideArea._scrollbar = this;
+			slider.className = "ScrollBarSilder";
+			slider.style.position = "relative";
+			slider._mouseDowned = false;
+			slider._scrollbar = this;
+
+            var sOrient;
+			if (this._horz) {
+				sOrient = "hori";
+			} else {
+				sOrient = "vert";
+			};
+			button.src =  sw2.ResLibPath + "/images/scrollbar/scrollbar_btn1_" + sOrient + ".gif";
+			button2.src = sw2.ResLibPath + "/images/scrollbar/scrollbar_btn2_" + sOrient + ".gif";
+			slider.src = sw2.ResLibPath + "/images/scrollbar/scrollbar_slider_" + sOrient + ".gif";
+
+            //this._state = $C.CS_NORMAL;
+//            this.setDragMode(ctx.DM_MANUAL);
+
+			var el = this._el;
+			ctx.setElStyle(el,"overflow", "auto");
+
+            this.refresh();
+        },
+
+        getMin		: function() {
+			return this._min;
+		},
+
+		setMin		: function(nMin) {
+			this._min = nMin;
+			this.refresh();
+		},
+
+		getMax	: function() {
+			return this._max;
+		},
+
+		setMax	: function(nMax) {
+			this._max = nMax;
+			this.refresh();
+		},
+
+		getSmallChange	: function() {
+			return this._smallChange;
+		},
+
+		setSmallChange	:function(nSmallChange) {
+			this._smallChange = nSmallChange;
+		},
+
+		getLargeChange	: function() {
+			return this._largeChange;
+		},
+
+		setLargeChange	:function (nLargeChange) {
+			this._largeChange = nLargeChange;
+		},
+
+		getPageSize		: function () {
+			return this._pageSize;
+		},
+
+		setPageSize		: function (nPageSize) {
+			this._pageSize = nPageSize;
+			this.refresh();
+		},
+
+		getPosition		: function () {
+			return this._position;
+		},
+
+		setPosition		: function (nPosition) {
+			this._position = nPosition;
+			this.refresh();
+			//this.notifyEvent("onPositionChanged",[this, nPosition]);
+		},
+
+		getShowDraggingTip		:function () {
+			return this._showDraggingTip;
+		},
+
+		setShowDraggingTip	: function (bShow) {
+			this._showDraggingTip = bShow;
+		},
+
+        setBounds   : function(l, t, w, h) {
+            if (this._orientation == $USB.ORIENT_HORZ) {
+                if (h < 23) {
+                    System.execMethod(this,"setBounds",[l,t,w,23],W.Control);
+                } else {
+                    System.execMethod(this,"setBounds",[l,t,w,h],W.Control);
+                }
+            } else /*if (this._orientation == W.ScrollBarStyle.vertical)*/ {
+                if (w < 23) {
+                    System.execMethod(this,"setBounds",[l,t,23,h],W.Control);
+                } else {
+                    System.execMethod(this,"setBounds",[l,t,w,h],W.Control);
+                }
+            }
+        },
+
+		//_doElClick		: function (el,elEvt) {
+        _doClick		: function () {
+//            dbgLog("_doClick start");
+            var el = mouse._mouseinEl;
+			if (el == this._elBtn1) {
+				this.setPosition(this._position - this._smallChange);
+			} else if (el == this._elBtn2) {
+				this.setPosition(this._position + this._smallChange);
+			} else if (el == this._elSliderArea) {
+//                dbgLog("_elSliderArea clicked start");
+				var nPosX, nposY;
+				var posXY = this._getElDeskXY(this._elSlider);
+				nPosX = posXY[0];
+				nposY = posXY[1];
+				var bDiff;
+                var x, y;
+                var mouXY = desk._getEventDeskXY(window.event);
+                x = mouXY[0];
+                y = mouXY[1];
+                if (this._horz) {
+					bDiff = true;//(x > nPosX);
+				} else {
+					bDiff = false;//bDiff = (y > nposY);
+				};
+//                dbgLog("(" + nPosX + "," + nposY + ")");
+//                dbgLog("(" + x + "," + y + ")");
+				//var nDiff = ((this._largeChange > 0) ? this._largeChange : this._pageSize);
+				if (bDiff) {
+					//this.setPosition(this._position + nDiff);
+                    if ((x - nPosX) > 0)
+                        this.setPosition(this._position + this._smallChange);
+                    else if ((x - nPosX) < 0)
+                        this.setPosition(this._position - this._smallChange);
+				} else {
+					//this.setPosition(this._position - nDiff);
+                    if ((y - nposY) > 0) {
+                        this.setPosition(this._position + this._smallChange);
+                    } else if ((y - nposY) < 0) {
+                        this.setPosition(this._position - this._smallChange);
+                    }
+				}
+//                dbgLog("_elSliderArea clicked end");
+			} else if (el == this._elSlider && this._elSlider._mouseDowned) {
+//                dbgLog("_elSlider clicked start");
+				if (this._showDraggingTip) {
+					this.getLabel().setVisible(false);
+				};
+				this._elSlider._mouseDowned = false;
+				ctx.setElCssClass(this._elSlider,"ScrollBarSilder");
+                //this.endDrag();
+//                dbgLog("_elSlider clicked end");
+            }
+//            dbgLog("_doClick end");
+		},
+
+		//_doElMouseDown		: function (el,elEvt) {
+        _doMouseDown		: function(btn, x, y) {
+//            dbgLog("_doMouseDown start");
+            var el = mouse._mouseinEl;
+			if (el == this._elBtn1) {
+				ctx.setElCssClass(this._elBtn1,"ScrollBarButton_Down");
+			} else if (el == this._elBtn2) {
+				ctx.setElCssClass(this._elBtn2,"ScrollBarButton_Down");
+			} else if (el == this._elSlider) {
+//                dbgLog("_elSlider mouseDown start");
+				var slider = this._elSlider;
+
+				slider._mouseDowned = true;
+				slider._mdLeft = slider._left;
+				slider._mdTop = slider._top;
+
+				slider._mdClientX = x;
+				slider._mdClientY = y;
+				//slider.setCapture(true);
+
+				ctx.setElCssClass(this._elSlider,"ScrollBarSilder_Down");
+				if (this._showDraggingTip) {
+					this.getLabel().setVisible(true);
+					this.showDraggingTip();
+				}
+                //this.beginDrag();
+//                dbgLog("_elSlider mouseDown end");
+			} else {
+            }
+//            dbgLog("_doMouseDown end");
+		},
+
+		//_doMouseUp	: function (x,y,evtSrc) {
+        _doMouseUp	: function (btn,x,y) {
+//            dbgLog("_doMouseUp start");
+            var evtSrc = mouse._mouseinEl;
+			if (evtSrc == this._elBtn1) {
+				ctx.setElCssClass(this._elBtn1,"ScrollBarButton");
+			} else if (evtSrc == this._elBtn2) {
+				ctx.setElCssClass(this._elBtn2,"ScrollBarButton");
+			}/* else if (evtSrc == this._elSlider) {
+				if (this._showDraggingTip) {
+					this.getLabel().setVisible(false);
+				};
+				this._elSlider._mouseDowned = false;
+				ctx.setElCssClass(this._elSlider,"ScrollBarSilder");
+                //this.endDrag();
+			} else if (evtSrc == this._elSliderArea) {
+				if (this._showDraggingTip) {
+					this.getLabel().setVisible(false);
+				};
+				this._elSlider._mouseDowned = false;
+				ctx.setElCssClass(this._elSlider,"ScrollBarSilder");
+            }*/
+            if (this._elSlider._mouseDowned) {
+//                dbgLog("_elSlider mouseUp start");
+				if (this._showDraggingTip) {
+					this.getLabel().setVisible(false);
+				};
+				this._elSlider._mouseDowned = false;
+				ctx.setElCssClass(this._elSlider,"ScrollBarSilder");
+//                dbgLog("_elSlider mouseUp end");
+            }
+//            dbgLog("_doMouseUp end");
+		},
+
+		//_doMouseMove		: function (x,y,evtSrc) {
+        _doMouseMove		: function (x,y) {
+            //dbgLog("_doMouseMove start");
+            var evtSrc = mouse._mouseinEl;
+			if (evtSrc == this._elSlider) {
+				if (!this._elSlider._mouseDowned)
+					return;
+				var slideArea = this._elSliderArea;
+				if (this._horz) {
+					var left = (x -this._elSlider._mdClientX) + this._elSlider._mdLeft;
+					if (left < 0)
+						left = 0;
+					var nAreaWidth = slideArea.offsetWidth;
+					if (left + this._elSlider.offsetWidth > nAreaWidth) {
+						left = nAreaWidth - this._elSlider.offsetWidth;
+					};
+					if (left == this._elSlider.style.left)
+						return;
+					ctx.setElLeft(this._elSlider,left);
+					this._elSlider._left = left;
+				} else {
+					var top = (y - this._elSlider._mdClientY) + this._elSlider._mdTop;
+					if (top < 0)
+						top = 0;
+					var $Uf = slideArea.offsetHeight;
+					if (top + this._elSlider.offsetHeight > $Uf) {
+						top = $Uf - this._elSlider.offsetHeight;
+					};
+					if (top == this._elSlider.style.top)
+						return;
+					ctx.setElTop(this._elSlider,top);
+					this._elSlider._top = top;
+				};
+				this.scrollPosition();
+				this.showDraggingTip();
+			}
+            //dbgLog("_doMouseMove end");
+		},
+
+
+		onResize	: function () {
+			this.refresh();
+		},
+
+		getLabel	: function() {
+			var label = this._label;
+			if (label == null) {
+				label = new sw2.widget.Label();
+				ctx.setElCssClass(label._el,"ScrollBarPositionLabel");
+
+//				ctx.addControl(label);
+                label.setBorderWidth(0);
+				this._label = label;
+			};
+			return label;
+		},
+
+		showDraggingTip		: function () {
+			if (!this._showDraggingTip) return;
+
+            var label = this.getLabel();
+			var slider = this._elSlider;
+			var slideArea = this._elSliderArea;
+			var posXY = this._getElDeskXY(slider);
+            //var dskXY = desk._getEventDeskXY(slider);
+            var dskXY = W.Control.getDesktop()._el.getBoundingClientRect();
+			var nRange = (this._max - this._min);
+			var position = 0;
+
+			if (this._horz) {
+				var nAreaWidth = slideArea.offsetWidth;
+				position =Math.round(
+						this._elSlider._left / (nAreaWidth - this._elSlider.offsetWidth) * nRange + this._min);
+				if (position > this._max)
+					position = this._max;
+				label.setCaption(position + "/" + this._max);
+                label.setLeft(posXY[0] + dskXY.left + ((slider.offsetWidth - label._el.clientWidth) / 2));
+                label.setTop(posXY[1] + dskXY.top - label._el.clientHeight - 3);
+			} else {
+				var $Uf = slideArea.offsetHeight;
+				position =
+					Math.round(
+						this._elSlider._top / ($Uf - this._elSlider.offsetHeight) * nRange + this._min);
+				if (position > this._max)
+					position = this._max;
+				label.setCaption(position + "/" + this._max);
+                label.setLeft(posXY[0] + dskXY.left - label._el.clientWidth - 3);
+                label.setTop(posXY[1] + dskXY.top + ((slider.offsetHeight - label._el.clientHeight) / 2));
+			}
+		}
+
+
+	}
+});
+var $USB = sw2.widget.CustomScrollBar;
+
+/*
+System.defineClass({
+	name		: "sw2.widget.HScrollBar",
+	superc		: sw2.widget.CustomScrollBar,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"HScollBar");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_initialize : function () {
+			System.execMethod(this,"_initialize",null,W.CustomScrollBar);	
+			var heScrollBar = this._el;
+			heScrollBar.className = "ScrollBar";
+			
+			this._showDraggingTip = true;
+
+			var heTable = ctx.createElement("TABLE");
+			heTable.className = "ScrollBar";
+
+			heTable.style.height = 1;
+			this._el.appendChild(heTable);
+			
+			heTable.style.width = "100%";
+			heTable.style.height = "100%";
+
+			heTable.border = 0;
+			heTable.cellSpacing = 1;
+			heTable.cellPadding = 0;
+
+			var button = ctx.createElement("IMG");
+			var button2 = ctx.createElement("IMG");
+			var slider = ctx.createElement("IMG");
+			var slideArea = ctx.createElement("TD");
+
+			slideArea.appendChild(slider);
+			slideArea.style.width = "100%";
+			slideArea.style.height = "100%";
+			slideArea.vAlign = "top";
+
+			this._elBtn1 = button;
+			this._elBtn2 = button2;
+			this._elSlider = slider;
+			this._elSliderArea = slideArea;
+
+			var heTbody = ctx.createElement("TBODY");
+			var heTr, heTd;
+
+			heTr = ctx.createElement("TR");
+			heTbody.appendChild(heTr);
+			heTd = ctx.createElement("TD");
+			heTr.appendChild(heTd);
+			heTd.appendChild(button);
+			heTr.appendChild(slideArea);
+			heTd = ctx.createElement("TD");
+			heTr.appendChild(heTd);
+			heTd.appendChild(button2);
+			heTable.appendChild(heTbody);
+
+			button.className = "ScrollBarButton";
+			button2.className = "ScrollBarButton";
+			slider.className = "ScrollBarSilder";
+			slider.style.position = "relative";
+			slider._mouseDowned = false;
+			slider._scrollbar = this;
+
+			button.src =  sw2.ResLibPath + "/images/scrollbar/scrollbar_btn1_hori.gif";
+			button2.src = sw2.ResLibPath + "/images/scrollbar/scrollbar_btn2_hori.gif";
+			slider.src = sw2.ResLibPath + "/images/scrollbar/scrollbar_slider_hori.gif";
+
+		},
+
+		refresh		: function() {
+			if (this._max < this._min) {
+				this._max = this._min;
+			};
+			var nRange = (this._max - this._min);
+			if (this._position > this._max)
+				this._position = this._max;
+			if (this._position < this._min)
+				this._position = this._min;
+			if (nRange > 0) {
+				var nSliderleft,nSliderWidth;
+				var nAreaWidth = this._elSliderArea.offsetWidth;
+
+				nSliderWidth = (this._pageSize / (nRange + this._pageSize)) * nAreaWidth;
+				var nScrollWidth = nAreaWidth - nSliderWidth;
+				if (nSliderWidth < 12) {
+					nSliderWidth = 12;
+					nScrollWidth = nAreaWidth - nSliderWidth;
+				}
+
+				nSliderleft = (this._position - this._min) / nRange * nScrollWidth;
+
+				ctx.setElLeft(this._elSlider, nSliderleft);
+				this._elSlider._left = nSliderleft;
+
+
+				ctx.setElEnable(this._elBtn1,true);
+				ctx.setElEnable(this._elBtn2,true);
+				ctx.setElCssClass(this._elBtn1,"ScrollBarButton");
+				ctx.setElCssClass(this._elBtn2,"ScrollBarButton");
+				ctx.setElVisible(this._elSlider,true);
+			} else {
+				ctx.setElEnable(this._elBtn1,false);
+				ctx.setElEnable(this._elBtn2,false);
+				ctx.setElCssClass(this._elBtn1,"ScrollBarButton_Disabled");
+				ctx.setElCssClass(this._elBtn2,"ScrollBarButton_Disabled");
+				ctx.setElVisible(this._elSlider,false);
+			}
+		},
+
+		scrollPosition		: function () {
+			var nRange = (this._max - this._min);
+			var nAreaWidth = ctx.getElOffsetWidth(this._elSliderArea);
+			var nSiderWidth = ctx.getElOffsetWidth(this._elSlider);
+			this.setPosition(this._elSlider._left / (nAreaWidth - nSiderWidth) * nRange + this._min);
+		}
+	}
+});
+*/

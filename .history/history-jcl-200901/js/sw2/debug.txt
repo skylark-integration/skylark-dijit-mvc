@@ -1,0 +1,52 @@
+/*
+ * File Name: js_debug.js
+ * @Auth: Wanghl
+ * @Date: 2007.04.04
+ */
+var dbgWindow = null;
+var dbgOpt = false;
+var dbgMsgNum = 0;
+
+/*
+ * <body onLoad="dbgInit(true);"> or 
+ * <body onLoad="dbgInit(false);">
+ */
+function dbgInit( opt )
+{
+    if ( !opt ) return true;
+    dbgOpt = opt;
+
+    // デッバグ窓口を開く
+	if (!dbgWindow) {
+	    dbgWindow = window.open("about:blank", "Debug", 
+	        "left=0,top=0,height=200,width=400,toolbar=no,menubar=no,scrollbars=yes");
+	}
+    dbgLog("dbgInit start");
+
+    dbgLog("dbgInit end");
+
+    return true;
+}
+
+/*
+ * dbgMsg: Debug message
+ *
+ */
+function dbgLog( dbgMsg )
+{
+    // Debug option is false
+    if ( !dbgOpt ) return true;
+
+    var curtop = dbgWindow.document.body.scrollTop;
+
+    // output debug message
+    dbgWindow.document.write(++dbgMsgNum + ": " + dbgMsg + "<br>");
+
+    // scroll forward
+   // dbgWindow.scroll(0, curtop + 100);
+	//dbgWindow.forward();
+
+    return true;
+}
+
+dbgInit(false);

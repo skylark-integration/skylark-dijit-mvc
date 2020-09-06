@@ -1,0 +1,250 @@
+<html>
+<head>
+<link href="../themes\default/system.css" rel="stylesheet" type="text/css" />
+<link href="../themes\default/ide.css" rel="stylesheet" type="text/css" />
+<link href="../themes\default/skin.css" rel="stylesheet" type="text/css" />
+
+
+<script language = 'javascript' >
+	var _theme_root = "../themes/default";
+	var __SKIN_PATH = "../themes/default";
+	var __IMG_PATH = "../images";
+</script>
+
+<SCRIPT language ='JavaScript' src = '../js/spw/lang.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/component.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/browser.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/types.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/host/ui/Element.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/control.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/dragdrop.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/context.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/desktop.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/form.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/button.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/checkbox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/ProgressBar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/label.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/panel.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/radiobutton.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/radiogroup.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/calendar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/textinput.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/textarea.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/PictureBox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/IFrameBox.txt'></SCRIPT>
+
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/groupbox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/splitter.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/tree.txt'></SCRIPT>
+
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/scrollbar.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/menubar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/toolbar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/tabcontrol.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/listctrl.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/listbox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/combo.txt'></SCRIPT>
+
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/context.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/grid.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/Calendar.txt'></SCRIPT>
+
+
+
+<SCRIPT language='JavaScript'>
+System.defineClass({
+	name		: "my.Sw2Demo",
+	superc		: spw.Object,
+	statics		: {
+	},
+	instances	: {
+		_controlsArray  : 
+			    [
+					{
+						text:"企業情報",
+						children	:[
+							{
+								text:"社長挨拶"
+							},
+							{
+								text:"会社概要"
+							},
+							{
+								text:"組織"
+							},
+							{
+								text:"関係会社"
+							}
+						]
+					},	
+					{
+						text:"事業・サービス内容",
+						children	:[
+							{
+								text:"システム開発"
+							},
+							{
+								text:"プロダクトソリューション"
+							}
+						]
+					},
+					{
+						text:"SW2ソリューション",
+						children	:[
+							{
+								text:"概要"
+							},
+							{
+								text:"アーキテクチャー"
+							},
+							{
+								text:"ToolBar",
+								icon: "./images/blank.gif"
+							}
+						]
+					}	
+			    ],
+
+		_frmMain	: null,
+		_container  : null,
+		_ctrlTree	: null,
+		_ctrlMenu	: null,
+
+		_initialize : function() {
+		},
+
+		_garbageCollect			: function() {
+			GarbageCollect();
+		},
+
+
+		_NaviTreeViewDblClick 	: function(evt) {
+			var tree = evt.getSender();
+			var node = tree.getSelected();
+			if (node) {
+//				this._buildControlSample(node.getText());
+			}
+			
+			
+		},
+
+
+		_buildCtrlNaviTreeView	:function (form) {
+			var tv  = new W.TreeView(form);
+			var nodes = tv.getNodes();
+			tv.setBounds(0,0,200,300);	
+			nodes.loadFromArray(this._controlsArray);
+			tv.addEventListener("DblClick",this._NaviTreeViewDblClick,this);
+			return tv;
+			
+			
+		},
+
+		_clearControlSample		: function() {
+			var children = this._container.getChildren();
+			for (var i = 0; i<children.length;i++) {
+				children[i].setParent(null);
+			}
+		},
+
+		_buildCtrlNaviMenuBar	: function(form) {
+			var menubar = new W.MenuBar(form);
+			var menu = new W.Menu();
+			menu.loadFromArray(this._controlsArray)
+			menubar.setBounds(0,0,200,25);	
+			menubar.setMenu(menu);
+			return  menubar;
+		},
+
+
+		_buildLogoPanel	: function(form) {
+			var panel = new W.Panel(form);
+			panel.setBounds(0,0,200,50);
+			var picture = new W.PictureBox(form);
+			picture.setBounds(0,0,200,50);
+			picture.setDock(W.Dock.left);
+			picture.setImgSrc("./images/logo.gif");
+			picture.setParent(panel);
+			return panel;
+
+		},
+
+				
+
+		run		:	function() {
+			W.Desktop.start();
+
+			var form = new W.Form();
+//			this._frmMain = form;
+			
+			var dw = desk.getWidth();
+			var dh = desk.getHeight();	
+			form.setBounds((dw-800)/2,1,800,600);
+			form.setParent(desk);
+			form.setVisible(true);
+			form.setIcon("./images/desktop.gif");
+			form.setText("株式会社ピーエスティー");
+
+			var logo = this._buildLogoPanel(form);
+			logo.setDock(W.Dock.top);
+			logo.setParent(form);
+
+			var mb = this._buildCtrlNaviMenuBar(form);
+			mb.setDock(W.Dock.top);
+			mb.setParent(form);
+			this._ctrlMenu = mb;
+
+			var tv = this._buildCtrlNaviTreeView(form);
+			tv.setDock(W.Dock.left);
+			tv.setParent(form);
+
+			this._ctrlTree = tv;
+
+			var splitter = new W.Splitter(form);
+			splitter.setDock(W.Dock.left);
+			splitter.setParent(form);
+
+			var panel = new W.Panel(form);
+			panel.setDock(W.Dock.client);
+			panel.setParent(form);
+
+			this._container = panel;
+
+			form.setVisible(true);
+			
+			tv.fullExpand();
+		}
+
+
+	}
+});
+	
+
+var myapp = null;
+
+function afterload(){
+	myapp = new my.Sw2Demo();
+	myapp.run();
+}
+
+</SCRIPT>
+
+
+</head>
+<BODY onload='afterload();'>
+</BODY>
+</html>
+
+
+

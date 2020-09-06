@@ -1,0 +1,38 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name  		:"sw2.widget.IFrameBox",
+	superc		: W.Control,
+	statics		: {
+	},
+
+	instances	: {
+		_elIFrame	: null,
+
+		_initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Control);	
+		},
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"IFrameBox");
+
+			this._elIFrame = UIIFrame.create(el);
+	
+			return el;
+		},
+
+
+		getSrc	: function(el) {
+			return UIIFrame.getSrc(this._elIFrame);
+		},
+
+		setSrc	: function(uri) {
+			UIIFrame.setSrc(this._elIFrame,uri);
+		}
+
+	}
+});

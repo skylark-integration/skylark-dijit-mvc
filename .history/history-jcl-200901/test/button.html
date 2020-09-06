@@ -1,0 +1,85 @@
+<html>
+<head>
+<link href="../themes\default/skin.css" rel="stylesheet" type="text/css" />
+<script language = 'javascript' >
+	var _theme_root = "../css/themes/default";
+</script>
+<script language ='javascript' src = '../js/jcf/jcf.txt' >
+</script>
+<script language ='javascript' src = '../js/ui/html.txt' >
+</script>
+<script language ='javascript' src = '../js/ui/control.txt'>
+</script>
+<script language ='javascript' src = '../js/ui/button.txt' >
+</script>
+<script language = "javascript">
+var button = null;
+function test1() {
+	button = new pst.ui.Button();
+	button.build();
+	button.setValue("test");
+/*	button._hel.style.position = "absolute";
+	button._hel.style.left = "200pt";
+	button._hel.style.visibility = "visible";
+	button._hel.style.width = "200pt";
+	button._hel.style.top = "200pt";
+	button._hel.style.height = "200pt";*/
+
+	button.setBounds(200,300,200,100);
+
+};
+function test2() {
+//	document.forms[0].a1.style.position = "absolute";
+//	document.forms[0].a1.style.left = "200pt";
+//	document.forms[0].a2.style.position = "absolute";
+//	document.forms[0].a2.style.left = "600pt";
+	//button.setAllowPushDown(true);
+	button._el.focus();
+	button.setDraggable(!button.getDraggable());
+};
+
+function test3() {
+	
+	button.setWidth(button.getWidth()+5);
+};
+
+function test4() {
+//	document.body.removeChild(button._el);
+	$H._elDesktop.style.zIndex = 100;
+	button._el.style.zIndex = 2;
+
+};
+
+function test5() {
+//	alert($H._elDesktop.style.zIndex);
+//	alert(button._el.style.zIndex);
+//	var b = $HTML.createElement("BUTTON");
+//	$HTML.addElement(b);
+	alert($C._captured);
+	alert(document.body.offsetLeft + "," + document.body.clientWidth+","+ document.body.offsetWidth+"," + document.body.clientHeight+","+ document.body.offsetHeight);
+	alert($H._elDesktop.clientWidth+","+ $H._elDesktop.offsetWidth+"," + $H._elDesktop.clientHeight+","+ $H._elDesktop.offsetHeight);
+}	
+
+function testA(b) {
+  this.b= b;
+  return this;
+}
+
+var dd = testA("aaa");
+alert(dd.document.location.href);
+alert(b);
+
+
+</script>
+</head>
+
+<body>
+<form>
+<input type = button name ='a1' value = 'test1' onclick = "test1();" />
+<input type = button name ='a2' value = 'test2' onclick = "test2();" />
+<input type = button name ='a2' value = 'test2' onclick = "test3();" />
+<input type = button name ='a2' value = 'test4' onclick = "test4();" />
+<input type = button name ='a2' value = 'test5' onclick = "test5();" />
+</form>
+</body>
+</html>

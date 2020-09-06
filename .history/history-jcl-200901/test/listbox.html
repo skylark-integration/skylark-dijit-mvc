@@ -1,0 +1,81 @@
+<html>
+<head>
+<style>
+.styleBox
+{
+    display:block;
+    list-style-type:none;
+    border:0px double gray;
+    background-color:#f0f0f0;
+    color:white;
+    font-size:11px;
+    padding:0px;
+    margin:0px 0px 0px 0px;
+}
+.styleBox li.selected
+{
+    color:white;
+    background-color:#555;
+    background-color:#6191b3;
+}
+.styleBox li.unselected
+{
+    background-color:transparent;
+    color:black;
+}
+.styleBox li
+{
+    cursor:pointer;
+    display:block;
+    padding:2px;
+    background-color:blue;
+}
+</style>
+
+<script language = "javascript">
+	function test() {
+		var e = document.getElementById('d');
+		alert(e.currentStyle.borderWidth);
+	}
+</script>
+</head>
+<body onmousedown="document.title = 'd';" onmouseup = "document.title = ''" ondblclick="document.title = 't';return false;">
+<form action="cgi-bin/formmail.cgi" method="post">
+<p>ååâtå^ÅF<br>
+<div>
+<select name="blood">
+<option value="A">Aå^</option>
+<option value="B">Bå^</option>
+<option value="O">Oå^</option>
+<option value="AB">ABå^</option>
+</select>
+</div>
+</p>
+
+<p>êØç¿ÅF<br>
+
+<div id = "d"  style = "background-color: #6D9FE2;overflow : visible;position : absolute; left : 112px; top : 20px; width : 300px; height :100px;border-width : 2 3 2; border-style : solid;padding :0;overflow-y:auto">
+<ul class="styleBox" style='overflow-x:hidden;overflow-y:auto;width:100%'>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+<li style='height:20px;overflow-x:hidden;overflow-y:auto;width:100%'>aaaa</li>
+</ul>
+</div>
+
+</p>
+<input type="submit" value="ëóêM"><input type="reset" value="ÉäÉZÉbÉg">
+<input type="button" value="test" onclick = "test()">
+</form>
+</body>
+</html> 

@@ -1,0 +1,76 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.Radio",
+	superc		: sw2.widget.Control,
+	statics		: {
+        _radioName  : 1,
+
+        _getRadioName   : function() {
+            return "radiobutton" + this._radioName ++;
+        },
+
+		_initialize : function() {
+			Component.registerComponentTag(this,"RadioButton");
+		},
+
+        _defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+            propInfo.put("text", String);
+            propInfo.put("checked", Boolean);
+		}
+
+	},
+	instances	: {
+		_elRadio	: null,
+		_elLabel	: null,
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"Radio");
+
+            this._elRadio = UIRadio.create(el);
+			this._elLabel = UILabel.create(el);
+
+			return el;
+		},
+
+		_doFocus		: function() {
+			UIDiv.addCssClass(this._elLabel,"Focus");
+			System.execMethod(this,"_doFocus",[],W.Control);
+		},
+
+		_doBlur			: function() {
+			UIDiv.removeCssClass(this._elLabel,"Focus");
+			System.execMethod(this,"_doBlur",[],W.Control);
+		},
+
+		_doClick	: function() {
+//			this.setChecked(!this.getChecked());
+			if (!this.getChecked()) {
+				this.setChecked(true);
+			}
+			System.execMethod(this,"_doClick",[],W.Control);
+		},
+
+		getChecked	: function() {
+			return UIRadio.getChecked(this._elRadio);
+		},
+
+		setChecked	: function(bChecked) {
+			UIRadio.setChecked(this._elRadio, bChecked);
+		},
+
+		getText	: function() {
+			return UILabel.getText(this._elLabel);
+		},
+
+		setText	: function(sValue) {
+			UILabel.setText(this._elLabel,sValue);
+		}
+
+	}
+});

@@ -1,0 +1,131 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+
+System.defineClass({
+	name		: "sw2.widget.Button",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"Button");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+          	propInfo.put("caption", String);
+		}
+	},
+	instances	: {
+		_borderColors	: null,
+
+		_allowPushDown	: false,
+		_down   		: false,
+		_elTable		: null,
+
+
+		_doCreateUIElement	: function() {
+//			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			var el = UIButton.create(null,"Control");
+            UIElement.addCssClass(el,"Button");
+
+			this._elTable = UITable.create(3,1,el);
+ 			UITable.setColWidth(this._elTable,0,"auto");
+ 			UITable.setColWidth(this._elTable,1,"100%");
+ 			UITable.setColWidth(this._elTable,2,"auto");
+
+			var heCell = UITable.cells(this._elTable,1,0);
+			heCell.align = "center";
+			heCell.vAlign = "center";
+
+
+			var heCell = UITable.cells(this._elTable,2,0);
+			
+			var heImgIndi = heCell.firstChild;
+
+			if (!heImgIndi) {
+//				heImgIndi = UIImg.create(__SKIN_PATH + "/menu_indicator.gif",heCell);
+			}
+
+			var heCell = UITable.cells(this._elTable,0,0);
+			
+			var heImgIndi = heCell.firstChild;
+
+			if (!heImgIndi) {
+//				heImgIndi = UIImg.create(__SKIN_PATH + "/menu_indicator.gif",heCell);
+			}
+	
+			return el;
+		},
+
+
+
+		getImage : function() {
+			var heCell = UITable.cells(this._elTable,0,0);
+			var heImg = heCell.firstChild;
+			if (heImg) {
+				return heImg.src;
+			} else {
+				return "";
+			}
+		},
+
+		setImage : function(uri) {
+				var heCell = UITable.cells(this._elTable,0,0);
+				var heImg = heCell.firstChild;
+				if (!heImg) {
+					UIImg.create(uri,heCell);
+				} else {
+					UIImg.setSrc(heImg,uri);
+				}
+		},
+
+		getText : function() {
+			return UITable.getCellText(this._elTable,1,0);
+		},
+
+		setText : function(sCaption) {
+			UITable.setCellText(this._elTable,1,0,sCaption);
+		},
+
+		getAllowPushDown : function() {
+			return this._allowPushDown;
+		},
+
+		setAllowPushDown : function(bAllow) {
+			if (!bAllow) {
+				this.setDown(false);
+			}
+			this._allowPushDown = bAllow;
+		},
+
+		getDown : function() {
+		},
+
+		setDown : function(bDown) {
+		},
+
+		_doMouseDown	: function(nBtn,x,y){
+			var borders = this.getBorders()
+			this._borderColors = borders.getColors();
+
+			borders.setColors("buttonshadow buttonhighlight buttonhighlight buttonshadow");
+		},
+
+		_doMouseUp		: function(nBtn,x,y) {
+			var borders = this.getBorders();
+			borders.setColors(this._borderColors);
+		},
+
+		_doClick : function () {
+            //dbgLog("W.Button._doClick start");
+			if (this.getAllowPushDown()) {
+				this.setDown(!this.getDown());
+			} else {
+			}
+			System.execMethod(this,"_doClick",null,W.Control);	
+            //dbgLog("W.Button._doClick end");
+		}
+	}
+});
+

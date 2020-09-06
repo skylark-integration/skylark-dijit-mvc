@@ -1,0 +1,209 @@
+
+.Control {		
+	position : absolute;
+	left	 : 0;
+	top		 : 0;
+	background-color: white;
+	overflow	:hidden;
+	font-family: Verdana;
+	font-size: 9pt;
+}
+
+
+.Button {		
+	height	: 22;
+	border-width : 2px;
+    border-style : solid;
+	border-color : buttonhighlight buttonshadow buttonshadow buttonhighlight;
+	background-color: #EDF2F6;
+}
+
+.Text {
+	border-width: 1;
+	border-color: #CCCCCC;
+	border-style: solid;
+}
+
+.TextArea {
+	border-width: 1;
+	border-color: #CCCCCC;
+	border-style: solid;
+}
+
+
+
+.Label {		
+	border: none;
+	background-color: transparent;
+}
+
+.Label:hover {
+    border-color:buttonshadow buttonhighlight buttonhighlight buttonshadow;
+	background-color: blue;
+}
+
+.CheckBox {
+}
+
+.ListBox {
+	border	: solid 1px #C5D9E8;
+	background-color: #F5F7F9;
+}
+
+.ComboBox {		
+	border: solid 1px #C5D9E8;
+	background-color: #F5F7F9;
+}
+
+.TreeView {
+	width	: 250px;
+	height	: 300px;
+	overflow: auto;
+	background-color: #F5F7F9;
+	border: solid 1px #C5D9E8;
+}
+
+.Form {
+	position	: absolute;
+	border-color: #5B94DF;
+	border-width: 2;
+	border-style: solid;
+	padding		: 0;
+}
+
+
+.GroupBox {
+}
+
+.Splitter {
+	background-color: blue;
+	width	: 3px;
+	height	: 3px;
+}
+
+.Calendar {
+	border-width: 1;
+	border-color: #C5D9E8;
+	border-style: solid;
+	background-color: #EDF2F6;
+}
+
+.PopupMenu {
+	padding: 1;
+	background-color: #F0F0F0;
+	border-width: 1;
+	border-color: #A0A0A0;
+	border-style: solid;
+    border-color : buttonhighlight buttonshadow buttonshadow buttonhighlight;
+}
+
+
+.MenuBar {
+	height: 26;
+	border-width: 1px;
+	border-color: #D0D0D0;
+	border-style: solid;
+	border-collapse: collapse;
+	background-color	:#A5C7F7;
+	background-color: #EEEEEE;
+}
+
+.PictureBox {
+	border-width: 1px;
+	border-color: #C5D9E8;
+}
+
+.IFrameBox {
+	border-width: 1px;
+	padding		: 5px;
+	border-color: #C5D9E8;
+}
+.ActiveTextEditor {
+	background-color: white;
+	border-width: 1;
+	border-color: #74E540;
+	border-style: solid;
+}
+
+.ReadOnlyTextEditor {
+	background-color: #F6F6F6;
+	border-width: 1;
+	border-color: #CCCCCC;
+	border-style: solid;
+}
+
+
+.ActiveCheckBox {
+	background-color: white;
+}
+
+.ReadOnlyCheckBox {
+	background-color: #F6F6F6;
+}
+
+.RadioButton {
+	position	: absolute;
+}
+
+.RadioGroup {
+	table-layout: fixed;
+	border-width: 0;
+	border-color: #CCCCCC;
+	border-style: solid;
+}
+
+.ActiveRadioGroup {
+	background-color: white;
+	table-layout: fixed;
+	border-width: 0;
+	border-color: #74E540;
+	border-style: solid;
+}
+
+.ReadOnlyRadioGroup {
+	table-layout: fixed;
+	border-width: 0;
+	border-color: #CCCCCC;
+	border-style: solid;
+}
+
+
+.ScrollBar {
+	background-color: #f7f7f7;
+	border: 2 ;
+	border-style : ridge;
+}
+
+
+.OutlookBar {
+	border-width: 0;
+	border-spacing: 0;
+	border-color: #C0C0C0;
+	border-style: solid;
+	border-collapse: collapse;
+	padding: 0;
+	margin: 0;
+}
+
+
+.HProgressBar{
+  position	: absolute;
+  width			: 200;
+  height		: 18;
+  border-width	: 1;
+  border-color	: #5B94DF;
+  border-style	: solid;
+  background-color: white;
+  overflow 		: hidden;
+}
+
+.VProgressBar {
+  width			: 18;
+  height		: 200;
+  border-width	: 1;
+  border-color	: #5B94DF;
+  border-style	: solid;
+  background-color: white;
+  overflow 		: "hidden";
+}
+

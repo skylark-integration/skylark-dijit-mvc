@@ -1,0 +1,250 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.DragObject",
+	statics		: {
+		DT_REPOS	: 0,
+		DT_RESIZE	: 1,
+		DT_IMGDRAG	: 2,
+
+		_dragObject	: null,
+
+		_dragInit	: function(c,dt) {
+			if (!this._dragObject) {
+				this._dragObject = new W.DragObject(c,dt);
+				W.Control.setCapture(this._dragObject);
+				if (dt == W.DragObject.DT_IMGDRAG) {
+					c._doDragStart(mouse.getX(),mouse.getY());
+					this._dragObject.showDragImage(mouse.getX(),mouse.getY());
+				}
+			}
+		},
+
+		_dragTo		: function(x,y) {
+			var dObj = this._dragObject;
+			if (dObj) {
+				dObj._x = x;
+				dObj._y = y;
+
+				var c = dObj._dragControl;
+				var cst = c.getControlState();
+
+				if (cst.contains(W.ControlState.moving)){
+					dObj._dragAutoMove(x,y);
+					return;	
+				} 
+
+				if (cst.contains(W.ControlState.resizing)){
+					dObj._dragAutoResize(x,y);
+					return;	
+				}
+
+	 			if (cst.contains(W.ControlState.dragging)){
+					dObj.showDragImage(x,y);
+					var target = W.Control.find(x,y);
+					if (target != dObj._dragTarget) {
+						
+						if (dObj._dragTarget) {
+			
+							dObj._dragTarget._doDragLeave(x,y,this._dragControl,dObj._accept);
+							dObj._accept = false;
+							dObj._dragTarget = null;
+						}
+						if (target) {
+							dObj._dragTarget = target;
+							dObj._accept = target._doDragEnter(x,y,dObj._dragControl);
+							if (dObj._accept) {
+								desk.setCurrentCursor(c.getDragCursor());
+							} else {
+//								desk.setCurrentCursor(c.getCursor());
+							}
+						}
+					} else {
+						if (dObj._dragTarget) {
+							dObj._accept = dObj._dragTarget._doDragMove(x,y,dObj._dragControl,dObj._accept);
+						}
+					}
+					return;	
+				}
+			}
+		},
+
+		_dragDone	: function(bDrop) {
+			var dObj = this._dragObject;
+			if (dObj) {
+				W.Control.setCapture(null);
+				dObj.hideDragImage();
+				this._dragObject = null;
+				if (bDrop) {
+					var x = dObj._x;
+					var y = dObj._y;
+
+					var c = dObj._dragControl;
+					var cst = c.getControlState();
+		 			if (cst.contains(W.ControlState.dragging)){
+						cst.exclude(W.ControlState.dragging);
+						var bDrop = false;
+						if (dObj._accept && dObj._dragTarget) {
+							dObj._dragTarget._doDragDrop(x,y,dObj._dragControl);
+							bDrop = true;
+						}
+						c._doDragEnd(x,y,bDrop,dObj._dragTarget);
+					} else if (cst.contains(W.ControlState.moving)) {
+						cst.exclude(W.ControlState.moving);
+						c._doEndAutoMove();
+					} else if (cst.contains(W.ControlState.resizing)) {
+						cst.exclude(W.ControlState.resizing);
+						c._doEndAutoResize();
+					}
+				}
+				System.dispose(dObj);
+			}
+		}
+
+
+	},
+	instances	: {
+		_dragType	: 0,
+		_dragTarget : null,
+
+		_dragControl: null,
+		_dragImage	: null,
+
+		_accept		: false,
+
+		_startX		: 0,
+		_startY		: 0,
+		_startW		: 0,
+		_startH		: 0,
+
+		_x			: 0,
+		_y			: 0,
+
+		_initialize : function (c,dt) {
+			this._dragControl= c;
+			this._dragType = dt;
+			var cst = c.getControlState();
+			switch (dt) {
+				case W.DragObject.DT_REPOS :
+					cst.include(W.ControlState.moving);
+					c._doBeginAutoMove();
+					break;
+				case W.DragObject.DT_RESIZE :
+					cst.include(W.ControlState.resizing);
+					c._doBeginAutoResize();
+					break;
+				case W.DragObject.DT_IMGDRAG :
+					cst.include(W.ControlState.dragging);
+					break;
+			}
+			this._startX = c.getLeft();
+			this._startY = c.getTop();
+			this._startW = c.getWidth();
+			this._startH = c.getHeight();
+		},
+
+		_finalize  : function() {
+			this._dragControl = null;
+			this._dragTarget = null;
+			this._dragImage = null;
+			if (W.DragObject._dragObject == this) {
+				W.DragObject._dragObject = null;
+			}
+		},
+
+		_handleMessage	: function(msg) {
+			var oDesk = W.Desktop.getDesk();
+			var c = this._dragControl;
+			switch (msg.getType()) {
+				case W.Message.KEYDOWN : {
+					break;
+				};
+				case W.Message.KEYPRESS : {
+					break;
+				};
+				case W.Message.KEYUP : {
+					break;
+				};
+				case W.Message.MOUSEDOWN : {
+					break;
+				};
+				case W.Message.MOUSEMOVE : {
+
+//					var btn = msg.getButton();
+					var x = msg.getX();
+					var y = msg.getY();
+					W.DragObject._dragTo(x,y);
+					break;
+				};
+				case W.Message.MOUSEUP : {
+					var btn = msg.getButton();
+					var x = msg.getX();
+					var y = msg.getY();
+
+					W.DragObject._dragDone(true);
+
+					break;
+				};
+				case W.Message.MOUSEENTER : {
+					break;
+				};
+				case W.Message.MOUSELEAVE : {
+					break;
+				};
+				case W.Message.CLICK : {
+					break;
+				};
+				case W.Message.DBLCLICK : {
+					break;
+				};
+			}
+		},
+
+		_dragAutoMove	: function(x,y) {
+			var c = this._dragControl;
+			c._doAutoMoving(x,y);
+		},
+
+		_dragAutoResize : function(x,y) {
+			var c = this._dragControl;
+			var cursor = desk.getCurrentCursor();
+			var dx = x-mouse.getDownX();
+			var dy = y-mouse.getDownY();
+			c._doAutoResizing(x,y,cursor);
+		},
+
+
+		_dragImgEnter	: function() {
+		},
+
+		_dragImgLeave	: function() {
+		},
+
+		_dragImgMove	: function() {
+		},
+
+		showDragImage	: function(x,y) {
+			var dragImage = this.getDragImage();
+			if (dragImage) {
+				dragImage.showDragImage(x,y);
+			}
+		},
+
+		hideDragImage	: function() {
+			var dragImage = this.getDragImage();
+			if (dragImage) {
+				dragImage.hideDragImage();
+			}
+		},
+
+		getDragImage	: function() {
+			return this._dragControl.getDragImage();
+		}
+
+	}
+});
+
+

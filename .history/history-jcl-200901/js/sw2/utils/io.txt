@@ -1,0 +1,576 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.utils.Cookie",
+	statics		: {
+		save :function (key, value) {
+		    document.cookie = key + "=;";
+	        var today = new Date();
+	        today.add("year",1)
+	        document.cookie = key + "=" + escape(value) + ";expires=" + today.toGMTString();
+		}, 
+		
+		read:function (key) {
+		    var value = "";
+		    var strCherher = key + "=";
+		    if (document.cookie.length > 0) {
+		        place = document.cookie.indexOf(strCherher);
+		        if (place != -1) {
+		            debut = place + strCherher.length;
+		            fin = document.cookie.indexOf(";", debut);
+		            if (fin == -1) {
+		                fin = document.cookie.length;
+		            }
+		            value = document.cookie.substring(debut, fin);
+		        }
+		    }
+		    return unescape(value);
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.utils.File",
+	statics		: {
+		saveInCookie:function (key, content) {
+		    document.cookie = key + "=;";
+		    alert(escape(content));
+		    try {
+		        var dateToDay = rialto.date.toDay();
+		        var dateplusUnAn = rialto.date.add("year", dateToDay, 1);
+		        document.cookie = key + "=" + escape(content) + ";expires=" + dateplusUnAn.toGMTString();
+		    }
+		    catch (err) {
+		        alert(err.message);
+		    }
+		}, 
+		loadInCookie:function (key) {
+		    var value = "";
+		    var strCherher = key + "=";
+		    if (document.cookie.length > 0) {
+		        place = document.cookie.indexOf(strCherher);
+		        if (place != -1) {
+		            debut = place + strCherher.length;
+		            fin = document.cookie.indexOf(";", debut);
+		            if (fin == -1) {
+		                fin = document.cookie.length;
+		            }
+		            value = document.cookie.substring(debut, fin);
+		        }
+		    }
+		    return unescape(value);
+		},
+		getFileName:function (filePath) {
+		    var fileName = null;
+		    var ind = filePath.lastIndexOf("\\");
+		    if (ind != -1) {
+		        fileName = filePath.substr(ind + 1);
+		    } else {
+		        fileName = filePath;
+		    }
+		    return fileName;
+		},
+		
+		saveInFile:function (content, filePath) {
+		    var satus = null;
+		    if (browser.isIE) {
+		        status = this.IESaveFile(content, filePath);
+		    } else {
+		        if (browser.isGecko) {
+		            status = this.FFSaveFile(content, filePath);
+		        }
+		    }
+		    return status;
+		},
+
+		IESaveFile:function (content, filePath) {
+//		    try {
+		        var fso = new ActiveXObject("Scripting.FileSystemObject");
+//		    }
+//		    catch (e) {
+//		        alert("Exception while attempting to save\n\n" + e.toString());
+//		        return (null);
+//		    }
+		    var file = fso.OpenTextFile(filePath, 2, -1, 0);
+		    file.Write(content);
+		    file.Close();
+		    return (true);
+		},
+
+		FFSaveFile:function (content, filePath) {
+		    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+		    if (!filePath) {
+		        file = this.FxChoiceFile();
+		    } else {
+		        var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+		        file.initWithPath(filePath);
+		    }
+		    if (window.Components) {
+		        try {
+		            netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+		            if (file.exists()) {
+		            } else {
+		                file.create(0, 436);
+		            }
+		            var out = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
+		            out.init(file, 32 | 2, 4, null);
+		            out.write(content, content.length);
+		            out.flush();
+		            out.close();
+		            return (true);
+		        }
+		        catch (e) {
+		            alert("Exception while attempting to save\n\n" + e);
+		            return (false);
+		        }
+		    }
+		    return (null);
+		},
+
+		loadFile:function (filePath) {
+		    var content = null;
+		    if (browser.isIE) {
+		        content = this.IELoadFile(filePath);
+		    } else {
+		        if (browser.isGecko) {
+		            content = this.FFLoadFile(filePath);
+		        }
+		    }
+		    return content;
+		},
+
+		IELoadFile:function (filePath) {
+		    try {
+		        var fso = new ActiveXObject("Scripting.FileSystemObject");
+		        var file = fso.OpenTextFile(filePath, 1);
+		        var content = file.ReadAll();
+		        file.Close();
+		    }
+		    catch (e) {
+		        return (null);
+		    }
+		    return (content);
+		},
+
+		FFLoadFile:function (filePath) {
+		    if (window.Components) {
+		        try {
+		            netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+		            var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+		            file.initWithPath(filePath);
+		            if (!file.exists()) {
+		                return (null);
+		            }
+		            var inputStream = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
+		            inputStream.init(file, 1, 4, null);
+		            var sInputStream = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
+		            sInputStream.init(inputStream);
+		            return (sInputStream.read(sInputStream.available()));
+		        }
+		        catch (e) {
+		            return (false);
+		        }
+		    }
+		    return (null);
+		},
+
+		FxChoiceFile:function (initialDirectory) {
+		    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+		    var nsIFilePicker = Components.interfaces.nsIFilePicker;
+		    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+		    fp.init(window, "Select or create a file", nsIFilePicker.modeOpen);
+		    fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText);
+		    var rv = fp.show();
+		    if (rv == nsIFilePicker.returnOK) {
+		        alert(fp.file);
+		        return fp.file;
+		    } else {
+		        return null;
+		    }
+		}
+	},
+	instances	: {
+	}
+});
+
+System.defineClass({
+	name		: "sw2.utils.RialtoWriter",
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(objPar) {
+		    this.stringBuffer = new Array;
+		},
+
+		createFunction : function (name, bExecute) {
+		    try {
+		        if (!name) {
+		            var name = "myFunct";
+		        }
+		        eval(name + "=function(){" + this.stringBuffer.join("") + "}");
+		        if (bExecute) {
+		            eval(name + "();");
+		        }
+		    }
+		    catch (e) {
+		        alert("erreur:" + e.message);
+		    }
+		    this.stringBuffer = new Array;
+		},
+
+		getJavascriptCall : function () {
+		    var str = this.stringBuffer.join("\n");
+		    this.stringBuffer = new Array;
+		    return str;
+		},
+
+		loadComponents : function (xmlDesc) {
+		    if (rialto.lang.isString(xmlDesc)) {
+		        xmlDesc = rialto.utils.xml.createDocumentFromString(xmlDesc);
+		    }
+		    this.xmlDoc = rialto.utils.xml.getByTagName("rialto", xmlDesc)[0];
+		    this.topParent = this.xmlDoc.getAttribute("topParent");
+		    if (!this.topParent) {
+		        this.topParent = "document.body";
+		    }
+		    for (var i = 0; i < this.xmlDoc.childNodes.length; i++) {
+		        this.loadOneComponent(this.xmlDoc.childNodes[i], this.topParent);
+		    }
+		},
+
+		loadOneComponent : function (node, parent) {
+		    try {
+		        var nodeName = node.nodeName;
+		        var objAttr = rialto.utils.xml.parseAttribute(node);
+		        objAttr.parent = parent;
+		        var objectName = objAttr.name;
+		        var strHeader = "";
+		        if (objectName) {
+		            strHeader = "var " + objectName + "=";
+		        }
+		        switch (nodeName) {
+		          case "alert":
+		            var lookAttribute = {title:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Alert(" + str + ");");
+		            break;
+		          case "button":
+		            var lookAttribute = {top:"", left:"", title:"", alt:"", parent:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Button(" + str + ");");
+		            break;
+		          case "checkbox":
+		            var lookAttribute = {name:"", top:"", left:"", parent:"", text:"", checked:"", className:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Checkbox(" + str + ");");
+		            break;
+		          case "codeLabel":
+		            var lookAttribute = {name:"", top:"", left:"", width:"", parent:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.codeLabel(" + str + ");");
+		            break;
+		          case "comboItem":
+		            this.stringBuffer.push(parent + ".addItem(\"" + objAttr.value + "\",\"" + objAttr.text + "\");");
+		            if (objAttr.selected) {
+		                this.stringBuffer.push(parent + ".selWithText(\"" + objAttr.text + "\");");
+		            }
+		            break;
+		          case "combo":
+		            var lookAttribute = {tabData:"", name:"", top:"", left:"", width:"", parent:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Combo(" + str + ");");
+		            break;
+		          case "divHtml":
+		            var str = rialto.utils.xml.innerNode(node);
+		            var bodyStr = str.split("\n");
+		            this.stringBuffer.push("var strHTML=\"\";\n");
+		            for (var i = 0; i < bodyStr.length; i++) {
+		                var str = rialto.string.replace(bodyStr[i], "\"", "'");
+		                this.stringBuffer.push("strHTML+=\"" + str + "\";\n");
+		            }
+		            this.stringBuffer.push("var " + objectName + "=document.createElement('DIV');");
+		            this.stringBuffer.push(objectName + ".innerHTML=strHTML;");
+		            this.stringBuffer.push("if(" + parent + ".add){" + parent + ".add(" + objectName + ")}else{" + parent + ".appendChild(" + objectName + ")};");
+		            return;
+		          case "javascript":
+		            var str = rialto.utils.xml.innerNode(node);
+		            var bodyStr = str.split("\n");
+		            for (var i = 0; i < bodyStr.length; i++) {
+		                this.stringBuffer.push(bodyStr[i] + "\n");
+		            }
+		            return;
+		          case "form":
+		            var lookAttribute = {name:"", url:"", parent:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Form(" + str + ");");
+		            break;
+		          case "frame":
+		            var str = this.parseAttributeToString(objAttr);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Frame(" + str + ");");
+		            break;
+		          case "grid":
+		            var gridInit = this.loadGridChild(node);
+		            if (!objAttr.TabEntete) {
+		                objAttr.TabEntete = gridInit.tabEntete;
+		                objAttr.tabTypeCol = gridInit.tabTypeCol;
+		            }
+		            var str = this.parseAttributeToString(objAttr);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Grid(" + str + ");");
+		            if (gridInit.tabData.length > 0) {
+		                this.stringBuffer.push(objectName + ".fillGrid(" + rialto.array.arrayToString(gridInit.tabData) + ");");
+		            }
+		            return;
+		          case "image":
+		            var lookAttribute = {imageOut:"", left:"", top:"", parent:"", alt:"", imageOn:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Image(" + str + ");");
+		            break;
+		          case "label":
+		            var lookAttribute = {name:"", top:"", left:"", parent:"", text:"", className:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Label(" + str + ");");
+		            break;
+		          case "popup":
+		            var lookAttribute = {name:"", top:"", left:"", width:"", height:"", contenu:"", title:"", fond:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.PopUp(" + str + ");");
+		            break;
+		          case "radio":
+		            var lookAttribute = {name:"", top:"", left:"", parent:"", group:"", text:"", checked:"", className:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Radio(" + str + ");");
+		            break;
+		          case "splitter":
+		            var str = this.parseAttributeToString(objAttr);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Splitter(" + str + ");");
+		            break;
+		          case "divSplitter":
+		            var arrDivSplitChild = rialto.utils.xml.getByTagName("divSplitter", node.parentNode);
+		            var index = rialto.array.indexOf(arrDivSplitChild, node) + 1;
+		            var objectName = parent + ".div" + index;
+		            var str = this.parseAttributeToString(objAttr);
+		            if (objAttr.backgroundColor) {
+		                this.stringBuffer.push(objectName + ".style.backgroundColor='" + objAttr.backgroundColor + "';");
+		            }
+		            break;
+		          case "tabfolder":
+		            var str = this.parseAttributeToString(objAttr);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.TabFolder(" + str + ");");
+		            break;
+		          case "tabitem":
+		            var lookAttribute = {title:"", enable:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + parent + ".addTabItem(" + str + ");");
+		            break;
+		          case "text":
+		            var lookAttribute = {name:"", top:"", left:"", width:"", datatype:"", parent:""};
+		            var str = this.parseAttributeToString(objAttr, lookAttribute);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Text(" + str + ");");
+		            break;
+		          case "treeview":
+		            var str = this.parseAttributeToString(objAttr);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.Tree(" + str + ");");
+		            break;
+		          case "treenode":
+		            objAttr.parent = null;
+		            var str = this.parseAttributeToString(objAttr);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.TreeNode(" + str + ");");
+		            this.stringBuffer.push(parent + ".addNode(" + objectName + ");");
+		            break;
+		          case "simpleWindow":
+		            objAttr.top = 0;
+		            objAttr.left = 0;
+		            var str = this.parseAttributeToString(objAttr);
+		            this.stringBuffer.push(strHeader + "new rialto.widget.SimpleWindow(" + str + ");");
+		            break;
+		          default:
+		        }
+		        for (var i = 0; i < node.childNodes.length; i++) {
+		            this.loadOneComponent(node.childNodes[i], objectName);
+		        }
+		    }
+		    catch (e) {
+		        alert("erreur:" + e.message + "\nnodeName:" + nodeName);
+		    }
+		},
+
+		parseAttributeToString : function (objAttr, lookAttribute) {
+		    var str = "";
+		    var attValue = "";
+		    if (lookAttribute) {
+		        for (var prop in lookAttribute) {
+		            attValue = "";
+		            if (objAttr[prop]) {
+		                attValue = objAttr[prop];
+		            }
+		            if (attValue == "true" || attValue == "false" || rialto.lang.isNumber(attValue) || prop == "parent") {
+		                str += attValue + ",";
+		            } else {
+		                str += "'" + attValue + "',";
+		            }
+		        }
+		    }
+		    str += "{";
+		    for (var prop in objAttr) {
+		        attValue = objAttr[prop];
+		        if (rialto.lang.isArray(attValue)) {
+		            str += prop + ":" + rialto.array.arrayToString(attValue) + ",";
+		        } else {
+		            if (attValue == "true" || attValue == "false" || rialto.lang.isNumber(attValue) || prop == "parent" || attValue.indexOf("[") != -1) {
+		                str += prop + ":" + attValue + ",";
+		            } else {
+		                str += prop + ":\"" + attValue + "\",";
+		            }
+		        }
+		    }
+		    str = str.substr(0, str.length - 1) + "}";
+		    return str;
+		},
+
+		loadGridChild : function (node) {
+		    var gridInit = {tabEntete:new Array(), tabTypeCol:new Array(), tabData:new Array()};
+		    for (var i = 0; i < node.childNodes.length; i++) {
+		        var childG = node.childNodes[i];
+		        var nodeName = childG.nodeName;
+		        if (nodeName == "gridHeader") {
+		            var objAttr = rialto.utils.xml.parseAttribute(childG);
+		            gridInit.tabEntete.push(objAttr.title);
+		            gridInit.tabTypeCol.push([objAttr.type, objAttr.width]);
+		        } else {
+		            if (nodeName == "gridLine") {
+		                var tabLine = new Array;
+		                for (var j = 0; j < childG.childNodes.length; j++) {
+		                    var childC = childG.childNodes[j];
+		                    nodeName = childC.nodeName;
+		                    if (nodeName == "gridCell") {
+		                        var objAttr = rialto.utils.xml.parseAttribute(childC);
+		                        tabLine.push(objAttr.value);
+		                    }
+		                }
+		                gridInit.tabData.push(tabLine);
+		            }
+		        }
+		    }
+		    return gridInit;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.utils.XML",
+	statics		: {
+		getByTagName:function (name, node) {
+		    return node.getElementsByTagName(name);
+		},
+
+		parseAttribute:function (node) {
+		    var objAttr = {};
+		    if (node.attributes) {
+		        for (var i = 0; i < node.attributes.length; i++) {
+		            var attValue = node.attributes[i].value;
+		            var attName = node.attributes[i].name;
+		            objAttr[attName] = attValue;
+		        }
+		    }
+		    return objAttr;
+		}, 
+
+		parseObjectAsAttribute:function (objAttr) {
+		    var strXML = "";
+		    for (prop in objAttr) {
+		        if (rialto.lang.isArray(objAttr[prop])) {
+		            strXML += " " + prop + "='" + rialto.array.arrayToString(objAttr[prop]) + "'";
+		        } else {
+		            strXML += " " + prop + "='" + objAttr[prop] + "'";
+		        }
+		    }
+		    return strXML;
+		}, 
+
+		outerNode:function (node) {
+		    if (node.xml) {
+		        return node.xml;
+		    } else {
+		        if (typeof XMLSerializer != "undefined") {
+		            return (new XMLSerializer()).serializeToString(node);
+		        }
+		    }
+		}, 
+
+		innerNode:function (node) {
+		    var str = this.outerNode(node);
+		    var nameLength = node.nodeName.length;
+		    var start = str.indexOf(">");
+		    var end = str.lastIndexOf("<") - 1;
+		    return str.substr(start + 1, end - start);
+		}, 
+
+		createDocument:function (url, onload, obj) {
+		    var xmlDoc = null;
+		    var onLoadFunc = null;
+		    if (onload) {
+		        if (obj) {
+		            onLoadFunc = rialto.lang.link(obj, onload);
+		        } else {
+		            onLoadFunc = onload;
+		        }
+		    }
+		    if (document.implementation && document.implementation.createDocument) {
+		        xmlDoc = document.implementation.createDocument("", "", null);
+		        if (onLoadFunc) {
+		            xmlDoc.onload = onLoadFunc;
+		        }
+		    } else {
+		        if (window.ActiveXObject) {
+		            xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+		            if (onLoadFunc) {
+		                xmlDoc.onreadystatechange = function () {
+		                    if (xmlDoc.readyState == 4) {
+		                        onLoadFunc();
+		                    }
+		                };
+		            }
+		        }
+		    }
+		    if (url) {
+		        xmlDoc.load(url);
+		    }
+		    return xmlDoc;
+		}, 
+		
+		createDocumentFromString:function (str) {
+		    if (window.DOMParser) {
+		        var parser = new DOMParser();
+		        return parser.parseFromString(str, "text/xml");
+		    } else {
+		        if (window.ActiveXObject) {
+		            var xmlDoc = this.createDocument();
+		            if (xmlDoc) {
+		                xmlDoc.async = false;
+		                xmlDoc.loadXML(str);
+		                return xmlDoc;
+		            }
+		        }
+		    }
+		    return null;
+		}, 
+
+		XSLTransform:function (xslDoc, xmlDoc) {
+		    if (window.XSLTProcessor) {
+		        var proc = new XSLTProcessor();
+		        proc.importStylesheet(xslDoc);
+		        var newDoc = proc.transformToDocument(xmlDoc);
+		    } else {
+		        var newDoc = xmlDoc.transformNode(xslDoc);
+		    }
+		    return newDoc;
+		}
+	},
+	instances	: {
+	}
+});
+
+

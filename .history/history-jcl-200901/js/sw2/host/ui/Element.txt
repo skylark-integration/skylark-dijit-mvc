@@ -1,0 +1,1897 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineNs("sw2.host.ui");
+System.defineName("U",sw2.host.ui);
+
+System.defineClass({
+	name		: "sw2.host.ui.Mouse",
+	statics		: {
+		_initialize : function() {
+		}
+	},
+	
+	instances	: {
+		_lBtn				: false,
+		_mBtn				: false,
+		_rBtn				: false,
+
+		_x				: 0,
+		_y				: 0,
+		_downX			: 0,
+		_downY			: 0,
+		_upX			: 0,
+		_upY			: 0,
+
+		_mouseinEl			: null,
+		_mouseinPreEl		: null,
+
+		getX	: function(){
+			return this._x;
+		},
+
+		getY	: function(){
+			return this._y;
+		},
+
+		getDownX	: function(){
+			return this._downX;
+		},
+
+		getDownY	: function(){
+			return this._downY;
+		},
+
+		getUpX		: function(){
+			return this._upX;
+		},
+
+		getUpY		: function(){
+			return this._upY;
+		},
+
+		getLButton	: function() {
+			return this._lBtn;
+		},
+
+		getMButton	: function() {
+			return this._mBtn;
+		},
+
+		getRButton	: function() {
+			return this._rBtn;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.host.ui.Keyboard",
+	statics		: {
+		_initialize : function() {
+		}
+	},
+
+	instances	: {
+		_ctrl				: false,
+		_alt				: false,
+		_shift				: false,
+		_keyCode			: 0,
+
+
+		getCtrlKey  : function() {
+			return this._ctrl;
+		},
+
+		getShiftKey : function() {
+			return this._shift;
+		},
+
+		getAltKey  : function() {
+			return this._alt;
+		},
+
+		getKeyCode	: function(){
+			return this._keyCode;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.host.ui.UIElement",
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIElement",o);
+		}
+	},
+	instances	: {
+		_SIZE_R		: /\s*(-{0,1}\d+)(\D+)\s*/,
+
+		_HTMLEVENTS	: ["mousedown","mousemove","mouseup", "click","dblclick","keydown","keypress","keyup"],
+
+		_elDeskContainer	: null,
+		_elDesktop			: null,
+
+		_kbd				: null,
+		_mouse				: null,
+
+		_desk				: null,
+
+		_divTmp		: null,
+
+		_initialize	: function() {
+		},
+
+		_buildTmpContainer		: function() {
+			if (!this._divTmp) {
+				this._divTmp = document.createElement("DIV");
+				this._divTmp.className = "tmpContainer";
+				document.body.appendChild(this._divTmp);
+			}
+		},
+
+
+		_getEventDeskXY			: function (e){
+			var x = 0;
+			var y = 0;
+			if(e.pageX) {// Mozilla, NN4, Safari
+				x =  e.pageX; 
+				y =  e.pageY; 
+			} else if(e.clientX){ // Opera,IE, others
+				x = e.clientX;
+				y = e.clientY;
+			}
+			x -= this._elDeskContainer.offsetLeft;
+			x -= this._elDesktop.offsetLeft;
+			y -= this._elDeskContainer.offsetTop;
+			y -= this._elDesktop.offsetTop;
+			return [x,y];
+		},
+		
+		_sizingContainer : function() {
+			UIElement.setWidth(this._elDeskContainer,document.body.clientWidth+"px");
+			UIElement.setHeight(this._elDeskContainer,document.body.clientHeight+"px");
+		},
+
+		_sizingDesktop		: function() {
+			var nWidth = UIElement.getClientWidth(this._elDeskContainer);
+			var nHeight = UIElement.getClientHeight(this._elDeskContainer);
+
+			System.execMethod(this._desk,"setBounds",[0,0,nWidth,nHeight],W.Container);
+		},
+
+		_handleHtmlEvent	: function(e) {
+			var e		= e || window.event;
+		    var evtType = e.type;
+			var elTarget = e.srcElement;
+			if (!elTarget) {
+				elTarget = e.target;
+			}
+			var evtSrc  = UIElement.getUnity(elTarget);
+			var c		= UIElement.getControl(evtSrc);
+			window.c = c;
+			kbd._ctrl = e.ctrlKey;
+			kbd._shift = e.shiftKey;
+			kbd._alt = e.altKey;
+
+
+			var keyCode = e.keyCode;
+			var arrMsgs = new Array();
+
+			if (evtType.indexOf("mouse")>-1) {
+				var bLbtn = (e.button & 0x1) == 0x1;
+				var bRbtn = (e.button & 0x2) == 0x2;
+				var bMbtn = (e.button & 0x4) == 0x4;
+
+				var posXY = this._getEventDeskXY(e);
+				var x = posXY[0];
+				var y = posXY[1];
+				
+				mouse._x = x;
+				mouse._y = y;
+
+				if (evtType == this._HTMLEVENTS[0]) {
+					mouse._downX = x;
+					mouse._downY = y;
+					
+					var oBtn = null;
+					if (bLbtn && (!mouse._lBtn)) {
+						mouse._lBtn = true;
+						oBtn = W.MouseButton.left;
+					} else if (bRbtn && (!mouse._rBtn)) {
+						mouse._rBtn = true;
+						oBtn = W.MouseButton.right;
+					} else {
+						mouse._mBtn = true;
+						oBtn = W.MouseButton.middle;
+					}
+					
+					var msg = new W.Message(c,W.Message.MOUSEDOWN,x,y,oBtn);
+					arrMsgs.push(msg);
+				} else if (evtType == this._HTMLEVENTS[1]){
+					if (mouse._mouseinEl != evtSrc) {
+						mouse._mouseinPreEl = mouse._mouseinEl;
+						mouse._mouseinEl = evtSrc;
+					}
+					
+					if (mouse._mouseinControl != c){
+						mouse._mouseinPreControl = mouse._mouseinControl;
+						mouse._mouseinControl = c;
+						if (mouse._mouseinPreControl){
+							var msg = new W.Message(mouse._mouseinPreControl,W.Message.MOUSELEAVE);
+							arrMsgs.push(msg);
+						}
+						if (mouse._mouseinControl){
+							var msg = new W.Message(mouse._mouseinControl,W.Message.MOUSEENTER);
+							arrMsgs.push(msg);
+						}
+					}
+				
+					var msg = new W.Message(c,W.Message.MOUSEMOVE,x,y);
+					arrMsgs.push(msg);
+
+//		 			e.returnValue = false;
+					e.cancelBuble = true;
+				} else if (evtType == this._HTMLEVENTS[2]){
+					mouse._upX = x;
+					mouse._upY = y;
+
+					if (bLbtn) {
+						mouse._lBtn = false;
+						oBtn = W.MouseButton.left;
+					} else if (bRbtn) {
+						mouse._rBtn = false;
+						oBtn = W.MouseButton.right;
+					} else {
+						mouse._mBtn = false;
+						oBtn = W.MouseButton.middle;
+					}
+
+					var msg = new W.Message(c,W.Message.MOUSEUP,x,y,oBtn);
+					arrMsgs.push(msg);
+//		 			e.returnValue = false;
+					e.cancelBuble = true;
+				} 
+			} else if (evtType.indexOf("key")>-1) {
+				kbd._keyCode = keyCode;
+				if (evtType == this._HTMLEVENTS[5]) {
+					var msg = new W.Message(c,W.Message.KEYDOWN,keyCode);
+					arrMsgs.push(msg);
+				} else if (evtType == this._HTMLEVENTS[6]) {
+					var msg = new W.Message(c,W.Message.KEYPRESS,keyCode);
+					arrMsgs.push(msg);
+				} else if (evtType == this._HTMLEVENTS[7]) {
+					var msg = new W.Message(c,W.Message.KEYUP,keyCode);
+					arrMsgs.push(msg);
+				}
+			} else  if (evtType == this._HTMLEVENTS[3]){
+				var msg = new W.Message(c,W.Message.CLICK);
+				arrMsgs.push(msg);
+			} else if (evtType == this._HTMLEVENTS[4]){
+				var msg = new W.Message(c,W.Message.DBLCLICK);
+				arrMsgs.push(msg);
+//		 			e.returnValue = false;
+					e.cancelBuble = true;
+			}
+
+ 			for (var i =0; i< arrMsgs.length; i++) {
+				var msg = arrMsgs[i];
+				this._desk._dispatchMessage(msg);
+			}
+		},
+
+		initSw2Container	: function(desk) {
+			this._desk = desk;
+
+			this._elDeskContainer = document.getElementById("sw2Container");
+			if (!this._elDeskContainer) {
+				this._elDeskContainer = UIElement._createElement("DIV");
+				UIElement.addCssClass(this._elDeskContainer,"DqeskContainer");
+				document.body.appendChild(this._elDeskContainer);
+				this._sizingContainer();
+				window.onresize = this._sizingContainer.bind(this);
+			} 
+	
+			this._elDeskContainer.onresize = this._sizingDesktop.bind(this);
+
+			var elDiv = desk._el;
+ 			var F = this._handleHtmlEvent.bind(this);
+			elDiv.onkeydown 	= F;
+			elDiv.onkeypress 	= F;
+			elDiv.onkeyup 		= F;
+			elDiv.onmousedown 	= F;
+			elDiv.onmousemove 	= F;
+			elDiv.onmouseout 	= F;
+			elDiv.onmouseover 	= F;
+			elDiv.onmouseup 	= F;
+			elDiv.onclick 		= F;
+			elDiv.ondblclick 	= F;
+//			elDiv.onselectstart = "return false";
+
+
+			this._elDeskContainer.appendChild(elDiv);
+			UIElement.addCssClass(elDiv,"desktop");
+
+			this._elDesktop = elDiv;
+			this._sizingDesktop();
+
+			this._kbd = new U.Keyboard();
+			this._mouse = new U.Mouse();
+
+			System.defineName("kbd",this._kbd);
+			System.defineName("mouse",this._mouse);
+		},
+
+		_createElement	: function(tagName,parent,className,u) {
+			var el = document.createElement(tagName);
+			if (browser.isIE) {
+				el.unselectable = true;
+			} else {
+				el.style.MozUserSelect = "none";
+			}
+			el.style.cursor = "";
+//			el.hideFocus = true;
+			if (className) {
+				this.addCssClass(el,className);
+			}
+			if (parent){
+				parent.appendChild(el);
+			}
+			if (u) {
+			 	el._U = true;
+			}
+//			el.onselectstart = "return false";
+			return  el;
+		},
+
+		removeElement	: function(el){
+			if (el.parentNode) {
+				el.parentNode.removeChild(el);
+			}
+		},
+
+
+		parent			: function(el) {
+			return el.parentNode;
+		},
+
+
+		previousSibling	: function(el) {
+			return el.previousSibling;
+		},
+
+		nextSibling		: function(el) {
+			return el.nextSibling;
+		},
+
+		bindtoControl	: function(el,c){
+			el._C = c;
+		},
+
+		getUnity		: function(el) {
+			var u   = el;
+			while (el) {
+				if (el._U) {
+					u = el;
+					break;
+				}
+				if (el._C) {
+					break;
+				}
+				el = el.parentNode;
+			}
+			return u;
+		},
+
+		getControl		: function(el) {
+			var c   = null;
+			el = el;
+			while (el) {
+				if (el._C) {
+					c = el._C;
+					break;
+				}
+				el = el.parentNode;
+			}
+			return c;
+		},
+
+		getType	: function(el) {
+			return el._t?el._t:"";
+		},
+		
+		setType	: function(el,sType) {
+			el._t = sType;
+		},
+
+		getStyle : function(el,prop) {
+			var value = null;
+			if (browser.isIE) {
+				if (el.currentStyle) {
+					value = el.currentStyle[prop];
+				} else  {
+					this._buildTmpContainer();
+					this._divTmp.appendChild(el);
+					value = el.currentStyle[prop];
+					this._divTmp.removeChild(el);
+				}
+			} else {
+				value = el.style[prop];
+				if (!value && document.defaultView) {
+					value = document.defaultView.getComputedStyle(el,null).getPropertyValue(prop);
+				}
+			}
+
+		    return value ;
+		},
+
+		setStyle : function(el,prop,value) {
+            el.style[prop] = value;
+		},
+
+        hasCssClass: function(el,className) {
+            var re = new RegExp('(?:^|\\s+)' + className + '(?:\\s+|$)');
+            return re.test(el['className']);
+            
+        },
+    
+        addCssClass: function(el,className) {
+            if (this.hasCssClass(el,className)) {
+				 return;
+			} 
+            
+            el.className = [el.className, className].join(' ');
+        },
+    
+        removeCssClass: function(el,className) {
+            if (!this.hasCssClass(el,className)) { 
+				return; 
+			} 
+            
+            var re = new RegExp('(?:^|\\s+)' + className + '(?:\\s+|$)', 'g');
+            
+            var s1 = el.className;
+            el.className = s1.replace(re, ' ');
+            if (this.hasCssClass(el,className) ) { 
+                this.removeCssClass(el,className);
+            }
+
+        },
+        
+        replaceCssClass: function(el,oldClassName, newClassName) {
+            if (oldClassName == newClassName) {
+                return;
+            }
+            
+            var re = new RegExp('(?:^|\\s+)' + oldClassName + '(?:\\s+|$)', 'g');
+        
+            el.className = el.className.replace(re, ' ' + newClassName + ' ');
+
+            if ( this.hasCssClass(el,oldClassName) ) {
+                this.replaceCssClass(el,oldClassName, newClassName);
+            }
+        },
+		
+		replaceAllCssClass	: function(el,newClassName){
+			el.className = newClassName;
+		},
+
+		getDeskXY		: function(el) {
+            var p = null;
+            var x = 0,y = 0;
+            var box;
+
+            var parentNode = null;
+            var box;
+
+			var elDesktop = W.Desktop.getDesk()._el;
+
+            if (el.getBoundingClientRect) { // IE
+                box = el.getBoundingClientRect();
+				var box1 = elDesktop.getBoundingClientRect();
+				x = box.left-box1.left;
+				y = box.top-box1.top;
+
+				x += elDesktop.scrollLeft;
+				y += elDesktop.scrollTop;
+
+            } else { // safari, opera, & gecko
+				x = el.offsetLeft, y = el.offsetTop;
+				p = el.offsetParent;
+				if (p != el) {
+				    while (p && p!= this._elDesktop) {
+				        x += p.offsetLeft;
+				        y += p.offsetTop;
+				        p = p.offsetParent;
+				    }
+				}
+
+			 	p = el.parentNode;
+	            while (p && p!= elDesktop)
+		        { 
+	                x -= p.scrollLeft;
+	                y -= p.scrollTop;
+				    p = p.parentNode;
+	            }
+			}
+            return new W.Point(x,y);
+		},
+
+		getBgColor	: function(el) {
+			return W.Color.vfroms(this.getStyle(el,"backgroundColor"));
+		},
+
+		setBgColor	: function(el,oColor){
+			if (!System.instanceOf(oColor,String)){
+				oColor = W.Color.vtos(oColor);
+			}
+			this.setStyle(el,"backgroundColor",oColor);
+		},
+
+		getBgImage	: function(el) {
+			return  this.getStyle(el,"backgroundImage");
+		},
+
+		setBgImage	: function(el,url){
+			this.setStyle(el,"backgroundImage",url);
+		},
+
+		getBgRepeat	: function(el) {
+			return W.BgImgRepeatType.vfroms(this.getStyle(el,"backgroundRepeat"));
+		},
+
+		setBgRepeat	: function(el,oBgRepeat) {
+			if (!System.instanceOf(oBgRepeat,String)) {
+				oBgRepeat = W.BgImgRepeatType.vtos(oBgRepeat);
+			}
+			this.setStyle("backgroundRepeat",oBgRepeat);
+		},
+
+		getLeft : function(el) {
+			return W.MeasureObject.vfroms(this.getStyle(el,"left"));
+		},
+
+		getTop : function(el) {
+			return W.MeasureObject.vfroms(this.getStyle(el,"top"));
+		},
+
+		getWidth : function(el) {
+			return W.MeasureObject.vfroms(this.getStyle(el,"width"));
+		},
+
+		getHeight : function(el) {
+			return W.MeasureObject.vfroms(this.getStyle(el,"height"));
+		},
+
+		setLeft : function(el,left) {
+			if (System.instanceOf(left,Number)) {
+				left = left + "px";
+			} else if (!System.instanceOf(left,String)){
+				left = W.MeasureObject.vtos(left);
+			}
+			this.setStyle(el,"left",left);
+		},
+
+		setTop : function(el,top) {
+			if (System.instanceOf(top,Number)) {
+				top = top + "px";
+			} else 	if (!System.instanceOf(top,String)){
+				top = W.MeasureObject.vtos(top);
+			}
+			this.setStyle(el,"top",top);
+		},
+
+		setWidth : function(el,width) {
+			if (System.instanceOf(width,Number)) {
+				width = width + "px";
+			} else if (!System.instanceOf(width,String)){
+				width = W.MeasureObject.vtos(width);
+			}
+			this.setStyle(el,"width",width);
+		},
+
+		setHeight : function(el,height) {
+			if (System.instanceOf(height,Number)) {
+				height = height + "px";
+			} else if (!System.instanceOf(height,String)){
+				height = W.MeasureObject.vtos(height);
+			}
+			this.setStyle(el,"height",height);
+		},
+
+		getLeftPadding	: function(el){
+			return this.getStyle(el,"paddingLeft");
+		},
+
+		getTopPadding	: function(el){
+			return this.getStyle(el,"paddingTop");
+		},
+
+		getRightPadding	: function(el){
+			return this.getStyle(el,"paddingRight");
+		},
+
+		getBottomPadding	: function(el){
+			return this.getStyle(el,"paddingBottom");
+		},
+
+		setLeftPadding	: function(el,padding){
+			this.setStyle(el,"paddingLeft",padding);
+		},
+
+		setTopPadding	: function(el,padding){
+			this.setStyle(el,"paddingTop",padding);
+		},
+
+		setRightPadding	: function(el,padding){
+			this.setStyle(el,"paddingRight",padding);
+		},
+
+		setBottomPadding	: function(el,padding){
+			this.setStyle(el,"paddingBottom",padding);
+		},
+
+
+		getPaddings		: function(el) {
+			return W.Paddings.vfroms(this.getStyle(el,"padding"));
+		},
+
+		setPaddings		: function(el,paddings) {
+			if (!System.instanceOf(paddings,String)){
+				paddings = W.Paddings .vtos(paddings);
+			}
+			this.setStyle(el,"padding",paddings);
+		},
+
+		getBorderStyles	: function(el) {
+			return W.BorderStyles.vfroms(this.getStyle(el,"borderStyle"));
+
+		},
+
+		setBorderStyles	: function(el,borderStyles) {
+			if (!System.instanceOf(borderStyles,String)){
+				borderStyles = W.BorderStyles.vtos(borderStyles);
+			}
+			this.setStyle(el,"borderStyle",borderStyles);
+		},
+
+		getBorderWidths	: function(el) {
+			return W.BorderWidths.vfroms(this.getStyle(el,"borderWidth"));
+		},
+
+		setBorderWidths	: function(el,borderWidths) {
+			if (!System.instanceOf(borderWidths,String)){
+				borderWidths = W.BorderWidths.vtos(borderWidths);
+			}
+			this.setStyle(el,"borderWidth",borderWidths);
+		},
+
+		getBorderColors	: function(el) {
+			return W.BorderColors.vfroms(this.getStyle(el,"borderColor"));
+		},
+
+		setBorderColors	: function(el,borderColors) {
+			if (!System.instanceOf(borderColors,String)){
+				borderColors = W.BorderColors.vtos(borderColors);
+			}
+			this.setStyle(el,"borderColor",borderColors);
+		},
+
+		getFontName	: function(el) {
+			return this.getStyle(el,"fontFamily");
+		},
+
+		setFontName	: function(el,name) {
+			this.setStyle(el,"fontFamily",name);
+		},
+		
+		getFontBold	: function(el) {
+			return this.getStyle(el,"fontWeight")=="bold";
+		},
+
+		setFontBold	: function(el,bBold) {
+			this.setStyle(el,"fontWeight",bBold?"bold":"normal");
+		},
+
+		getFontItalic	: function(el) {
+			return this.getStyle(el,"fontStyle")=="italic";
+		},
+
+		setFontItalic	: function(el,bItalic) {
+			this.setStyle(el,"fontStyle",bItalic?"italic":"normal");
+		},
+
+		getFontUnderline	: function(el) {
+			return this.getStyle(el,"textDecoration")=="underline";
+		},
+
+		setFontUnderline	: function(el,bUnderline) {
+			if (bUnderline) {
+				this.setStyle(el,"textDecoration","underline");
+			} else {
+				if (this.getFontUnderline(el)){
+					this.setStyle(el,"textDecoration","none");
+				}
+				
+			}
+		},
+
+		getFontStrikeout	: function(el) {
+			return this.getStyle(el,"textDecoration")=="line-through";
+		},
+
+		setFontStrikeout	: function(el,bStrikeout) {
+			if (bStrikeout) {
+				this.setStyle(el,"textDecoration","line-through");
+			} else {
+				if (this.getFontStrikeout(el)){
+					this.setStyle(el,"textDecoration","none");
+				}
+				
+			}
+		},
+
+		getFontUnit	: function(el) {
+			var s = this.getStyle(el,"fontSize");
+			c = this._SIZE_R.exec(s);
+			if (c && c.length>=3) {
+				return c[2];
+			} else {
+				return "";
+			}
+		},
+
+		setUnit	: function(el,unit) {
+			var size = this.getElFontSize(el);
+			var s = size + unit;
+			this.setStyle(el,"fontSize",s);
+		},
+
+		getFontSize	: function(el) {
+			var s = this.getStyle(el,"fontSize");
+			c = this._SIZE_R.exec(s);
+			if (c && c.length>=2) {
+				return Math.parseFloat(c[1]);
+			} else {
+				return 0;
+			}
+		},
+
+		setFontSize	: function(el,size) {
+			var unit = this.getFontUnit(el);
+			var s = size + unit;
+			this.setStyle(el,"fontSize",s);
+		},
+
+		getFontColor	: function(el) {
+			return W.Color.vfroms(this.getStyle(el,"color"));
+		},
+
+		setFontColor	: function(el,color){
+			if (!System.instanceOf(color,String)){
+				color = W.Color.vtos(color);
+			}
+			this.setStyle(el,"color",color);
+		},
+
+		getVisible		: function(el) {
+			return !this.getStyle(el,"visibility") != "hidden";
+		},
+
+		setVisible		: function(el,bVisible) {
+			if (bVisible) {
+				this.setStyle(el,"visibility","");
+			} else {
+				this.setStyle(el,"visibility","hidden");
+			}
+		},
+
+		getEnabled	: function(el) {
+			return !(el.disabled);
+		},
+
+		setEnabled	: function(el,bEnabled) {
+			el.disabled = !bEnabled;
+		},
+
+
+		_pickupNumber	: function(s) {
+			var arr = this._SIZE_R.exec(s);
+			if (arr && arr.length > 1) {
+				return Math.parseFloat(arr[1]);
+			} else {
+				return 0;
+			}
+		},
+
+
+		getNLeftBorderWidth	: function(el) {
+			return this._pickupNumber(this.getStyle(el,"borderLeftWidth"));
+		},
+
+		getNRightBorderWidth	: function(el) {
+			return this._pickupNumber(this.getStyle(el,"borderRightWidth"));
+		},
+
+		getNTopBorderWidth	: function(el) {
+			return this._pickupNumber(this.getStyle(el,"borderTopWidth"));
+		},
+
+		getNBottomBorderWidth	: function(el) {
+			return this._pickupNumber(this.getStyle(el,"borderBottomWidth"));
+		},
+
+		getNLeft	: function(el) {
+			return this._pickupNumber(this.getStyle(el,"left"));
+		},
+
+		getNTop	: function(el) {
+			return this._pickupNumber(this.getStyle(el,"top"));
+		},
+
+		getNWidth	: function(el) {
+			return this._pickupNumber(this.getStyle(el,"width"));
+		},
+
+		getNHeight	: function(el) {
+			return this._pickupNumber(this.getStyle(el,"height"));
+		},
+
+		getOffsetPos	: function(el,ancestor) {
+		   ancestor = ancestor?ancestor:el.offsetParent;
+		   var x=0,y=0; 
+
+		   while(el){ 
+			  if(el==ancestor) {
+			      break;
+			  }
+
+		      x += el.offsetLeft; 
+			  y += el.offsetTop; 
+
+		      el=el.offsetParent; 
+			  if (el) {
+		      	x += el.clientLeft; 
+			  	y += el.clientTop; 
+			  }
+		   }
+		   return new W.Point(x,y);
+		},
+
+		getOffsetLeft	: function(el,ancestor) {
+			return this.getOffsetPos(el,ancestor).getX();
+		},
+
+		getOffsetTop	: function(el,ancestor) {
+			return this.getOffsetPos(el,ancestor).getY();
+		},
+
+		getOffsetWidth	: function(el) {
+			return el.offsetWidth;
+		},
+
+		getOffsetHeight	: function(el) {
+			return el.offsetHeight;
+		},
+
+		getClientLeft	: function(el) {
+			return el.clientLeft;
+		},
+
+		getClientTop	: function(el) {
+			return el.clientTop;
+		},
+
+		getClientWidth	: function(el) {
+			return el.clientWidth;
+		},
+
+		getClientHeight	: function(el) {
+			return el.clientHeight;
+		},
+
+		getScrollLeft	: function(el) {
+			return el.scrollLeft;
+		},
+
+		setScrollLeft	: function(el,left) {
+			el.scrollLeft = left;
+		},
+
+		getScrollTop	: function(el) {
+			return el.scrollTop;
+		},
+
+		setScrollTop	: function(el,top) {
+			el.scrollTop = top;
+		},
+
+		getScrollWidth	: function(el) {
+			return el.scrollWidth;
+		},
+
+		getScrollHeight	: function(el) {
+			return el.scrollHeight;
+		},
+
+
+		getAttribute	: function(el,name) {
+			return el[name];
+		},
+
+		setAttribute	: function(el,name,value) {
+			el[name] = value
+		},
+
+		focus		: function(el) {
+			var bInput = true;
+			switch (el.tagName) {
+				case "INPUT" :
+ 				case "TEXTAREA":
+					bInput = true;
+					break;
+				default :
+					break;
+			}
+			if (bInput) {
+				if (browser.isIE) {
+					el.unselectable = false;
+				} else {
+					el.style.MozUserSelect = "";
+				}
+			}
+			el.focus();
+			if (browser.isIE) {
+				el.unselectable = true;
+			} else {
+				el.style.MozUserSelect = "none";
+			}
+		}
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIContainer",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIContainer",o);
+		}
+	},
+	instances	: {
+
+		appendChild		: function(parent,child){
+			parent.appendChild(child);
+		},	
+
+		removeAllChild	: function(el) {
+			for (var i = el.childNodes.length-1;i>=0;i--) {
+				el.removeChild(el.childNodes[i]);
+			}
+		},
+
+		firstChild		: function(el) {
+			return el.firstChild;
+		},
+
+		childCount		: function(el) {
+			return el.childNodes.length;
+		},
+
+		child			: function(el,idx) {
+			return el.childNodes[idx];
+		},
+
+		childIndex		: function(el,child) {
+			var children = el.childNodes;
+			for (var i = 0;i<children.length;i++) {
+				if (children[i] == child) {
+					return i;
+				}
+			}
+			return -1;
+		}
+
+
+	}
+});
+
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIImg",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIImg",o);
+		}
+	},
+	instances	: {
+		create	: function(src,parent,className,u) {
+
+			var elImg = UIElement._createElement("IMG",parent,className,u);
+			if (src) {
+				elImg.src = src;
+			}
+			return elImg;
+		},
+
+		getSrc		: function(el){
+			return el.src;
+		},
+
+		setSrc		: function(el,url){
+			el.src = url;
+		}
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UILabel",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UILabel",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,text) {
+
+			var elLabel = UIElement._createElement("Label",parent,className);
+			if (text) {
+				this.setText(elLabel,text);
+			}
+			return elLabel;
+		},
+
+		getText	: function(el){
+			if (browser.isGecko) {
+				return el.textContent;
+			} else {
+				return el.innerText;
+			}
+		},
+
+		setText	: function(el,text){
+			if (browser.isGecko) {
+				el.textContent = text;
+			} else {
+				el.innerText = text;
+			}
+		}
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIButon",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIButton",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,text) {
+
+			var elButton = UIElement._createElement("Button",parent,className);
+			if (text) {
+				this.setText(elButton, text);
+			}
+			return elButton;
+		},
+
+		getText	: function(el){
+			if (browser.isGecko) {
+				return el.textContent;
+			} else {
+				return el.innerText;
+			}
+		},
+
+		setText	: function(el,text){
+			if (browser.isGecko) {
+				el.textContent = text;
+			} else {
+				el.innerText = text;
+			}
+		}
+	}
+});
+
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIRadio",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		i		: 0,
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIRadio",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,u) {
+			var elRadio = UIElement._createElement("INPUT",null,className,u);
+			elRadio.type = "radio";
+			if (parent) {
+				parent.appendChild(elRadio);
+			}
+			return elRadio;
+		},
+		getChecked	: function(el){
+			return el.checked;
+		},
+		setChecked	: function(el,checked){
+			el.checked = checked;
+		}
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UICheck",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UICheck",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,u) {
+			var elCheck = UIElement._createElement("INPUT",null,className,u);
+			elCheck.type = "checkbox";
+			if (parent) {
+				parent.appendChild(elCheck);
+			}
+			return elCheck;
+		},
+		getChecked	: function(el){
+			return el.checked;
+		},
+		setChecked	: function(el,checked){
+			el.checked = checked;
+		}
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIText",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIText",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,u) {
+			var elText = UIElement._createElement("INPUT",null,className,u);
+			elText.type = "text";
+			if (parent) {
+				parent.appendChild(elText);
+			}
+			elText.onselectstart = "event.cancelBuble=true;return true";
+			return elText;
+		},
+		getValue	: function(el){
+			return el.value;
+		},
+		setValue	: function(el,value){
+			el.value = value;
+		},
+
+		select		: function(el) {
+			el.select();
+		}
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UITextArea",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UITextArea",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,u) {
+			var elText = UIElement._createElement("textarea",null,className,u);
+			if (parent) {
+				parent.appendChild(elText);
+			}
+			return elText;
+		},
+
+		getValue	: function(el){
+			return el.value;
+		},
+		setValue	: function(el,value){
+			el.value = value;
+		},
+
+		select		: function(el) {
+			el.select();
+		},
+
+		getCols		: function(el) {
+			return el.cols;
+		},
+
+		setCols		: function(el,cols){
+			el.cols = cols;
+		},
+
+		getRows		: function(el) {
+			return el.rows;
+		},
+
+		setRows		: function(el,rows){
+			el.rows = rows;
+		}
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIRichView",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIRichView",o);
+		}
+	},
+
+	instances	: {
+		create	: function(parent,className,u) {
+			var elDiv = UIElement._createElement("DIV",parent,className,u);
+			return elDiv;
+		},
+
+		getContent	: function(el) {
+			return el.innerHTML;
+		},
+
+		setContent	: function(el,content){
+			el.innerHTML = content;
+		}
+	}
+});
+
+
+
+System.defineClass({
+	name  		:"sw2.host.ui.UISpan",
+	superc		: sw2.host.ui.UIContainer,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UISpan",o);
+		}
+
+	},
+
+	instances	: {
+		create	: function(parent,className,u) {
+			var elSpan = UIElement._createElement("SPAN",parent,className,u);
+			return elSpan;
+		},
+
+		getText	: function(el){
+			if (browser.isGecko) {
+				return el.textContent;
+			} else {
+				return el.innerText;
+			}
+		},
+
+		setText	: function(el,text){
+			if (browser.isGecko) {
+				el.textContent = text;
+			} else {
+				el.innerText = text;
+			}
+		}
+
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIDiv",
+	superc		: sw2.host.ui.UIContainer,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIDiv",o);
+		}
+	},
+
+	instances	: {
+		create	: function(parent,className,u) {
+			var elDiv = UIElement._createElement("DIV",parent,className,u);
+			return elDiv;
+		}
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIList",
+	superc		: sw2.host.ui.UIContainer,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIList",o);
+		}
+	},
+
+	instances	: {
+		create	: function(parent,className,u) {
+			var elUl = UIElement._createElement("UL",parent,className,u);
+			return elUl;
+		}
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIListItem",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIListItem",o);
+		}
+	},
+
+	instances	: {
+		create	: function(parent,className,u) {
+			var elLi = UIElement._createElement("LI",parent,className,u);
+			return elLi;
+		},
+
+		getText	: function(el){
+			if (browser.isGecko) {
+				return el.textContent;
+			} else {
+				return el.innerText;
+			}
+		},
+
+		setText	: function(el,text){
+			if (browser.isGecko) {
+				el.textContent = text;
+			} else {
+				el.innerText = text;
+			}
+		}
+
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UITable",
+	superc		: sw2.host.ui.UIContainer,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UITable",o);
+		}
+	},
+
+	instances	: {
+
+		create	: function(nColCount,nRowCount,parent,className,u) {
+			var elTable = UIElement._createElement("TABLE",parent,className,u);
+
+//			elTable.style.width = "100%";
+//			elTable.style.height = "100%";
+//			elTable.style.emptyCells = "show";
+//			elTable.style.tableLayout = "fixed"; 
+			
+			elTable.cellSpacing = 0;
+			elTable.cellPadding = 0;
+
+			elTable._elColgroup = UIElement._createElement("COLGROUP",elTable);
+
+			elTable._elTbody = UIElement._createElement("TBODY",elTable);
+			
+			this.setColRowCount(elTable,nColCount,nRowCount);
+
+			return elTable;
+		},
+
+		getRowCount	: function(el) {
+			return el.rows.length;
+		},
+
+		getColCount	: function(el) {
+			return el._elColgroup.childNodes.length;
+		},
+
+		setRowCount	: function(el,nRowCount) {
+			var nColCount = this.getColCount(el);
+			this.setColRowCount(el,nColCount,nRowCount);
+		},
+
+		setColCount	: function(el,nColCount) {
+			var nRowCount = this.getRowCount(el);
+			this.setColRowCount(el,nColCount,nRowCount);
+		},
+		
+		setColRowCount	: function(el,nColCount,nRowCount){
+			var elTable = el;
+			var elTbody = elTable._elTbody;
+			var nOldRowCount = this.getRowCount(el);
+			var nOldColCount = this.getColCount(el);
+			
+			var elColgroup = elTable._elColgroup;
+			if (nOldColCount > nColCount) {
+				for (var i=nColCount-1;i>nOldColCount-1;i--){
+					elColgroup.removeChild(elColgroup.childNodes[i]);
+				}
+			} else if (nOldColCount < nColCount) {
+				for (var i=nOldColCount;i<nColCount;i++){
+					var elCol = UIElement._createElement("COL",elColgroup);
+//					elCol.style.width = "20";
+				}
+			}
+
+			if (nOldRowCount >= nRowCount) {
+				for (var i = nOldRowCount-1;i>nRowCount-1;i--) {
+					elTbody.removeChild(elTable.rows[i]);
+				}
+				if (nOldColCount >= nColCount) {
+					for (var i = 0;i <nRowCount;i++) {
+						var elTr = elTable.rows[i];
+						for (var j = nOldColCount-1;j>nColCount-1;j--) {
+							elTr.removeChild(elTr.cells[j]);
+						}
+					}
+				} else if (nOldColCount < nColCount) {
+					for (var i = 0;i <nRowCount;i++) {
+						var elTr = elTable.rows[i];
+						for (var j = nOldColCount;j<nColCount;j++) {
+							elTr.appendChild(UIElement._createElement("TD"));
+						}
+					}
+				}
+			} else if (nOldRowCount < nRowCount) {
+				if (nOldColCount >= nColCount) {
+					for (var i = 0;i <nOldRowCount;i++) {
+						var elTr = elTable.rows[i];
+						for (var j = nOldColCount-1;j>nColCount-1;j--) {
+							elTr.removeChild(elTr.cells[j]);
+						}
+					}
+				} else if (nOldColCount < nColCount) {
+					for (var i = 0;i <nOldRowCount;i++) {
+						var elTr = elTable.rows[i];
+						for (var j = nOldColCount;j<nColCount;j++) {
+							elTr.appendChild(UIElement._createElement("TD"));
+						}
+					}
+				}
+				for (var i = nOldRowCount;i<nRowCount;i++) {
+					var elTr = UIElement._createElement("TR");
+					for (var j =0;j<nColCount;j++) {
+						var elTd = UIElement._createElement("TD");
+//						elTd.innerText = "test";
+//						elTd.style.border="1px solid";
+						elTr.appendChild(elTd);
+					}
+					elTbody.appendChild(elTr);
+				}
+				
+			}
+		},
+		
+		deleteRow	: function (el,nIdx) {
+			var nRowCount = this.getRowCount(el);
+		
+			if (nIdx>=0 && nIdx < nRowCount) {
+				el._elTbody.removeChild(el.rows[nIdx]);
+			}
+		},
+
+		deleteCol	: function (el,nIdx) {
+			var nColCount = this.getColCount(el);
+			var nRowCount = this.getRowCount(el);
+			if (nIdx>=0 && nIdx < nColCount) {
+				for (var i = 0;i <nRowCount;i++) {
+					var elTr = el._elTable.rows[i];
+					elTr.removeChild(elTr.cells[nIdx]);
+				}
+			}	
+		},
+		
+		insertRow	: function (el,nIdx,className) {
+			var nColCount = this.getColCount(el);
+			var nRowCount = this.getRowCount(el);
+			var elTr = UIElement._createElement("TR",null,className);
+			for (var j =0;j<nColCount;j++) {
+				var elTd = UIElement._createElement("TD");
+				elTr.appendChild(elTd);
+			}
+			var elTbody = el._elTbody;
+			if (nIdx == undefined || nRowCount == 0 || nIdx >= nRowCount) {
+				elTbody.appendChild(elTr);
+			} else {
+				if (nIdx <=0) {
+					elTbody.insertBefore(elTr,el.rows[0]);
+				} else {
+					elTbody.insertBefore(elTr,el.rows[nIdx]);
+				}
+			}
+			return elTr;
+		},
+		
+		insertCol	: function (el,nIdx) {
+			var nColCount = this.getColCount(el);
+			var nRowCount = this.getRowCount(el);
+			if (!nIdx) {
+				nIdx = nColCount;
+			} else if(nIdx<0) {
+				nIdx = 0;
+			} 
+			var elColgroup = el._elColgroup;
+			var elCol = UIElement._createElement("COL");
+			elCol.style.width = "20";
+			if (nIdx >= nColCount) {
+				elColgroup.appendChild(elCol);
+			} else {
+				elColgroup.insertBefore(elCol,elColgroup.childNodes[nIdx]);
+			}
+			
+			for (var i=0;i<nRowCount;i++){
+				var elTr = el.rows[i];
+				var elTd = UIElement._createElement("TD");
+				elTd.innerText = "test";
+				elTd.style.border="1px solid";
+				if (nIdx >= nColCount) {
+					elTr.appendChild(elTd);
+				} else {
+					elTr.insertBefore(elTd,elTr.cells[nIdx]);
+				}
+
+			}
+		},
+
+		appendRow		: function (el,className) {
+			return this.insertRow(el,null,className);
+		},
+
+		appendCol		: function(el,className) {
+			return this.insertRow(el,null,className);
+		},
+
+
+		moveRow			: function(el,oldIdx,newIdx){
+			if (oldIdx == newIdx) {
+				return;
+			}
+			var row = el.rows[oldIdx];
+			el._elTbody.removeChild(row);
+			if (newIdx>=0 && newIdx<el.rows.length) {
+				el._elTbody.insertBefore(row,el.rows[newIdx]);
+			} else {
+				el._elTbody.appendChild(row);
+			}
+			
+		},
+
+		moveCol			:function(el,oldIdx,newIdx) {
+		},
+
+		
+		getCellText		: function(el,nCol,nRow){
+			var elTd = el.rows[nRow].cells[nCol];
+			return UITableCell.getText(elTd);
+		},
+
+		setCellText		: function(el,nCol,nRow,sText) {
+			var elTd = el.rows[nRow].cells[nCol];
+			UITableCell.setText(elTd, sText);
+		},
+
+
+		getRowHeight	: function(el,nRowIndex) {
+			var elTrs = el.rows;
+			if (nRowIndex>=0 && nRowIndex<elTrs.length){
+				return UIElement.getHeight(elTrs[nRowIndex]);
+			} else {
+				throw new Error("invalid parameter");
+			}
+		},
+		
+		setRowHeight	: function(el,nRowIndex,nHeight) {
+			var elTrs = el.rows;
+			if (nRowIndex>=0 && nRowIndex<elTrs.length){
+				UIElement.setHeight(elTrs[nRowIndex],nHeight);
+			} else {
+				throw new Error("invalid parameter");
+			}
+		},
+
+		getColWidth		: function(el,nColIndex) {
+			var elCols = el._elColgroup.childNodes;
+			if (nColIndex>=0 && nColIndex<elCols.length){
+				return UIElement.getWidth(elCols[nColIndex]);
+			} else {
+				throw new Error("invalid parameter");
+			}
+		},
+		
+		setColWidth		: function(el,nColIndex,nWidth){
+
+			var elCols = el._elColgroup.childNodes;
+			if (nColIndex>=0 && nColIndex<elCols.length){
+				UIElement.setWidth(elCols[nColIndex],nWidth);
+			} else {
+				throw new Error("invalid parameter");
+			}
+		},
+
+		getCellPadding	: function(el) {
+			return el.cellPadding;
+		},
+
+		setCellPadding	: function(el,n) {
+			el.cellPadding = n;
+		},
+
+		getCellSpacing	: function(el) {
+			return el.cellSpacing;
+		},
+
+		setCellSpacing	: function(el,n) {
+			el.cellSpacing = n;
+		},
+
+		getFixLayout	: function(el) {
+			return el.style.tableLayout == "fixed"; 
+		},
+
+		setFixLayout	: function(el,b){
+			el.style.tableLayout = b?"fixed":"auto";
+		},
+
+		cells			: function(el,nCol,nRow) {
+			var elTd = el.rows[nRow].cells[nCol];
+			return elTd;
+		},
+
+		rows			: function(el,idx) {
+			return el.rows[idx];
+		}
+
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UITableRow",
+	superc		: sw2.host.ui.UIContainer,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UITableRow",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,u) {
+			var elTd = UIElement._createElement("TR",parent,className,u);
+			return elTd;
+		},
+		
+		appendCell	: function(el,className,u){
+			return UITableCell.create(el,className,u);
+		},
+
+		rowIndex	: function(el) {
+			return el.rowIndex;
+		},
+
+		cells		: function(el,idx) {
+			return el.cells[idx];
+		}
+
+
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UITableCell",
+	superc		: sw2.host.ui.UIContainer,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UITableCell",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,u) {
+
+			var elTd = UIElement._createElement("TD",parent,className,u);
+			return elTd;
+		},
+
+		getColSpan		: function(el) {
+			return el.colSpan;
+		},
+
+		setColSpan		: function(el,colSpan) {
+			el.colSpan = colSpan;
+		},
+
+		getRowSpan		: function(el) {
+			return el.rowSpan;
+		},
+
+		setRowSpan		: function(el,rowSpan) {
+			el.rowSpan = rowSpan;
+		},
+
+		getText	: function(el){
+			if (browser.isGecko) {
+				return el.textContent;
+			} else {
+				return el.innerText;
+			}
+		},
+
+		setText	: function(el,text){
+			if (browser.isGecko) {
+				el.textContent = text;
+			} else {
+				el.innerText = text;
+			}
+		},
+
+		getImage		: function(el) {
+			var elImg = el.firstChild;
+			if (elImg.tagName == "IMG") {
+				return elImg.src;
+			} else {
+				return null;
+			}
+		},
+
+		setImage		: function(el,uri) {
+			this.removeAllChild(el);
+			UIImg.create(uri,this);
+		}
+	}
+});
+
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIHorz",
+	superc		: sw2.host.ui.UIContainer,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIHorz",o);
+		}
+	},
+
+	instances	: {
+
+		create	: function(parent,className,u) {
+
+			var elTable = UIElement._createElement("TABLE",parent,className,u);
+
+			elTable.cellSpacing = 0;
+			elTable.cellPadding = 0;
+
+//			elTable.style.tableLayout = "fixed"; 
+//			elTable.style.emptyCells = "show";
+
+		
+			elTable._elTbody = UIElement._createElement("TBODY",elTable);
+
+			elTable._elTr = UIElement._createElement("TR",elTable._elTbody);
+			
+			return elTable;
+		},
+
+		appendCell		: function(el,className,u){
+			var elTd =   UIElement._createElement("TD",el._elTr,className,u);
+//			elTd.vAlign = "center";
+			return elTd;
+
+		},
+
+		insertCell		: function(el,idx,className,u){
+			var elTd =   UIElement._createElement("TD",null,className,u);
+
+			el._elTr.insertBefor(elTd,el._elTr.cells[idx]);
+			return elTd;
+		},
+
+		getCellPadding	: function(el) {
+			return el.cellPadding;
+		},
+
+		setCellPadding	: function(el,n) {
+			el.cellPadding = n;
+		},
+
+		getCellSpacing	: function(el) {
+			return el.cellSpacing;
+		},
+
+		setCellSpacing	: function(el,n) {
+			el.cellSpacing = n;
+		},
+
+		getFixLayout	: function(el) {
+			return el.style.tableLayout == "fixed"; 
+		},
+
+		cells	: function(el,idx) {
+			return el._elTr.cells[idx];
+		}
+
+	}
+});
+
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIHorzCell",
+	superc		: sw2.host.ui.UIContainer,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIHorzCell",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,u) {
+
+			var elTd = UIElement._createElement("TD",parent,className,u);
+			return elTd;
+		},
+
+		parent	: function(el) {
+			return el.parentNode.parentNode.parentNode;
+		},
+
+		cellIndex	: function(el) {
+			return el.cellIndex;
+		}
+
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.host.ui.UIIFrame",
+	superc		: sw2.host.ui.UIElement,
+	statics		: {
+		_initialize	: function() {
+			var o = new this();
+			System.defineName("UIIFrame",o);
+		}
+	},
+	instances	: {
+		create	: function(parent,className,u) {
+			var elIFrame = UIElement._createElement("IFRAME",parent,className,u);
+			elIFrame.frameBorder = "no";
+			elIFrame.border = 0;
+			return elIFrame;
+		},
+
+		getSrc	: function(el) {
+			return el.src;
+		},
+
+		setSrc	: function(el,uri) {
+			el.src = uri;
+		}
+	}
+	
+});
+

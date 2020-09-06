@@ -1,0 +1,209 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+//System.defineNs( {
+//	name		: "sw2.util",
+//	props		:{
+//	}
+//});
+System.defineNs("sw2.util");
+
+System.defineClass({
+	name		: "sw2.util.DataTransfer",
+	superc		: sw2.Component,
+	statics		: {
+		EVENT_GETDATA			: "onGetData",
+		EVENT_ERROR				: "onError",
+
+		RESPONSE_TYPE_TEXT		: 0,
+		RESPONSE_TYPE_XML		: 1,
+
+		CONTENT_TYPE_URLENCODED	: "application/x-www-form-urlencoded;charset=UTF-8",
+		CONTENT_TYPE_DATA		: "MULTIPART/FORM-DATA"
+	},
+	instances	: {
+		_url				: null,
+		_contentType		: "application/x-www-form-urlencoded;charset=UTF-8",	//$DT.CONTENT_TYPE_URLENCODED,
+		_contents			: null,
+		_async				: true,
+		_responseType		: 0,	//$DT.RESPONSE_TYPE_TEXT,	//
+        _userData           : null,
+
+        _initialize : function()
+        {
+            System.execMethod(this, "_initialize", null, sw2.Component);
+        },
+
+        _finalize : function()
+        {
+            System.execMethod(this, "_finalize", null, sw2.Component);
+        },
+
+		setUrl : function(url)
+		{
+			this._url = url;
+		},
+
+		setContentType : function(contentType)
+		{
+			this._contentType = contentType;
+		},
+
+		setContents : function(contents)
+		{
+			this._contents = contents;
+		},
+
+		setAsync : function(asyncFlg)
+		{
+			this._async = asyncFlg;
+		},
+
+		setResponseType : function(responseType)
+		{
+			this._responseType = responseType;
+		},
+
+        getUserData : function() {
+            return this.userData;
+        },
+
+        setUserData : function(userData)
+        {
+            this.userData = userData;
+        },
+
+		doGet : function()
+		{
+			var request = this.createHttpRequest();
+
+			//request._userData = this;
+			var	dt = this;
+
+			request.open("GET", this._url, this._async);
+			request.onreadystatechange = function() {
+				dt.callback(request);
+			};
+			request.send("");
+		},
+
+		doPost : function()
+		{
+			var request = this.createHttpRequest();
+
+			//request._userData = this;
+			var	dt = this;
+
+			request.open("POST", this._url, this._async);
+			request.onreadystatechange = function() {
+				dt.callback(request);
+			};
+			request.setRequestHeader("content-type", this._contentType);
+			request.send(this._contents);
+		},
+
+		createHttpRequest : function()
+		{
+			if (window.ActiveXObject)
+			{
+				try
+				{
+					return new ActiveXObject("Msxml2.XMLHTTP");
+				}
+				catch(e)
+				{
+					return new ActiveXObject("Microsoft.XMLHTTP");
+				}
+			}
+			else if (window.XMLHttpRequest)
+			{
+				return new XMLHttpRequest;
+			}
+			else
+			{
+				return null;
+			}
+		},
+
+        getData : function()
+        {
+            if (this._receivedData != null)
+            {
+                return this._receivedData;
+            }
+            return "";
+        },
+
+        callback : function(request)
+		{
+
+			dbgLog("Call back...");
+			dbgLog("request.readyState:" + request.readyState);
+//			dbgLog("request.status:" + request.status);
+//			dbgLog("responseTypeXml:" + responseTypeXml);
+//			if (responseTypeXml == true)
+//			{
+//				dbgLog("request.responseXML:" + request.responseXML);
+//			}
+//			else
+//				dbgLog("request.responseText:" + request.responseText);
+			dbgLog("Call back end");
+
+			if (request.readyState == 4)
+			{
+				if (request.status == 200)
+				{
+					if (this._responseType == $DT.RESPONSE_TYPE_XML)
+					{
+                        this._receivedData = request.responseXML;
+                        var evt = new sw2.util.GetDataEvent(this);
+                        this.notifyEvent(evt);
+
+//						this.notifyEvent($DT.EVENT_GETDATA, [request.responseXML, this.userData]);
+					}
+					else
+					{
+                        this._receivedData = request.responseText;
+                        var evt = new sw2.util.GetDataEvent(this);
+                        this.notifyEvent(evt);
+//						this.notifyEvent($DT.EVENT_GETDATA, [request.responseText, this.userData]);
+					}
+				}
+				else // if (request.status == 200)
+				{
+                    var evt = new sw2.util.ErrorEvent(this);
+                    this.notifyEvent(evt);
+//					this.notifyEvent($DT.EVENT_ERROR);
+				}
+			} // endof if (request.readyState == 4)
+		}
+	}
+});
+
+var	$DT = sw2.util.DataTransfer;
+
+System.defineClass({
+	name		: "sw2.util.GetDataEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender) {
+			System.execMethod(this,"_initialize",["onGetData",oSender],sw2.Event);	
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.util.ErrorEvent",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender) {
+			System.execMethod(this,"_initialize",["onError",oSender],sw2.Event);	
+		}
+	}
+});

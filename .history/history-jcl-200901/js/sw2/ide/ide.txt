@@ -1,0 +1,1303 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+
+System.defineClass({
+	name 		: "pst.ide",
+	superc		: jcf.Object,
+	statics		: {
+		PRJNODETYP_PRJ		: "project",
+		PRJNODETYP_DIR		: "directory",
+		PRJNODETYP_FILE		: "file",
+
+        MENUID_FILE         : 100,
+        MENUID_NEWFILE      : 101,
+        MENUID_NEWDIR       : 102,
+        MENUID_OPENFILE     : 103,
+        MENUID_SAVEFILE     : 104,
+        MENUID_CLOSEFILE    : 105,
+        MENUID_DELFILE      : 106,
+        MENUID_DELDIR       : 107,
+        MENUID_DOWNFILE     : 108,
+        MENUID_EXIT         : 109,
+
+        MENUID_EDIT         : 200,
+        MENUID_COPY         : 201,
+        MENUID_PASTE        : 202,
+        MENUID_CLIP         : 203,
+        MENUID_DELETE       : 204,
+        MENUID_SEARCH       : 205,
+        MENUID_REPLACE      : 206,
+
+        MENUID_PROJECT      : 300,
+        MENUID_NEWPRJ       : 301,
+        MENUID_OPENPRJ      : 302,
+        MENUID_CLOSEPRJ     : 303,
+        MENUID_DELPRJ       : 304,
+        MENUID_DOWNPRJ      : 305,
+
+        MENUID_TOOL         : 400,
+        MENUID_SETTING      : 401,
+
+        MENUID_HELP         : 500
+    },
+	instances	: {
+		_name	   : "SW2",
+		ideForm		: null,
+		ideMenuBar	: null,
+		ideMenu		: null,
+		ideToolBar	: null,
+		ideComponentPanel   : null,
+		ideProjectTree	    : null,
+		//ideSrcEdtArea	    : null,
+        ideEditForm         : null,
+		ideCodeEdtArea	    : null,
+		ideComponentTree    : null,
+		ideAttributeTree    : null,
+
+//        _xmlParserPrj		: null,
+//        _xmlParserForm      : null,
+        _editFiles          : null,
+
+        _appPath            : null,
+        _appActionDown      : null,
+        _appActionDelete    : null,
+        _appActionEdit      : null,
+        _appActionSave      : null,
+
+		_initialize : function ()
+		{
+			/* Create XML parser */
+			//this.ideXmlParser = new ActiveXObject("Microsoft.XMLDOM");
+			//this.ideXmlParser.async = "false";
+			/* Support Mozillas */
+			//var xmlDoc=document.implementation.createDocument("","",null);
+            this._appPath = "/webfileeditor_app";
+            this._appActionDown = "/download.do";
+            this._appActionDelete = "/deletedata.do";
+            this._appActionEdit = "/editdata.do";
+            this._appActionSave = "/savedata.do";
+
+            this._editFiles = new Array();
+            this._editFiles[0] = new Array();   // file name
+            this._editFiles[1] = new Array();   // xmlparser
+            this._editFiles[2] = new Array();   // formobject tree
+            this._editFiles[3] = new Array();   // edit flag; true: edit, false: saved
+
+            //this._xmlParserPrj = new pst.util.XmlParserPrj();
+		},
+
+		getName : function()
+		{
+			return this._name;
+		},
+
+		ideInit : function()
+		{
+            dbgLog("pst.ide.ideInit start");
+
+            this.ideForm = new pst.ui.Form();
+			$H.addControl(this.ideForm);
+			//$H.addForm(ideForm);
+			this.ideForm.setBounds(0, 0, $H.getWidth(), $H.getHeight());
+			this.ideForm.setCaption(this._name);
+
+			this.initMenu();
+			this.initTree();
+			//this.initToolBar();
+			//this.initStatusBar();
+            dbgLog("pst.ide.ideInit end");
+		},
+
+		ideEnd : function()
+		{
+            dbgLog("pst.ide.ideEnd start");
+            dbgLog("pst.ide.ideEnd end");
+		},
+
+		initMenu : function ()
+		{
+			var		ideMenuFileArray = new Array("New File:" + $IDE.MENUID_NEWFILE, 
+                "New Dir:" + $IDE.MENUID_NEWDIR, 
+                "Open File:" + $IDE.MENUID_OPENFILE, 
+                "Save File:" + $IDE.MENUID_SAVEFILE, 
+                "Close:" + $IDE.MENUID_CLOSEFILE, 
+                "Delete File:" + $IDE.MENUID_DELFILE, 
+                "Delete Dir:" + $IDE.MENUID_DELDIR, 
+                "Download:" + $IDE.MENUID_DOWNFILE, 
+                "Exit:" + $IDE.MENUID_EXIT);
+			var		ideMenuEditArray = new Array("Copy:" + $IDE.MENUID_COPY, 
+                "Paste:" + $IDE.MENUID_PASTE, 
+                "Clip:" + $IDE.MENUID_CLIP, 
+                "Delete:" + $IDE.MENUID_DELETE, 
+                "Search:" + $IDE.MENUID_SEARCH, 
+                "Replace:" + $IDE.MENUID_REPLACE);
+			var		ideMenuProjectArray = new Array("New:" + $IDE.MENUID_NEWPRJ, 
+                "Open:" + $IDE.MENUID_OPENPRJ, 
+                "Close:" + $IDE.MENUID_CLOSEPRJ, 
+                "Delete:" + $IDE.MENUID_DELPRJ, 
+                "Download:" + $IDE.MENUID_DOWNPRJ);
+			var		ideMenuSettingArray = new Array("Setting:" + $IDE.MENUID_SETTING);
+			var		ideMenuHelpArray = new Array();
+
+			var		ideMenuArray = new Array("File:" + $IDE.MENUID_FILE, 
+                "Edit:" + $IDE.MENUID_EDIT, 
+                "Project:" + $IDE.MENUID_PROJECT, 
+                "Tool:" + $IDE.MENUID_TOOL, 
+                "Help:" + $IDE.MENUID_HELP);
+			var		ideSubMenuArray = new Array(ideMenuFileArray, ideMenuEditArray, 
+                ideMenuProjectArray, ideMenuSettingArray, ideMenuHelpArray);
+
+			dbgLog("initMenu start:" + this.ideMenuBar);
+
+            if (this.ideMenuBar == null)
+			{
+				this.ideMenu  = new pst.ui.Menu();
+
+				var	ideMainMenuItem = new Array(ideMenuArray.length);
+				//dbgLog("ideMenuArray.length:" + ideMenuArray.length);
+
+				for(i = 0; i < ideMenuArray.length; i ++)
+				{
+					ideMainMenuItem[i] = new pst.ui.MenuItem();
+					dbgLog("Create mainMenu:" + ideMenuArray[i]);
+                    var menuArray = ideMenuArray[i].split(":");
+					//ideMainMenuItem[i].setCaption(ideMenuArray[i]);
+                    ideMainMenuItem[i].setCaption(menuArray[0]);
+                    ideMainMenuItem[i]._id = menuArray[1];
+					ideMainMenuItem[i].setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+
+					var	subMenu = ideMainMenuItem[i].getSubMenu();
+
+					for(j = 0; j < ideSubMenuArray[i].length; j ++)
+					{
+						var		subMenuItem = new pst.ui.MenuItem();
+						dbgLog("Create subMenu:" + ideSubMenuArray[i][j]);
+                        var subMenuArray = ideSubMenuArray[i][j].split(":");
+						//subMenuItem.setCaption(ideSubMenuArray[i][j]);
+                        subMenuItem.setCaption(subMenuArray[0]);
+                        subMenuItem._id = subMenuArray[1];
+						subMenuItem.setIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+						subMenuItem.addEventListener($C.CET_CLICK, this.onMenuClick, this);
+						subMenu.addItem(subMenuItem);
+					}
+
+					/*ideMainMenuItem[i].addEventListener($C.CET_CLICK, this.onMenuClick, this);*/
+
+					this.ideMenu.addItem(ideMainMenuItem[i]);
+				}
+
+				this.ideMenuBar = new pst.ui.MenuBar();
+				this.ideMenuBar.setMenu(this.ideMenu);
+				this.ideMenuBar.setParent(this.ideForm);
+				this.ideMenuBar.setBounds(0, 0, $H.getWidth() - this.ideForm.getBorderWidth() * 2, 26);
+			}
+
+			dbgLog("initMenu end");
+		},
+
+		onMenuClick : function(menuItem)
+		{
+			dbgLog("pst.ide.onMenuClick start");
+			//switch(menuItem.getCaption())
+            switch(Number(menuItem._id))
+			{
+                case $IDE.MENUID_FILE         :
+                    break;
+                case $IDE.MENUID_NEWFILE      :
+                    this.createNewFile();
+                    break;
+                case $IDE.MENUID_NEWDIR       :
+                    this.createNewDir();
+                    break;
+                case $IDE.MENUID_OPENFILE     :
+                    //window.alert(menuItem.getCaption());
+                    this.openFile();
+                    break;
+                case $IDE.MENUID_SAVEFILE     :
+                    this.saveFile();
+                    break;
+                case $IDE.MENUID_CLOSEFILE    :
+                    this.closeFile();
+                    break;
+                case $IDE.MENUID_DELFILE      :
+                    this.deleteFile();
+                    break;
+                case $IDE.MENUID_DELDIR       :
+                    this.deleteDir();
+                    break;
+                case $IDE.MENUID_DOWNFILE     :
+                    this.downloadFile();
+                    break;
+                case $IDE.MENUID_EXIT         :
+                    this.ideEnd();
+                    break;
+
+                case $IDE.MENUID_EDIT         :
+                    break;
+                case $IDE.MENUID_COPY         :
+                    break;
+                case $IDE.MENUID_PASTE        :
+                    break;
+                case $IDE.MENUID_CLIP         :
+                    break;
+                case $IDE.MENUID_DELETE       :
+                    break;
+                case $IDE.MENUID_SEARCH       :
+                    break;
+                case $IDE.MENUID_REPLACE      :
+                    break;
+
+                case $IDE.MENUID_PROJECT      :
+                    break;
+                case $IDE.MENUID_NEWPRJ       :
+                    this.createNewProject();
+                    break;
+                case $IDE.MENUID_OPENPRJ      :
+                    break;
+                case $IDE.MENUID_CLOSEPRJ     :
+                    break;
+                case $IDE.MENUID_DELPRJ       :
+                    this.deleteProject();
+                    break;
+                case $IDE.MENUID_DOWNPRJ      :
+                    this.downloadProject();
+                    break;
+
+                case $IDE.MENUID_TOOL         :
+                    break;
+                case $IDE.MENUID_SETTING      :
+                    break;
+
+                case $IDE.MENUID_HELP         :
+                    break;
+				default:
+					break;
+			};
+			dbgLog("pst.ide.onMenuClick end");
+		},
+
+		initTree : function ()
+		{
+            if (this._ideProjectTree == null)
+            {
+                this.ideProjectTree = new pst.ui.Tree();
+                this.ideProjectTree.setParent(this.ideForm);
+                this.ideProjectTree.setBounds(
+                    0, 
+                    this.ideMenuBar.getHeight(), 
+                    150, 
+                    this.ideForm.getClientHeight() - this.ideMenuBar.getHeight());
+                this.ideProjectTree.setBorderWidth(3);
+            }
+
+			this.getProjectList();
+			//var		projects = new Array("Project1", "Project2", "Project3");
+			//this.displayProjects(projects);
+		},
+
+		onError : function()
+		{
+			dbgLog("pst.ide.onError start");
+			dbgLog("pst.ide.onError end");
+		},
+
+		onGetProjectList : function(rspData)
+		{
+			dbgLog("pst.ide.onGetProjectList start");
+
+            //removeEventListener
+			this.displayProjects(rspData);
+
+			dbgLog("pst.ide.onGetProjectList end");
+		},
+
+		getProjectList : function()
+		{
+			dbgLog("ide.getProjectList start");
+
+			var	dt = new pst.util.DataTransfer();
+			var param = "";
+
+			param = "action=OpenProject";
+			//dt.setUrl("/webfileeditor_app/editdata.do");
+            dt.setUrl(this._appPath + this._appActionEdit);
+			dt.setContents(param);
+			dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+			dt.setAsync(false);
+			dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+			dt.addEventListener($DT.EVENT_GETDATA, this.onGetProjectList, this);
+			dt.addEventListener($DT.EVENT_ERROR, this.onError, this);
+
+			dt.doPost();
+
+			dbgLog("ide.getProjectList end");
+		},
+
+        displayDirFile : function(node, dirArray)
+        {
+            dbgLog("ide.displayDirFile start");
+            for(var k = 0; k < dirArray.length; k ++)
+            {
+                var	subNode = new pst.ui.DefaultTreeNode();
+                //subNode.initialize(files[j].getAttribute("name"));
+                if (dirArray[k] instanceof Array)
+                {
+                    dbgLog("ide.displayDirFile dir:" + dirArray[k][0]);
+                    subNode.initialize(dirArray[k][0]);
+                    subNode._type = $IDE.PRJNODETYP_DIR;
+                    subNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+                    subNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+                    //subNode._ide = this;
+                    subNode.addEventListener($C.CET_DBLCLICK, this.onTreeNodeClick, this);
+                    //dbgLog("subNode._type" + subNode._type);
+                    node.addChild(subNode);
+                   this.displayDirFile(subNode, dirArray[k][1]);
+                }
+                else
+                {
+                    dbgLog("ide.displayDirFile file:" + dirArray[k]);
+                    subNode.initialize(dirArray[k]);
+                    subNode._type = $IDE.PRJNODETYP_FILE;
+                    subNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+                    subNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+                    //subNode._ide = this;
+                    subNode.addEventListener($C.CET_DBLCLICK, this.onTreeNodeDblClick, this);
+                    //dbgLog("subNode._type" + subNode._type);
+                    node.addChild(subNode);
+                }
+            }
+            dbgLog("ide.displayDirFile end");
+        },
+
+		displayProjects : function(prjXml)
+		{
+			dbgLog("ide.displayProjects start");
+
+			/*var	prjList = new Array();
+			for(i = 0; i < prjItems.length; i ++)
+			{
+				prjList.push(prjItems[i].getAttribute("name"));
+			}*/
+            var _xmlParserPrj = new pst.util.XmlParserPrj();
+
+            //_xmlParserPrj.parseXmlFile(prjXml);
+            var prjItems = _xmlParserPrj.getProjectList(prjXml);
+            //xmlParser = new ActiveXObject("Microsoft.XMLDOM");
+            //xmlParser.loadXML(prjXml);
+            //var prjItems = xmlParser.getElementsByTagName("project");
+
+			for(i = 0; i < prjItems.length; i ++)
+			{
+				var	pjNode = new pst.ui.DefaultTreeNode();
+				//var	pjNode = new pst.ui.TreeNode();
+				//pjNode.setLabel(prjList[i]);
+				//pjNode.setPath("/");
+				pjNode.initialize(prjItems[i][0]);
+				//pjNode.initialize(prjItems[i].getAttribute("name"));
+				pjNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+				pjNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+				pjNode._type = $IDE.PRJNODETYP_PRJ;
+				//pjNode._ide = this;
+				//pjNode.addEventListener($C.CET_DBLCLICK, this.onTreeNodeDblClick, this);
+
+//				var	files = new Array("File1", "File2", "File3");
+//				//var	files = prjItems[i].childNodes;
+//				for(j = 0; j < files.length; j ++)
+//				{
+//					var	subNode = new pst.ui.DefaultTreeNode();
+//					subNode.initialize(files[j]);
+//					//subNode.initialize(files[j].getAttribute("name"));
+//					subNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+//					subNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+//					subNode._type = $IDE.PRJNODETYP_FILE;
+//					//subNode._ide = this;
+//					subNode.addEventListener($C.CET_DBLCLICK, this.onTreeNodeClick, this);
+//					//dbgLog("subNode._type" + subNode._type);
+//					pjNode.addChild(subNode);
+//				}
+				this.ideProjectTree.addRootNode(pjNode);
+
+                if (prjItems[i].length > 1)
+                {
+                    this.displayDirFile(pjNode, prjItems[i][1]);
+                }
+			}
+			dbgLog("ide.displayProjects end");
+		},
+
+		onTreeNodeDblClick : function(pNode)
+		{
+			dbgLog("ide.onTreeNodeClick start:" + pNode._type);
+
+			switch(pNode._type)
+			{
+				case $IDE.PRJNODETYP_PRJ:
+					//this.openProject(node.getLabel());
+					break;
+				case $IDE.PRJNODETYP_DIR:
+					break;
+				case $IDE.PRJNODETYP_FILE:
+					//var	pNode = node;
+					var	fileName = pNode.getLabel();
+
+					this.openFile(this.getCurrentFilePath(pNode), fileName);
+					break;
+				default:
+					dbgLog("Unknown node type");
+					break;
+			};
+			dbgLog("ide.onTreeNodeClick end");
+		},
+
+//		getProjectFiles : function(prjName)
+//		{
+//		},
+
+		createNewProject : function()
+		{
+            dbgLog("pst.ide.createNewProject start");
+            var prjName = window.prompt("Input new project name:", "");
+            if (prjName != null && prjName != "")
+            {
+                var dt = new pst.util.DataTransfer();
+
+                dt.setUrl(this._appPath + this._appActionSave);
+                //dt.setUrl(url);
+                var param = "";
+                param = "action=CreateNewProject" + "&projectName=" + prjName;
+                dt.setContents(param);
+
+                dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+                dt.setAsync(false);
+                dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+                dt.doPost();
+
+                //this._xmlParserPrj.addProject(prjName);
+                //var topNode = this.ideProjectTree.getTopNode();
+                var pNode = new pst.ui.DefaultTreeNode();
+                pNode.initialize(prjName);
+                pNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+                pNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+                pNode._type = $IDE.PRJNODETYP_PRJ;
+                //subNode._ide = this;
+                //subNode.addEventListener($C.CET_DBLCLICK, this.onTreeNodeClick, this);
+                this.ideProjectTree.addRootNode(pNode);
+            }
+            dbgLog("pst.ide.createNewProject end");
+		},
+
+		openProject : function(prjName)
+		{
+			dbgLog("pst.ide.openProject:" + prjName);
+			dbgLog("pst.ide.openProject end");
+		},
+
+		closeProject : function(prjName)
+		{
+		},
+
+		deleteProject : function()
+		{
+            dbgLog("pst.ide.deleteProject start");
+            var curNode = this.ideProjectTree.getCurrentNode();
+            if (curNode._type != $IDE.PRJNODETYP_PRJ)
+            {
+                dbgLog("pst.ide.deleteProject wrong node type.");
+                return;
+            }
+            var prjName = curNode.getLabel();
+            var answer = window.confirm("Really want to delete project:" + prjName);
+            if (answer)
+            {
+                var dt = new pst.util.DataTransfer();
+
+                dt.setUrl(this._appPath + this._appActionDelete);
+                //dt.setUrl(url);
+                var param = "";
+                param = "action=DeleteProject" + "&projectName=" + prjName;
+                dt.setContents(param);
+
+                dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+                dt.setAsync(false);
+                dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+                dt.doPost();
+
+                //this._xmlParserPrj.deleteProject(prjName);
+                var topNode = this.ideProjectTree.getTopNode();
+                dbgLog("pst.ide.deleteProject getTopNode OK.");
+                var childNodes = topNode.getNodes();
+                dbgLog("pst.ide.deleteProject getNodes OK.");
+                for(var i = 0; i < childNodes.length; i ++)
+                {
+                    if (childNodes[i].getLabel() == prjName)
+                    {
+                        dbgLog("pst.ide.deleteProject find the node.");
+                        topNode.removeChild(childNodes[i]);
+                    }
+                }
+                //topNode.addRootNode(pNode);
+            }
+            dbgLog("pst.ide.deleteProject end");
+        },
+
+		downloadProject : function(prjName)
+		{
+            dbgLog("pst.ide.downloadProject start");
+            //var prjName = window.prompt("Input new project name:");
+            if (prjName != null && prjName != "")
+            {
+//                var dt = new pst.util.DataTransfer();
+//
+//                dt.setUrl(this._appPath + this._appActionDown);
+//                //dt.setUrl(url);
+//                var param = "";
+//                param = "action=DownloadProject" + ";projectName=" + prjName;
+//                dt.setContents(param);
+//
+//                dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+//                dt.setAsync(false);
+//                dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+                //dt.doPost();
+                document.form[0].action = this._appPath + this._appActionDown;
+                document.form[0].submit();
+
+                //this._xmlParserPrj.addProject(prjName);
+            }
+            dbgLog("pst.ide.downloadProject end");
+		},
+
+        fileExists : function(pNode, fileName)
+        {
+            var dirNode = null;
+            if (pNode._type == $IDE.PRJNODETYP_FILE)
+            {
+                dirNode = pNode._parent;
+            }
+            else
+                dirNode = pNode;
+
+            for(var i = 0; i < dirNode._children.length; i ++)
+            {
+                if (dirNode._children[i] != null && 
+                    /*dirNode._children[i] != "undefined" && */
+                    dirNode._children[i].getLabel() == fileName)
+                {
+                    //window.alert(
+                    return true;
+                }
+            }
+
+            return false;
+        },
+
+		createNewFile : function()
+		{
+			dbgLog("pst.ide.createNewFile start");
+
+			var	newFilePath = "";
+
+			var	pNode = this.ideProjectTree.getCurrentNode();
+			newFilePath = this.getCurrentFilePath(pNode);
+
+			//dbgLog("pst.ide.createNewFile path:" + newFilePath);
+			if (newFilePath != null && newFilePath != "")
+			{
+				var	f = window.prompt("Input file name:", "");
+				//window.alert("Create file:" + newFilePath + f);
+                if (f == null || f == "")
+                {
+                    return;
+                }
+                if (this.fileExists(pNode, f))
+                {
+                    window.alert("File(" + newFilePath + f + ") exists, create failed!");
+                    return;
+                }
+                // Create file on server
+                var dt = new pst.util.DataTransfer();
+
+                dt.setUrl(this._appPath + this._appActionSave);
+                //dt.setUrl(url);
+                var param = "";
+                param = "action=CreateNewFile" + "&fileName=" + newFilePath + "\\" + f;
+                dt.setContents(param);
+
+                dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+                dt.setAsync(false);
+                dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+                dt.setUserData(newFilePath + f);
+
+                dt.addEventListener($DT.EVENT_GETDATA, this.onOpenFile, this);
+
+                dt.doPost();
+
+                // Update XML file
+                //this._xmlParserPrj.addFile(newFilePath, f);
+
+                newNode = new pst.ui.DefaultTreeNode();
+
+                newNode.initialize(f);
+				newNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+				newNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+				newNode._type = $IDE.PRJNODETYP_FILE;
+				newNode.addEventListener($C.CET_DBLCLICK, this.onTreeNodeClick, this);
+
+                if (pNode._type != $IDE.PRJNODETYP_FILE)
+                {
+                    pNode.addChild(newNode);
+                }
+                else
+                {
+                    pNode._parent.addChild(newNode);
+                }
+			}
+
+			dbgLog("pst.ide.createNewFile end");
+		},
+
+		openFile : function(filePath, fileName)
+		{
+			dbgLog("pst.ide.openFile:" + filePath + "\\" + fileName);
+			/* getFileContents from server for edit */
+            var i = 0;
+
+            if (this._editFiles[0].length > 0)
+            {
+                for(; i < this._editFiles[0].length; i ++)
+                {
+                    if (this._editFiles[0][i] == (filePath + "\\" + fileName))
+                    {
+                        break;
+                    }                        
+                }
+            }
+
+            if (!(this._editFiles[0].length == 0 || i == this._editFiles[0].length))
+            {
+                dbgLog("pst.ide.openFile file opened already.");
+                return;
+            }
+
+            var	dt = new pst.util.DataTransfer();
+
+            dt.setUrl(this._appPath + this._appActionEdit);
+
+            var param = "";
+			param = "action=OpenFile&filename=" + filePath + "\\" + fileName;
+			dt.setContents(param);
+
+            dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+			dt.setAsync(false);
+			dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+            dt.setUserData(filePath + fileName);
+
+            dt.addEventListener($DT.EVENT_GETDATA, this.onOpenFile, this);
+
+			dt.doPost();
+
+			//delete this.ideProjectTree;
+			this.ideProjectTree.setVisible(false);
+			//this.ideProjectTree = null;
+			//this.ideProjectTree.dispose();
+
+//			this.initComponentTree(fileName);
+			dbgLog("pst.ide.openFile end");
+		},
+
+        onOpenFile : function(rspData, fileName)
+        {
+            dbgLog("pst.ide.onGetFileData start");
+            var i = 0;
+            var k = -1;
+
+            if (this._editFiles[0].length > 0)
+            {
+                for(; i < this._editFiles[0].length; i ++)
+                {
+                    if (this._editFiles[0][i] == fileName)
+                    {
+                        //this._editFile[1][i].parseXmlFile(rspData);
+                        this._editFiles[2][i] = this._editFiles[1][i].getComponents(rspData);
+                        this._editFiles[3][i] = false;
+                        break;
+                    }
+                    else if (this._editFiles[0][i] == null/* || this._editFile[0][i] == "undefined"*/)
+                    {
+                        if (k == -1)
+                        {
+                            k = i;
+                        }
+                    }
+                        
+                }
+            }
+
+            if (this._editFiles[0].length == 0 || i == this._editFiles[0].length)
+            {
+                if (k == -1)
+                {
+                    i = this._editFiles[0].length;
+                }
+                else
+                    i = k;
+
+                this._editFiles[0][i] = fileName;
+                this._editFiles[1][i] = new pst.util.XmlParserForm();
+                //this._editFiles[1][i].parseXmlFile(rspData);
+                this._editFiles[2][i] = this._editFiles[1][0].getComponents(rspData);
+                this._editFiles[3][i] = false;
+            }
+//            this._xmlParserForm = new pst.util.XmlParserForm();
+//            this._xmlParserForm.parseXmlFile(rspData);
+            this.initComponentTree(this._editFiles[2][i]);
+            this.initComponentPanel();
+            this.initEditForm();
+
+            dbgLog("pst.ide.onGetFileData end");
+        },
+
+		initComponentTree : function(formObj)
+		{
+            dbgLog("pst.ide.initComponentTree start");
+            if (this.ideComponentTree == null)
+            {
+                this.ideComponentTree = new pst.ui.Tree();
+                this.ideComponentTree.setParent(this.ideForm);
+                this.ideComponentTree.setBounds(
+                    0, 
+                    this.ideMenuBar.getHeight(), 
+                    150, 
+                    (this.ideForm.getClientHeight() - this.ideMenuBar.getHeight()) / 2);
+                this.ideComponentTree.setBorderWidth(3);
+            }
+            else
+            {
+                // delete component nodes
+            }
+
+			//this.getProjectList();
+            //var formObj = this._xmlParserForm.getForm();
+			//var		components = new Array("Button1", "Menu1", "Tree1");
+			//this.displayComponent(formObj.getName(), formObj.getChild());
+            this.displayComponent(formObj);
+            dbgLog("pst.ide.initComponentTree end");
+		},
+
+		displayComponent : function(formObj)
+		{
+			dbgLog("ide.displayComponent start");
+            //var formObj = this._xmlParserForm.getForm();
+			//dbgLog("components:" + components.join());
+			//for(i = 0; i < components.length; i ++)
+			{
+				var	pjNode = new pst.ui.DefaultTreeNode();
+				//var	pjNode = new pst.ui.TreeNode();
+				//pjNode.setLabel(prjList[i]);
+				//pjNode.setPath("/");
+				pjNode.initialize(formObj.getName());
+				pjNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+				pjNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+				pjNode._type = "form";
+				//pjNode._ide = this;
+				//pjNode.addEventListener($C.CET_CLICK, this.onComponentSelect, this);
+
+				//var	files = new Array("File1", "File2", "File3");
+                var components = formObj.getChild();
+				for(j = 0; j < components.length; j ++)	{
+					var	subNode = new pst.ui.DefaultTreeNode();
+					subNode.initialize(components[j].getName());
+					subNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+					subNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+					subNode._type = components[j].getType();    //"component";
+					//subNode._ide = this;
+					//subNode.addEventListener($C.CET_CLICK, this.onComponentSelect, this);
+					//dbgLog("subNode._type" + subNode._type);
+					pjNode.addChild(subNode);
+				}
+				this.ideComponentTree.addRootNode(pjNode);
+
+                this.initAttributeTree(formObj);
+			}
+			dbgLog("ide.displayComponent end");
+		},
+
+		initAttributeTree : function(compObj)
+		{
+            if (this.ideAttributeTree == null) {
+                this.ideAttributeTree = new pst.ui.Tree();
+                this.ideAttributeTree.setParent(this.ideForm);
+                this.ideAttributeTree.setBounds(
+                    0, 
+                    this.ideMenuBar.getHeight() + this.ideComponentTree.getHeight(), 
+                    150, 
+                    this.ideForm.getClientHeight() - this.ideMenuBar.getHeight() - this.ideComponentTree.getHeight());
+                this.ideAttributeTree.setBorderWidth(3);
+            } else {
+                // delete attribute nodes
+            }
+
+			//this.getProjectList();
+			//var		attributes = new Array("Top", "Left", "Width", "Height");
+            var attributes = compObj.getAttribute();
+            var methods = compObj.getMethod();
+			this.displayAttribute(compObj.getName(), attributes, methods);
+		},
+
+		displayAttribute : function(compName, attributes, methods)
+		{
+			dbgLog("ide.displayAttribute start");
+			//dbgLog("attributes:" + attributes.join());
+			//for(i = 0; i < attributes.length; i ++)
+			{
+				var	pjNode = new pst.ui.DefaultTreeNode();
+				//var	pjNode = new pst.ui.TreeNode();
+				//pjNode.setLabel(prjList[i]);
+				//pjNode.setPath("/");
+				pjNode.initialize(compName);
+				pjNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+				pjNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+				pjNode._type = "component";
+				//pjNode._ide = this;
+				//pjNode.addEventListener($C.CET_DBLCLICK, this.onAttributeEdit, this);
+
+				//var	files = new Array("File1", "File2", "File3");
+				for(var j = 0; j < attributes[0].length; j ++)
+				{
+					var	subNode = new pst.ui.DefaultTreeNode();
+					subNode.initialize(attributes[0][j]);
+					subNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+					subNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+					subNode._type = "attribute";
+					//subNode._ide = this;
+					//subNode.addEventListener($C.CET_DBLCLICK, this.onAttributeEdit, this);
+					//dbgLog("subNode._type" + subNode._type);
+					pjNode.addChild(subNode);
+				}
+
+                for(var j = 0; j < methods[0].length; j ++)
+				{
+					var	subNode = new pst.ui.DefaultTreeNode();
+					subNode.initialize(methods[0][j]);
+					subNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+					subNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+					subNode._type = "method";
+					//subNode._ide = this;
+					//subNode.addEventListener($C.CET_DBLCLICK, this.onMethodEdit, this);
+					//dbgLog("subNode._type" + subNode._type);
+					pjNode.addChild(subNode);
+				}
+
+                this.ideAttributeTree.addRootNode(pjNode);
+			}
+			dbgLog("ide.displayAttribute end");
+		},
+
+        initComponentPanel : function()
+        {
+            dbgLog("pst.ide.initComponentPanel start.");
+            if (this.ideComponentPanel == null)
+            {
+                this.ideComponentPanel = new pst.ui.TabControl();
+
+                this.ideComponentPanel.setParent(this.ideForm);
+                this.ideComponentPanel.setBounds(
+                    this.ideComponentTree.getWidth() + 1, 
+                    this.ideMenuBar.getHeight() + 1, 
+                    this.ideForm.getClientWidth() - this.ideComponentTree.getWidth() - 1,    //
+                    100);
+                this.ideComponentPanel.setBorderWidth(3);
+                //this.ideComponentPanel.activate();
+
+                var tabPage = new pst.ui.TabPage("Buttons", "Buttons");
+                //tabPage.setAutoCreateDiv(true);
+
+                this.ideComponentPanel.addTab(tabPage);
+            }
+            dbgLog("pst.ide.initComponentPanel end.");
+        },
+
+        initEditForm : function()
+        {
+            dbgLog("pst.ide.initEditForm start");
+            if (this.ideEditForm == null)
+            {
+                this.ideEditForm = new pst.ui.Form();
+
+                this.ideEditForm.setParent(this.ideForm);
+                this.ideEditForm.setBounds(
+                    this.ideAttributeTree.getWidth() + 1, 
+                    this.ideMenuBar.getHeight() + this.ideComponentPanel.getHeight() + 1, 
+                    this.ideForm.getClientWidth() - this.ideAttributeTree.getWidth() - 1,    //
+                    this.ideForm.getClientHeight() - this.ideMenuBar.getHeight() - 
+                        this.ideComponentPanel.getHeight() - 1);
+                //this.ideEditForm.
+            }
+            dbgLog("pst.ide.initEditForm end");
+        },
+
+		saveFile : function(filePath, fileName)
+		{
+			dbgLog("pst.ide.saveFile:" + filePath + "\\" + fileName);
+			/* getFileContents from server for edit */
+            var i = 0;
+            for(i = 0; i < this._editFiels[0].length; i ++)
+            {
+                if (this._editFiles[0][i] == (filePath + "\\" + fileName))
+                {
+                    break;
+                }
+            }
+            if (this._editFiles[0].length == 0 || i == this._editFiles[0].length)
+            {
+                dbgLog("pst.ide.saveFile error: can't find " + filePath + "\\" + fileName);
+                return;
+            }
+            if (this._editFiles[1][i] == null/* || this._editFiles[1][i] == "undefined"*/)
+            {
+                dbgLog("pst.ide.saveFile error: XmlParser doesn't exist.");
+                return;
+            }
+
+            var	dt = new pst.util.DataTransfer();
+
+            dt.setUrl(this._appPath + this._appActionSave);
+
+            var param = "";
+			param = "action=SaveFile&filename=" + filePath + "\\" + fileName;
+            param += "&filedata=" + this._editFiles[1][i].convertXml2Text();
+			dt.setContents(param);
+
+            dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+			dt.setAsync(false);
+			dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+            //dt.addEventListener($DT.EVENT_GETDATA, this.onGetFileData, this);
+
+			dt.doPost();
+
+			//delete this.ideProjectTree;
+			//this.ideProjectTree.setVisible(false);
+			//this.ideProjectTree = null;
+			//this.ideProjectTree.dispose();
+
+            this._editFiles[3][i] = false;
+
+//			this.initComponentTree(fileName);
+			dbgLog("pst.ide.saveFile end");
+		},
+
+		closeFile : function(filePath, fileName)
+		{
+            dbgLog("pst.ide.closeFile start");
+            var i = 0;
+            for(i = 0; i < this._editFiels[0].length; i ++)
+            {
+                if (this._editFiles[0][i] == (filePath + "\\" + fileName))
+                {
+                    break;
+                }
+            }
+            if (this._editFiles[0].length == 0 || i == this._editFiles[0].length)
+            {
+                dbgLog("pst.ide.closeFile error: can't find " + filePath + "\\" + fileName);
+                return;
+            }
+            if (this._editFiles[1][i] == null/* || this._editFiles[1][i] == "undefined"*/)
+            {
+                dbgLog("pst.ide.closeFile error: XmlParser doesn't exist.");
+                return;
+            }
+
+            if (this._editFiles[3][i])
+            {
+                if (window.confirm("File is revised!\r\nDo you want to save it?"))
+                {
+                    this.saveFile(filePath, fileName);
+                }
+            }
+            //release file data
+            this._editFiles[0][i] = null;
+            this._editFiles[1][i] = null;
+            this._editFiles[2][i] = null;
+            this._editFiles[3][i] = null;
+
+            dbgLog("pst.ide.closeFile end");
+		},
+
+		//deleteFile : function(filePath, fileName)
+        deleteFile : function()
+		{
+            dbgLog("pst.ide.deleteFile start");
+//			var	filePath = "";
+//
+			var	pNode = this.ideProjectTree.getCurrentNode();
+            if (pNode._type != $IDE.PRJNODETYP_FILE)
+            {
+                dbgLog("pst.ide.deleteFile error node type.");
+                return;
+            }
+
+            var filePath = this.getCurrentFilePath(pNode);
+            var fileName = pNode.getLabel();
+
+			//dbgLog("pst.ide.createNewFile path:" + newFilePath);
+			if (filePath != null && filePath != "")
+			{
+                var i = 0;
+                for(i = 0; i < this._editFiels[0].length; i ++)
+                {
+                    if (this._editFiles[0][i] == (filePath + "\\" + fileName))
+                    {
+                        break;
+                    }
+                }
+                if (!(this._editFiles[0].length == 0 || i == this._editFiles[0].length))
+                {
+                    //dbgLog("pst.ide.deleteFile error: can't find " + filePath + fileName);
+                    //return;
+                    this._editFiles[0][i] = null;
+                    this._editFiles[1][i] = null;
+                    this._editFiles[2][i] = null;
+                    this._editFiles[3][i] = null;
+                }
+//                if (this._editFiles[1][i] == null/* || this._editFiles[1][i] == "undefined"*/)
+//                {
+//                    dbgLog("pst.ide.deleteFile error: XmlParser doesn't exist.");
+//                    return;
+//                }
+
+                var	f = window.confirm("Realy delete file: " + filePath + "\\" + fileName);
+                if (!f) return;
+                // delete file on server
+                var	dt = new pst.util.DataTransfer();
+
+                dt.setUrl(this._appPath + this._appActionDelete);
+
+                var param = "";
+                param = "action=DeleteFile&filename=" + filePath + "\\" + fileName;
+                //param += ";filedata=" + convertXml2Text();
+                dt.setContents(param);
+
+                dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+                dt.setAsync(false);
+                dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+                //dt.addEventListener($DT.EVENT_GETDATA, this.onGetFileData, this);
+
+                dt.doPost();
+
+                // Update XML file
+                //this._xmlParserPrj.addFile(newFilePath, f);
+
+                pNode.getParent().removeChild(pNode);
+            }
+
+            dbgLog("pst.ide.deleteFile end");
+		},
+
+		downloadFile : function(filePath, fileName)
+		{
+			dbgLog("pst.ide.downloadFile:" + filePath + "\\" + fileName);
+			/* getFileContents from server for edit */
+//			var	dt = new pst.util.DataTransfer();
+//
+//            dt.setUrl(this._appPath + this._appActionSave);
+//
+//            var param = "";
+//			param = "action=SaveFile;filename=" + filePath + "\\" + fileName;
+//            param += ";filedata=" + convertXml2Text();
+//			dt.setContents(param);
+//
+//            dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+//			dt.setAsync(false);
+//			dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+//
+//            dt.addEventListener($DT.EVENT_GETDATA, this.onGetFileData, this);
+//
+//			dt.doPost();
+
+//            document.form[0].action = this._appPath + this._appActionDown;
+//            document.form[0].submit();
+
+			dbgLog("pst.ide.downloadFile end");
+		},
+
+        createNewDir : function()
+        {
+            dbgLog("pst.ide.createNewDir start");
+			var	newDirPath = "";
+
+			var	pNode = this.ideProjectTree.getCurrentNode();
+			newDirPath = this.getCurrentFilePath(pNode);
+
+			//dbgLog("pst.ide.createNewFile path:" + newFilePath);
+			if (newDirPath != null && newDirPath != "")
+			{
+				var	f = window.prompt("Input dir name:", "");
+				//window.alert("Create file:" + newFilePath + f);
+                if (f == null || f == "")
+                {
+                    return;
+                }
+                if (this.fileExists(pNode, f))
+                {
+                    window.alert("Directory(" + f + ") exists already!");
+                    return;
+                }
+                // Create file on server
+                var	dt = new pst.util.DataTransfer();
+
+                dt.setUrl(this._appPath + this._appActionSave);
+
+                var param = "";
+                param = "action=CreateNewDir&dirname=" + newDirPath + "\\" + f;
+                //param += ";filedata=" + convertXml2Text();
+                dt.setContents(param);
+
+                dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+                dt.setAsync(false);
+                dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+                //dt.addEventListener($DT.EVENT_GETDATA, this.onGetFileData, this);
+
+                dt.doPost();
+
+                // Update XML file
+                //this._xmlParserPrj.addDir(newDirPath, f);
+
+                newNode = new pst.ui.DefaultTreeNode();
+
+                newNode.initialize(f);
+				newNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+				newNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+				newNode._type = $IDE.PRJNODETYP_DIR;
+				newNode.addEventListener($C.CET_DBLCLICK, this.onTreeNodeClick, this);
+
+                if (pNode._type != $IDE.PRJNODETYP_FILE)
+                {
+                    pNode.addChild(newNode);
+                }
+                else
+                {
+                    pNode._parent.addChild(newNode);
+                }
+			}
+
+			dbgLog("pst.ide.createNewDir end");
+        },
+
+        deleteDir : function()
+        {
+            dbgLog("pst.ide.deleteDir start");
+			var	curDir = "";
+
+			var	pNode = this.ideProjectTree.getCurrentNode();
+            if (pNode._type != $IDE.PRJNODETYP_DIR)
+            {
+                dbgLog("pst.ide.deleteDir error node type.");
+                return;
+            }
+			curDir = this.getCurrentFilePath(pNode);
+
+			//dbgLog("pst.ide.createNewFile path:" + newFilePath);
+			if (curDir != null && curDir != "")
+			{
+				var	f = window.confirm("Do you really want to delete :" + curDir);
+                if (!f) return;
+
+                // Create file on server
+                var	dt = new pst.util.DataTransfer();
+
+                dt.setUrl(this._appPath + this._appActionDelete);
+
+                var param = "";
+                param = "action=DeleteDir&dirname=" + curDir;
+                //param += ";filedata=" + convertXml2Text();
+                dt.setContents(param);
+
+                dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+                dt.setAsync(false);
+                dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+                //dt.addEventListener($DT.EVENT_GETDATA, this.onGetFileData, this);
+
+                dt.doPost();
+
+                pNode.getParent().removeChild(pNode);
+			}
+
+            dbgLog("pst.ide.deleteDir end");
+        },
+
+		getCurrentFilePath : function(curNode)
+		{
+			var	pNode = curNode;
+
+			if (pNode._type == $IDE.PRJNODETYP_FILE)
+				pNode = pNode._parent;
+
+			var curPath = "";
+			while(pNode != null && pNode.getLabel() != "TOP_NODE") // && pNode._type != $IDE.PRJNODETYP_PRJ
+			{
+				//dbgLog("get parent node:" + pNode._type);
+				//if (curPath == "") curPath = pNode.getLabel() + "\\";
+                if (curPath == "") curPath = pNode.getLabel();
+				else
+				{
+					var	s = "";
+					s += pNode.getLabel();
+					s += "\\";
+					curPath = s + curPath;
+				}
+				pNode = pNode._parent;
+			};
+//			if (pNode != null && pNode._type == $IDE.PRJNODETYP_PRJ)
+//			{
+//				var	s = "";
+//				s += pNode.getLabel();
+//				s += "\\";
+//				curPath = s + curPath;
+//			}
+
+			return curPath;
+		},
+
+        getCurrentProjectName : function(curNode)
+        {
+			var	pNode = curNode;
+
+//			if (pNode._type == $IDE.PRJNODETYP_FILE)
+//				pNode = pNode._parent;
+
+			var curPath = "";
+			while(pNode != null && pNode._type != $IDE.PRJNODETYP_PRJ) // && 
+			{
+				//dbgLog("get parent node:" + pNode._type);
+				//if (curPath == "") curPath = pNode.getLabel() + "\\";
+//                if (curPath == "") curPath = pNode.getLabel();
+//				else
+//				{
+//					var	s = "";
+//					s += pNode.getLabel();
+//					s += "\\";
+//					curPath = s + curPath;
+//				}
+				pNode = pNode._parent;
+			};
+            if (pNode._type == $IDE.PRJNODETYP_PRJ)
+                return pNode.getLabel();
+            else
+                return null;
+        }
+
+	}	// end of instances	: {
+});
+
+$IDE = pst.ide;

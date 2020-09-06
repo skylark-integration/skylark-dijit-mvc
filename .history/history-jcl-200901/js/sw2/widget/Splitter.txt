@@ -1,0 +1,94 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.Splitter",
+	superc		: sw2.widget.Control,
+	statics		: {
+	},
+	instances	: {
+		_cNext		: null,
+		_cNextWh	: 0,	
+		_elInner 	: null,
+
+		_initialize	: function(cOwner){
+			System.execMethod(this,"_initialize",[cOwner],W.Control);
+			var cs = this.getControlStyle();
+			cs.include(W.ControlStyle.movable);
+		},
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"Splitter");
+			
+			return el;
+		},
+
+		_validateAutoMove	: function(x,y,el) {
+			var oCursor = null;
+			this._cNext = null;
+			var oDock = this.getDock();
+			switch (oDock) {
+				case W.Dock.left:
+				case W.Dock.right:
+				case W.Dock.top:
+				case W.Dock.bottom:
+					var p = this.getParent();
+					if (p) {
+						var cNext = p._getNextDockedControl(this);
+						if (cNext) {
+							this._cNext = cNext;
+							if (oDock == W.Dock.left || oDock == W.Dock.right) {
+								oCursor = W.Cursor.wresize;
+							} else {
+								oCursor = W.Cursor.nresize;
+							}
+						}
+					}
+					break;
+			}
+			return oCursor;
+		},
+
+		_doBeginAutoMove	: function(x,y){
+			this._savePosSizeInfo();
+			switch (this.getDock()) {
+				case W.Dock.left:
+				case W.Dock.right:
+					this._cNextWh = this._cNext.getWidth();
+					break;
+				case W.Dock.top:
+				case W.Dock.bottom:
+					this._cNextWh = this._cNext.getHeight();
+					break;
+			}
+		},
+
+
+		_doEndAutoMove		: function(x,y) {
+		},
+
+		_doAutoMoving		: function(x,y) {
+			var dx = x-mouse.getDownX();
+			var dy = y-mouse.getDownY();
+			switch (this.getDock()) {
+				case W.Dock.left:
+					this._cNext.setWidth(this._cNextWh + dx);
+					break;
+				case W.Dock.right:
+					this._cNext.setWidth(this._cNextWh - dx);
+					break;
+				case W.Dock.top:
+					this._cNext.setHeight(this._cNextWh + dy);
+					break;
+				case W.Dock.bottom:
+					this._cNext.setHeight(this._cNextWh - dy);
+					break;
+			}
+			
+       }
+		
+	}
+});

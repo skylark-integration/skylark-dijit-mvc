@@ -1,0 +1,1011 @@
+<HTML><HEAD><LINK href="../themes\default/ide.css" type=text/css rel=stylesheet><LINK href="../themes\default/skin.css" type=text/css rel=stylesheet><LINK href="../themes\default/system.css" type=text/css rel=stylesheet>
+<SCRIPT language=javascript>
+	var _theme_root = "../themes/default";
+	var __SKIN_PATH = "../themes/default";
+	var __IMG_PATH = "../images";
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/debug.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/spw/lang.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/component.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/browser.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/types.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/control.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/dragdrop.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/context.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/desktop.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/button.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/checkbox.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/form.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/ProgressBar.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/groupbox.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/splitter.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/tree.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/label.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/scrollbar.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/menubar.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/panel.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/tabcontrol.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/listctrl.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/listbox.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/toolbar.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/outlookbar.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/radiobutton.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/radiogroup.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/calendar.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/textinput.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/view/textarea.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/utils/io.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/ide/IdeDesktop.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript src="../js/sw2/ide/UfcDsgnForm.txt">
+</SCRIPT>
+
+<SCRIPT language=javascript>
+var cs = null;
+var form = null;
+var button = null;
+function 	test1() {
+//	try {
+	form = new sw2.view.Form();
+//	form.bviewld();
+//	form.setValue("test");
+/*	form._hel.style.position = "absolute";
+	form._hel.style.left = "200pt";
+	form._hel.style.visibility = "visible";
+	form._hel.style.width = "200pt";
+	form._hel.style.top = "200pt";
+	form._hel.style.height = "200pt";*/
+
+	form.setParent(desk);
+	form.setBounds(1,1,500,300);
+//	} catch(e) {
+//		alert(e.message);
+//	}
+
+};
+function test2() {
+//	document.forms[0].a1.style.position = "absolute";
+//	document.forms[0].a1.style.left = "200pt";
+//	document.forms[0].a2.style.position = "absolute";
+//	document.forms[0].a2.style.left = "600pt";
+	//form.setAllowPushDown(true);
+//	form._el.focus();
+//	form.setDraggable(!form.getDraggable());
+	form.setCaption("form12");
+
+	button = new sw2.view.Button(form);
+//	button.bviewld();
+	button.setCaption("test");
+/*	button._hel.style.position = "absolute";
+	button._hel.style.left = "200pt";
+	button._hel.style.visibility = "visible";
+	button._hel.style.width = "200pt";
+	button._hel.style.top = "200pt";
+	button._hel.style.height = "200pt";*/
+
+	button.setBounds(30,30,80,40);
+	button.setParent(form);
+
+//	cs = button.getControlStyle();
+//	cs.include(V.ControlStyle.resizable);
+//	cs.include(V.ControlStyle.movable);
+};
+
+function test3() {
+/*
+	for (var i = 0;i<30;i++) {
+		document.title = i;
+		menubar.showSubMenu(menubar._elButtons[0],menu._children[0],menu._children[0].getSubMenu());
+		menubar.showSubMenu(menubar._elButtons[1],menu._children[1],menu._children[1].getSubMenu());
+		menubar.showSubMenu(menubar._elButtons[0],menu._children[0],menu._children[0].getSubMenu());
+	}
+*/
+	for (var i = 0;i<1000;i++) {
+		document.title = i;
+		form = new sw2.view.Form();
+		$H.addControl(form);
+		form.setBounds(100,300,400,300);
+		button = new sw2.view.Button();
+		button.setValue("test");
+	
+		button.setBounds(30,30,80,60);
+		button.setParent(form);
+
+		
+		$H.removeControl(form);
+		form.dispose();
+
+		form = new sw2.view.Form();
+		$H.addControl(form);
+		form.setBounds(100,300,400,300);
+		button = new sw2.view.Button();
+		button.setValue("test");
+	
+		button.setBounds(30,30,80,60);
+		button.setParent(form);
+
+	}
+
+};
+
+function test4() {
+//	document.body.removeChild(form._el);
+	addMenu();
+	var popup = new sw2.view.PopupMenu();
+	$H.addControl(popup);
+	popup.setMenu(submenu);
+	for (var i = 0;i<1000;i++) {
+		menuCreated = false;
+		addMenu();
+		document.title = i;
+//		$H.removeControl(popup);
+//		popup.dispose();
+
+		popup = new sw2.view.PopupMenu();
+		$H.addControl(popup);
+		popup.setMenu(submenu);
+	}
+	//	alert(form._el.style.zIndex+","+form._elTable.style.zIndex+",");
+
+};
+var b1;
+var b2;
+var b3;
+var b4;
+var b5;
+
+function loaded() {
+	b1 = document.getElementById('b1');
+	b2 = document.getElementById('b2');
+	b3 = document.getElementById('b3');
+	b4 = document.getElementById('b4');
+	b5 = document.getElementById('b5');
+}
+
+function test5() {
+//	alert($H._elDesktop.style.zIndex);
+//	alert(button._el.currentStyle.visibility);
+//	var b = $HTML.createElement("form");
+//	$HTML.addElement(b);
+//	alert($C._captured);
+	//	alert(document.body.offsetLeft + "," + document.body.clientWidth+","+ document.body.offsetWidth+"," + document.body.clientHeight+","+ document.body.offsetHeight);
+	//	alert($H._elDesktop.clientWidth+","+ $H._elDesktop.offsetWidth+"," + $H._elDesktop.clientHeight+","+ $H._elDesktop.offsetHeight);
+	//	eval("try { "+ document.getElementById('ta').value+";} catch(e){alert(e.message);}");
+
+
+	eval(document.getElementById('ta').value+";");
+}	
+
+var checkBox;
+function addCheckBox() {
+
+	checkBox = new sw2.view.CheckBox();
+	checkBox.setParent(form);
+	checkBox.setCaption("確認済み");
+	checkBox.setBounds(30,200,300,20);
+
+	cs = checkBox.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+}
+
+var progressBar;
+function addProgessBar() {
+
+	progressBar = new sw2.view.ProgressBar();
+	progressBar.setParent(form);
+	progressBar.setBounds(30,200,300,20);
+
+	cs = progressBar.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+}
+
+var groupbox;
+function addGroupBox() {
+
+	groupbox = new sw2.view.GroupBox();
+	groupbox.setParent(form);
+	groupbox.setBounds(30,30,200,120);
+	groupbox.setTitle("Setting:");
+
+	cs = groupbox.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+
+	var chkBox1 = new sw2.view.CheckBox();
+	chkBox1.setParent(groupbox);
+	chkBox1.setBounds(10, 10, 100, 23);
+	cs = chkBox1.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+
+	var btn1 = new sw2.view.Button();
+	btn1.setParent(groupbox);
+	btn1.setBounds(10, 43, 50, 25);
+	btn1.setCaption("OK");
+	cs = btn1.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+}
+
+var splitter;
+
+function addSplitter() {
+
+	splitter = new sw2.view.Splitter();
+	splitter.setParent(form);
+	splitter.setDock(V.Dock.left);
+
+}
+
+var tree;
+function treeNodeDblClick(evt){
+	var node = evt.getSender();
+	if (node.getText() == "File1")
+	{
+		window.alert(node.getText());
+//		addTab();
+//		tabctl.setDock(V.Dock.left);
+//		addTabsheet();
+	}
+}
+
+function addTree() {
+
+	tree = new sw2.view.TreeView();
+	tree.setParent(form);
+	tree.setBounds(30,30,120,220);
+
+	cs = tree.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+
+	var nodes = tree.getNodes();
+	var pjNode = new sw2.view.TreeNode(nodes);
+	pjNode.setText("Project1");
+//	pjNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+//	pjNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+	pjNode.setIcon(__IMG_PATH + "/treeview//tree_folder_closed.gif");
+	pjNode.setExpandedIcon(__IMG_PATH + "/treeview//tree_folder_opened.gif");
+
+	var dirNode = new sw2.view.TreeNode(nodes);
+	dirNode.setText("Dir1");
+//	dirNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+//	dirNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+	dirNode.setIcon(__IMG_PATH + "/treeview//tree_folder_closed.gif");
+	dirNode.setExpandedIcon(__IMG_PATH + "/treeview//tree_folder_opened.gif");
+	pjNode.addChild(dirNode);
+
+	var fileNode = new sw2.view.TreeNode(nodes);
+	fileNode.setText("File1");
+//	fileNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+//	fileNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+	fileNode.setIcon(__IMG_PATH + "/tree_file.gif");
+	fileNode.setExpandedIcon(__IMG_PATH + "/tree_file.gif");
+//	fileNode.addEventListener();
+	fileNode.addEventListener("DblClick", treeNodeDblClick, fileNode);
+	dirNode.addChild(fileNode);
+
+	dirNode = new sw2.view.TreeNode(nodes);
+	dirNode.setText("Dir2");
+//	dirNode.setIcon(__SKIN_PATH + "/groupbox_collapse.gif");
+//	dirNode.setExpandedIcon(__SKIN_PATH + "/datatable_order_descent.gif");
+	dirNode.setIcon(__IMG_PATH + "/treeview//tree_folder_closed.gif");
+	dirNode.setExpandedIcon(__IMG_PATH + "/treeview//tree_folder_opened.gif");
+	pjNode.addChild(dirNode);
+
+	pjNode.addEventListener("DblClick", treeNodeDblClick, pjNode);
+
+	nodes.addNode(pjNode);
+//	tree.setDock(V.Dock.left);
+};
+
+
+var scrollbar;
+function addScrollbar() {
+	scrollbar = new sw2.view.HScrollBar();
+	scrollbar.setParent(form);
+	scrollbar.setLeft(50);
+	scrollbar.setTop(100);
+	scrollbar.setWidth(300);
+
+	cs = scrollbar.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+
+}
+
+var label ;
+
+function addLabel() {
+	label = new sw2.view.Label();
+	label.setParent(form);
+	label.setBounds(30,30,80,20);
+	label.setCaption("label1");
+
+	cs = label.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+
+}
+
+var tabctl;
+function addTab() {
+	tabctl = new sw2.view.TabControl();
+	tabctl.setParent(form);
+	tabctl.setBounds(0,0,50,200);
+
+	cs = tabctl.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+
+	addTabsheet();
+}
+
+var tabsheet1;
+var tabsheet2;
+var tabsheet3;
+var tabsheet4;
+var tabsheet5;
+function addTabsheet() {
+
+	tabsheet1 = new sw2.view.TabSheet();
+	tabsheet1.setCaption("Tab1111111");
+
+	if (tabsheet1._doCanSetParent(tabctl)) {
+		var checkBox2 = new sw2.view.CheckBox();
+		checkBox2.setParent(tabsheet1);
+		checkBox2.setBounds(30, 30, 100, 25);
+		cs = checkBox2.getControlStyle();
+		cs.include(V.ControlStyle.resizable);
+		cs.include(V.ControlStyle.movable);
+
+		tabsheet1.setParent(tabctl);
+		tabctl.addTab(tabsheet1);
+	}
+
+	tabsheet2 = new sw2.view.TabSheet();
+	tabsheet2.setCaption("Tab2");
+
+	if (tabsheet2._doCanSetParent(tabctl)) {
+		var button2 = new sw2.view.Button();
+		button2.setBounds(10, 10, 80, 40);
+		button2.setCaption("button2");
+		button2.setParent(tabsheet2);
+		cs = button2.getControlStyle();
+		cs.include(V.ControlStyle.resizable);
+		cs.include(V.ControlStyle.movable);
+
+		tabsheet2.setParent(tabctl);
+		tabctl.addTab(tabsheet2);
+	}
+
+	tabsheet3 = new sw2.view.TabSheet();
+	tabsheet3.setCaption("Tab3");
+
+	if (tabsheet3._doCanSetParent(tabctl)) {
+		var button3 = new sw2.view.Button();
+		button3.setBounds(10, 10, 80, 40);
+		button3.setCaption("button3");
+		button3.setParent(tabsheet3);
+		cs = button3.getControlStyle();
+		cs.include(V.ControlStyle.resizable);
+		cs.include(V.ControlStyle.movable);
+
+		tabsheet3.setParent(tabctl);
+		tabctl.addTab(tabsheet3);
+	}
+
+	tabsheet4 = new sw2.view.TabSheet();
+	tabsheet4.setCaption("Tab4");
+
+	if (tabsheet4._doCanSetParent(tabctl)) {
+		var button4 = new sw2.view.Button();
+		button4.setBounds(10, 10, 80, 40);
+		button4.setCaption("button4");
+		button4.setParent(tabsheet4);
+		cs = button4.getControlStyle();
+		cs.include(V.ControlStyle.resizable);
+		cs.include(V.ControlStyle.movable);
+
+		tabsheet4.setParent(tabctl);
+		tabctl.addTab(tabsheet4);
+	}
+	tabsheet5 = new sw2.view.TabSheet();
+	tabsheet5.setCaption("Tab5");
+
+	if (tabsheet5._doCanSetParent(tabctl)) {
+		var button5 = new sw2.view.Button();
+		button5.setBounds(10, 10, 80, 40);
+		button5.setCaption("button5");
+		button5.setParent(tabsheet5);
+		cs = button5.getControlStyle();
+		cs.include(V.ControlStyle.resizable);
+		cs.include(V.ControlStyle.movable);
+
+		tabsheet5.setParent(tabctl);
+		tabctl.addTab(tabsheet5);
+	}
+
+//	tabctl.setCurrentTab(tabsheet1);
+	tabctl.refresh();
+}
+
+
+var menu,menubar,submenu;
+var menuCreated = false;
+function addMenu() {
+	if (menuCreated) return;
+	var item = new sw2.view.MenuItem();
+	item.setText("test");
+	item.setIcon(__SKIN_PATH+"/groupbox_collapseed.gif");
+	
+	submenu = new sw2.view.Menu();
+
+	var item2 = new sw2.view.MenuItem();
+	item2.setText("test11");
+	item2.setIcon(__SKIN_PATH+"/datatable_order_descent.gif");
+	item2.setToolBarIcon(__IMG_PATH+"/copy[1].gif");
+	submenu.addItem(item2);
+	var item3 = new sw2.view.MenuItem();
+	item3.setText("test12");
+	item3.setIcon(__SKIN_PATH+"/datatable_order_descent.gif");
+	item3.setToolBarIcon(__IMG_PATH+"/cut[1].gif");
+	submenu.addItem(item3);
+
+	item.setSubMenu(submenu);
+
+	submenu = item3.getSubMenu();
+
+	var item31 = new sw2.view.MenuItem();
+	item31.setText("test11");
+	item31.setIcon(__SKIN_PATH+"/datatable_order_descent.gif");
+	submenu.addItem(item31);
+	var item32 = new sw2.view.MenuItem();
+	item32.setText("test12");
+	item32.setIcon(__SKIN_PATH+"/datatable_order_descent.gif");
+	submenu.addItem(item32);
+
+
+	var item1 = new sw2.view.MenuItem();
+	item1.setText("test2");
+	item1.setIcon(__SKIN_PATH+"/field_required.gif");
+
+	submenu = new sw2.view.Menu();
+	var item21 = new sw2.view.MenuItem();
+	item21.setText("test21");
+	item21.setIcon(__SKIN_PATH+"/datatable_order_descent.gif");
+	item21.setToolBarIcon(__IMG_PATH+"/delete[1].gif");
+	submenu.addItem(item21);
+	var item22 = new sw2.view.MenuItem();
+	item22.setText("test12");
+	item22.setIcon(__SKIN_PATH+"/datatable_order_descent.gif");
+	item22.setToolBarIcon(__IMG_PATH+"/newfile[1].gif");
+	submenu.addItem(item22);
+	item1.setSubMenu(submenu);
+
+	menu  = new sw2.view.Menu();
+	menu.addItem(item);
+	menu.addItem(item1);
+
+
+	menuCreated = true;
+}
+function addMenuBar() {
+	addMenu();
+	menubar = new sw2.view.MenuBar();
+	menubar.setParent(form);
+	menubar.setDock(V.Dock.top);
+	menubar.setMenu(menu);
+//	menu.setParent(form);
+	menubar.setBounds(30,30,200,26);
+}
+
+var panel;
+function addPanel() {
+	panel = new sw2.view.Panel();
+	panel.setBounds(30,30,200,80);
+	panel.setParent(form);
+}
+
+var grid;
+function addGrid() {
+	grid = new sw2.view.CustomGrid();
+	grid.setBounds(30,30,200,26);
+	grid.setParent(form);
+}
+
+var listbox;
+function addListBox() {
+	listbox = new sw2.view.ListBox();
+	listbox.setBounds(30, 30, 100, 200);
+	listbox.setParent(form);
+	listbox.setMultiSelect(true);
+
+	cs = listbox.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+
+	items = listbox.getItems();
+	items.add("Item1");
+	items.add("Item2");
+	items.add("Item3");
+	items.add("Item4");
+	items.add("Item5");
+	items.add("Item6");
+	items.add("Item7");
+	items.add("Item8");
+	items.add("Item9");
+	items.add("Item10");
+}
+
+var toolbar;
+function addToolBar() {
+	toolbar = new sw2.view.ToolBar();
+	toolbar.setMenu(menu);
+	toolbar.setBounds(10, 50, 200, 26);
+	toolbar.setParent(form);
+
+	cs = toolbar.getControlStyle();
+//	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+}
+
+var outlookbar;
+function addOutLookBar() {
+	outlookbar = new sw2.view.OutlookBar();
+	outlookbar.setParent(form);
+	outlookbar.setBounds(10, 10, 300, 330);
+
+	cs = outlookbar.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+
+	var obGrp = new sw2.view.OutlookBarGroup();
+//	dbgLog("obGrp created");
+	obGrp.setText("group1");
+	obGrp.setName("group1");
+	obGrp.setIcon(__IMG_PATH+"/firefox[1].gif");
+//	obGrp.setIcon(__SKIN_PATH + "/tree_expand.gif");
+	obGrp.setVisible(true);
+	obGrp.setEnabled(true);
+	obGrp.setContent("This is group's contens:<br>" + 
+		"The showcase includes many of <br>" + 
+		"qooxdoo's widgets in a single <br>" + 
+		"application.");
+
+	outlookbar.addGroup(obGrp);
+
+	obGrp = new sw2.view.OutlookBarGroup();
+//	dbgLog("obGrp created");
+	obGrp.setText("group2");
+	obGrp.setName("group2");
+	obGrp.setIcon(__IMG_PATH+"/firefox[1].gif");
+	obGrp.setVisible(true);
+	obGrp.setEnabled(true);
+	obGrp.setContent("This is group's contens:<br>" + 
+		"Demonstrating how to use qooxdoo <br>" + 
+		"to build an online feed reader.<br>" + 
+		"Functional prototype.");
+
+	outlookbar.addGroup(obGrp);
+
+	obGrp = new sw2.view.OutlookBarGroup();
+//	dbgLog("obGrp created");
+	obGrp.setText("group3");
+	obGrp.setName("group3");
+	obGrp.setIcon(__IMG_PATH+"/firefox[1].gif");
+	obGrp.setVisible(true);
+	obGrp.setEnabled(true);
+	obGrp.setContent("This is group's contens:<br>" + 
+		"Demonstrating how to use qooxdoo <br>" + 
+		"to build a web based mail application.<br>" + 
+		"Partly incomplete prototype.");
+
+	outlookbar.addGroup(obGrp);
+
+	obGrp = new sw2.view.OutlookBarGroup();
+//	dbgLog("obGrp created");
+	obGrp.setText("group4");
+	obGrp.setName("group4");
+	obGrp.setIcon(__IMG_PATH+"/firefox[1].gif");
+	obGrp.setVisible(true);
+	obGrp.setEnabled(true);
+	obGrp.setContent("This is group's contens:<br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"framework, similar to JSUnit.");
+
+	outlookbar.addGroup(obGrp);
+
+	obGrp = new sw2.view.OutlookBarGroup();
+//	dbgLog("obGrp created");
+	obGrp.setText("group5");
+	obGrp.setName("group5");
+	obGrp.setIcon(__IMG_PATH+"/firefox[1].gif");
+	obGrp.setVisible(true);
+	obGrp.setEnabled(true);
+	obGrp.setContent("This is group's contens:<br>" + 
+		"framework, similar to JSUnit.");
+
+	outlookbar.addGroup(obGrp);
+
+	obGrp = new sw2.view.OutlookBarGroup();
+//	dbgLog("obGrp created");
+	obGrp.setText("group6");
+	obGrp.setName("group6");
+	obGrp.setIcon(__IMG_PATH+"/firefox[1].gif");
+	obGrp.setVisible(true);
+	obGrp.setEnabled(true);
+	obGrp.setContent("This is group's contens:<br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"framework, similar to JSUnit.");
+
+	outlookbar.addGroup(obGrp);
+
+	obGrp = new sw2.view.OutlookBarGroup();
+//	dbgLog("obGrp created");
+	obGrp.setText("group7");
+	obGrp.setName("group7");
+	obGrp.setIcon(__IMG_PATH+"/firefox[1].gif");
+	obGrp.setVisible(true);
+	obGrp.setEnabled(true);
+	obGrp.setContent("This is group's contens:<br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"Simple integrated client-side testing <br>" + 
+		"framework, similar to JSUnit.");
+
+	outlookbar.addGroup(obGrp);
+
+//	outlookbar.activate();
+}
+
+
+
+var radio;
+var radiogrp;
+function addRadio(){
+	radio = new sw2.view.Radio();
+	radio.setCaption("日本");
+	radio.setParent(form);
+	radio.setBounds(10, 10, 150, 25);
+
+	cs = radio.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+}
+
+function addRadioGroup(){
+	radiogrp = new sw2.view.RadioGroup();
+	radiogrp.setParent(form);
+	radiogrp.setBounds(10, 10, 100, 100);
+	//radiogrp.setValues([1,2,3], ["Apple", "Banana", "Orange"]);
+	radiogrp.setItems("Apple,1,Banana,2,Orange,3");
+	//radiogrp.activate();
+/*	var radio1 = new sw2.view.RadioButton("2", "radio1");
+	radio1.setParent(radiogrp);
+	var radio2 = new sw2.view.RadioButton("3", "radio2");
+	radio2.setParent(radiogrp);
+	var radio3 = new sw2.view.RadioButton("4", "radio3");
+	radio3.setParent(radiogrp);*/
+
+	cs = radiogrp.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+}
+
+function calendarDblClick(evt) {
+	var cal = evt.getSender();
+	window.alert(cal.getCurrentDate());
+}
+
+var calendar;
+function addCalendar() {
+	calendar = new sw2.view.Calendar();
+	calendar.setParent(form);
+	calendar.setBounds(10,10,200,110);
+	calendar.addEventListener("DblClick", calendarDblClick, null);
+
+	cs = calendar.getControlStyle();
+	cs.include(V.ControlStyle.resizable);
+	cs.include(V.ControlStyle.movable);
+}
+
+function addButtonClickEvent() {
+function a(evt) {
+   alert(evt.getType());
+};
+button.addEventListener("Click",a,null)
+}
+
+
+function addDragDropEvent() {
+	var deltaX = 0;
+	var deltaY = 0;
+	function btnMouseDown(evt) {
+		document.title = "btnd";
+		var btn = evt.getSender();
+		var x = evt.getX();
+		var y = evt.getY();
+		var pos = btn.getDeskLocation();
+		deltaX = x-pos.getX();
+		deltaY = y-pos.getY();
+		btn.beginDrag();
+	};
+
+	function panelDragEnter(evt) {
+		var panel = evt.getSender();
+		var btn = evt.getSrc();
+		evt.setAccept(true);
+	};
+
+	function panelDragDrop(evt) {
+		var panel = evt.getSender();
+		var btn = evt.getSrc();
+		var x = evt.getX();
+		var y = evt.getY();
+		var p = new V.Point(x,y);	
+		p = panel.pointFromDesk(p);
+		btn.setParent(panel);
+		btn.setLeft(p.getX()-deltaX);
+		btn.setTop(p.getY()-deltaY);
+	};
+
+	button.addEventListener("MouseDown",btnMouseDown,null);
+	panel.addEventListener("DragEnter",panelDragEnter,null);
+	panel.addEventListener("DragDrop",panelDragDrop,null);
+}
+
+function saveForm() {
+	form.saveToXml();
+}
+
+function loadForm() {
+	form = new V.Form();
+	form.setParent(desk);
+	form.readFromXml();
+
+}
+
+var designer = null;
+var dsgFrm = null;
+function dsgnForm() {
+    designer = new sw2.ide.UfcDesigner();
+	designer.setParent(desk);
+	designer.setBounds(1,1,700,350);
+	form = designer._form;
+
+}
+
+var text = null;
+function addTextInput() {
+	textinput = new sw2.view.Text();
+	textinput.setBounds(30,30,200,26);
+	textinput.setParent(form);
+}
+
+var textarea = null;
+function addTextArea() {
+	textarea = new sw2.view.TextArea();
+	textarea.setBounds(30,30,200,300);
+	textarea.setParent(form);
+}
+
+
+</SCRIPT>
+</HEAD>
+<BODY >
+<FORM>
+<DIV style="BORDER-RIGHT: 2px ridge; BORDER-TOP: 2px ridge; LEFT: 10px; OVERFLOW: hidden; BORDER-LEFT: 2px ridge; WIDTH: 1000px; BORDER-BOTTOM: 2px ridge; POSITION: absolute; TOP: 0px; HEIGHT: 200px">
+<TABLE height="100%" width="100%">
+<TBODY>
+<TR height="30%">
+<TD><INPUT id=b1 onclick=dsgnForm(); type=button value="Dsgn Form" name=a1> <INPUT id=b1 onclick=loadForm(); type=button value="Load Form" name=a1> <INPUT id=b1 onclick=saveForm(); type=button value="Save Form" name=a1> <INPUT id=b1 onclick=test1(); type=button value="Add Form" name=a1> <INPUT id=b2 onclick=test2(); type=button value="Add Button" name=a2> <INPUT id=b3 onclick=addButtonClickEvent(); type=button value=AddButtonClickEvent name=a2> <INPUT id=b4 onclick=addDragDropEvent(); type=button value=AddDragDropEvent name=a2> <INPUT id=b5 onclick=addCheckBox(); type=button value="Add CheckBox" name=a2> <INPUT id=b5 onclick=addProgessBar(); type=button value="Add ProgessBar" name=a2> <INPUT id=b5 onclick=addGroupBox(); type=button value="Add GroupBox" name=a2> <INPUT id=b5 onclick=addSplitter(); type=button value="Add Splitter" name=a2> <INPUT id=b5 onclick=addTree(); type=button value="Add Tree" name=a2> <INPUT id=b5 onclick=addScrollbar(); type=button value="Add Scrollbar" name=a2> <INPUT id=b5 onclick=addLabel(); type=button value="Add Label" name=a2> <INPUT id=b5 onclick=addMenuBar(); type=button value="Add Menu" name=a2> <INPUT id=b5 onclick=addPanel(); type=button value="Add Panel" name=a2> <INPUT id=b5 onclick=addGrid(); type=button value="Add Grid" name=a2> <INPUT id=b5 onclick=addTab(); type=button value="Add Tab" name=a2> <!--
+<input type = button id = 'b5' name ='a2' value = 'Add TabSheet' onclick = "addTabsheet();" />
+--><INPUT id=b5 onclick=addListBox(); type=button value="Add ListBox" name=a2> <INPUT id=b5 onclick=addToolBar(); type=button value="Add ToolBar" name=a2> <INPUT id=b5 onclick=addOutLookBar(); type=button value="Add OutLookBar" name=a2> <INPUT id=b5 onclick=addRadio(); type=button value="Add Radio" name=a2> <INPUT id=b5 onclick=addRadioGroup(); type=button value="Add RadioGroup" name=a2> <INPUT id=b5 onclick=addCalendar(); type=button value="Add Calendar" name=a2> <INPUT id=b5 onclick=addTextInput(); type=button value="Add TextInput" name=a2> <INPUT id=b5 onclick=addTextArea(); type=button value="Add TextArea" name=a2> <INPUT id=c5 type=checkbox> <BR><BR><TEXTAREA id=ta rows=6 cols=100></TEXTAREA> <INPUT id=C5 onclick=test5(); type=button value=実行 name=s> </TD></TR></TBODY></TABLE></DIV>
+<DIV id=sw2Container style="BORDER-RIGHT: 2px ridge; BORDER-TOP: 2px ridge; LEFT: 10px; OVERFLOW: hidden; BORDER-LEFT: 2px ridge; WIDTH: 1000px; BORDER-BOTTOM: 2px ridge; POSITION: absolute; TOP: 200px; HEIGHT: 380px" div <></FORM>
+<DIV class=" Control desktop" onselectstart=event.returnValue=false hideFocus style="CURSOR: default">
+<DIV class=Form hideFocus style="Z-INDEX: 1; LEFT: 169px; WIDTH: 500px; POSITION: absolute; TOP: 13px; HEIGHT: 300px" unselectable="true">
+<TABLE hideFocus style="BORDER-TOP-WIDTH: 0px; TABLE-LAYOUT: fixed; BORDER-LEFT-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; WIDTH: 100%; HEIGHT: 100%; BORDER-RIGHT-WIDTH: 0px" cellSpacing=0 cellPadding=0 unselectable="true">
+<TBODY hideFocus unselectable="true">
+<TR hideFocus unselectable="true">
+<TD hideFocus unselectable="true">
+<DIV class=TitleBar hideFocus style="valign: top" unselectable="true">
+<TABLE hideFocus style="WIDTH: 100%" cellSpacing=0 cellPadding=0 unselectable="true">
+<TBODY hideFocus unselectable="true">
+<TR hideFocus unselectable="true">
+<TD hideFocus style="PADDING-LEFT: 8px; WIDTH: 100%; WHITE-SPACE: nowrap" unselectable="true">Form1</TD>
+<TD hideFocus unselectable="true"><IMG class=WindowButton hideFocus height=16 src="../themes/default/subwindow_minimize.gif" width=16 unselectable="true"></TD>
+<TD hideFocus unselectable="true"><IMG class=WindowButton hideFocus height=16 src="../themes/default/subwindow_maximize.gif" width=16 unselectable="true"></TD>
+<TD hideFocus unselectable="true"><IMG class=WindowButton hideFocus height=16 src="../themes/default/subwindow_close.gif" width=16 unselectable="true"></TD></TR></TBODY></TABLE></DIV></TD></TR>
+<TR hideFocus style="HEIGHT: 100%;valign: top;" unselectable="true">
+<TD hideFocus unselectable="true"  >
+<DIV class=Container hideFocus style="OVERFLOW: auto; WIDTH: 100%; HEIGHT: 100%; position : absolute" unselectable="true">
+<DIV class=" Control MenuBar" hideFocus style="Z-INDEX: 1; LEFT: 0px; WIDTH: 496px; POSITION: absolute; TOP: 0px; HEIGHT: 26px" unselectable="true">
+<TABLE class=" MenuBar_Table" hideFocus cellSpacing=0 cellPadding=2>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus vAlign=center>
+<DIV class=MenuBarButton hideFocus _U="true">
+<TABLE hideFocus cellSpacing=0 cellPadding=1>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD class=" MenuBar_Icon" hideFocus vAlign=center><IMG hideFocus src="../themes/default/groupbox_collapseed.gif"></TD>
+<TD hideFocus vAlign=center><LABEL hideFocus>test</LABEL></TD></TR></TBODY></TABLE></DIV></TD>
+<TD hideFocus vAlign=center>
+<DIV class=MenuBarButton hideFocus _U="true">
+<TABLE hideFocus cellSpacing=0 cellPadding=1>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD class=" MenuBar_Icon" hideFocus vAlign=center><IMG hideFocus src="../themes/default/field_required.gif"></TD>
+<TD hideFocus vAlign=center><LABEL hideFocus>test2</LABEL></TD></TR></TBODY></TABLE></DIV></TD>
+<TD class=" MenuBar_Blank" hideFocus vAlign=center></TD></TR></TBODY></TABLE></DIV></DIV></TD></TR></TBODY></TABLE></DIV>
+<DIV class=" Control PopupMenu" hideFocus style="Z-INDEX: 2; LEFT: 249px; POSITION: absolute; TOP: 60px">
+<TABLE class=" MenuBox_Table" hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus></COLGROUP>
+<TBODY hideFocus>
+<TR class=" MenuItem_Row" hideFocus>
+<TD hideFocus>
+<DIV class=HotMenuItem hideFocus _U="true">
+<TABLE class=" MenuItem_Table" hideFocus cellSpacing=0 cellPadding=0>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD class=" MenuItem_Icon" hideFocus vAlign=center><IMG hideFocus src="../themes/default/datatable_order_descent.gif"></TD>
+<TD class=" MenuItem_Deli" hideFocus vAlign=center></TD>
+<TD class=" MenuItem_Text" hideFocus vAlign=center><LABEL hideFocus>test21</LABEL></TD>
+<TD class=" MenuItem_Indi" hideFocus vAlign=center></TD></TR></TBODY></TABLE></DIV></TD></TR>
+<TR class=" MenuItem_Row" hideFocus>
+<TD hideFocus>
+<DIV class=" MenuItem" hideFocus _U="true">
+<TABLE class=" MenuItem_Table" hideFocus cellSpacing=0 cellPadding=0>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD class=" MenuItem_Icon" hideFocus vAlign=center><IMG hideFocus src="../themes/default/datatable_order_descent.gif"></TD>
+<TD class=" MenuItem_Deli" hideFocus vAlign=center></TD>
+<TD class=" MenuItem_Text" hideFocus vAlign=center><LABEL hideFocus>test12</LABEL></TD>
+<TD class=" MenuItem_Indi" hideFocus vAlign=center></TD></TR></TBODY></TABLE></DIV></TD></TR></TBODY></TABLE></DIV></DIV></DIV>
+
+
+<DIV class=" Control TabSet" hideFocus style="Z-INDEX: 1; LEFT: 0px; WIDTH: 250px; POSITION: absolute; TOP: 0px; HEIGHT: 200px"><TABLE class=" TabControl_Table" hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus>
+<DIV class=" Tabs_Top" hideFocus>
+<TABLE class=" Tabs_Top" hideFocus cellSpacing=0 cellPadding=0>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD class=" Tab_Delim_First" hideFocus></TD>
+<TD class=" Tab_Text" hideFocus></TD></TR></TBODY></TABLE></DIV></TD></TR>
+<TR hideFocus>
+<TD hideFocus>
+<DIV class=" TabSetContentContainer_Top" hideFocus>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 1; POSITION: absolute">
+<DIV class=" Control CheckBox" hideFocus style="Z-INDEX: 1; LEFT: 30px; WIDTH: 100px; POSITION: absolute; TOP: 30px; HEIGHT: 25px"><INPUT hideFocus type=checkbox>
+<DIV hideFocus></DIV></DIV></DIV>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 2; POSITION: absolute">
+<DIV class=" Control Button" hideFocus style="Z-INDEX: 1; LEFT: 10px; WIDTH: 80px; POSITION: absolute; TOP: 10px; HEIGHT: 40px">
+<TABLE hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus style="WIDTH: auto">
+<COL hideFocus style="WIDTH: 100%">
+<COL hideFocus style="WIDTH: auto"></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus></TD>
+<TD hideFocus align=middle>button2</TD>
+<TD hideFocus><IMG hideFocus src="../themes/default/menu_indicator.gif"></TD></TR></TBODY></TABLE></DIV></DIV>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 3; POSITION: absolute">
+<DIV class=" Control Button" hideFocus style="Z-INDEX: 1; LEFT: 10px; WIDTH: 80px; POSITION: absolute; TOP: 10px; HEIGHT: 40px">
+<TABLE hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus style="WIDTH: auto">
+<COL hideFocus style="WIDTH: 100%">
+<COL hideFocus style="WIDTH: auto"></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus></TD>
+<TD hideFocus align=middle>button3</TD>
+<TD hideFocus><IMG hideFocus src="../themes/default/menu_indicator.gif"></TD></TR></TBODY></TABLE></DIV></DIV>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 4; POSITION: absolute">
+<DIV class=" Control Button" hideFocus style="Z-INDEX: 1; LEFT: 10px; WIDTH: 80px; POSITION: absolute; TOP: 10px; HEIGHT: 40px">
+<TABLE hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus style="WIDTH: auto">
+<COL hideFocus style="WIDTH: 100%">
+<COL hideFocus style="WIDTH: auto"></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus></TD>
+<TD hideFocus align=middle>button4</TD>
+<TD hideFocus><IMG hideFocus src="../themes/default/menu_indicator.gif"></TD></TR></TBODY></TABLE></DIV></DIV>
+<DIV class=" Control TabPage" hideFocus style="Z-INDEX: 5; POSITION: absolute">
+<DIV class=" Control Button" hideFocus style="Z-INDEX: 1; LEFT: 10px; WIDTH: 80px; POSITION: absolute; TOP: 10px; HEIGHT: 40px">
+<TABLE hideFocus cellSpacing=0 cellPadding=0>
+<COLGROUP hideFocus>
+<COL hideFocus style="WIDTH: auto">
+<COL hideFocus style="WIDTH: 100%">
+<COL hideFocus style="WIDTH: auto"></COLGROUP>
+<TBODY hideFocus>
+<TR hideFocus>
+<TD hideFocus></TD>
+<TD hideFocus align=middle>button5</TD>
+<TD hideFocus><IMG hideFocus src="../themes/default/menu_indicator.gif"></TD></TR></TBODY></TABLE></DIV></DIV></DIV></TD></TR></TBODY></TABLE></DIV>
+</BODY></HTML>

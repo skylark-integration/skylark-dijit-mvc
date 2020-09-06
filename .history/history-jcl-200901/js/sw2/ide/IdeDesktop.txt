@@ -1,0 +1,54 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.ide.IdeDesktop",
+	superc		: sw2.widget.Desktop,
+	statics	: {
+		_initialize	: function() {
+			W.Desktop.setDeskClass(this);
+		},
+
+		_finalize	: function() {
+		}
+	},
+	instances	: {
+		_initialize	: function() {
+			System.execMethod(this,"_initialize",null,W.Desktop);
+		},
+
+		_finalize	: function() {
+			System.execMethod(this,"_finalize",null,W.Desktop);
+		},
+
+		_dispatchMessage	: function(msg) {
+		document.title = '';
+			var capture = W.Control.getCapture();
+			if (capture) {
+				capture._handleMessage(msg);
+			} else {
+				var c = msg.getTarget();
+				if (!c) return;
+				var c1 = c;
+				while (c1) {
+					if (c1._el._h){
+						c1._el._h._handleMessage(msg);
+						return;
+					}
+					c1 = c1.getParent();
+				}
+				c._handleMessage(msg);
+			}
+		},
+
+		installMsgHooker	: function(c,hooker) {
+			c._el._h = hooker;
+		},
+
+		uninstallMsgHooker	: function(c){
+			c._el._h = null;
+		}
+	}
+});

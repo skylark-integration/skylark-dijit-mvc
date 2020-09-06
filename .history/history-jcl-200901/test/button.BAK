@@ -1,0 +1,65 @@
+<html>
+<head>
+<link href="../themes\default/skin.css" rel="stylesheet" type="text/css" />
+<script language = 'javascript' >
+	var _theme_root = "../css/themes/default";
+</script>
+<script language ='javascript' src = '../js/jcf/jcf.js' >
+</script>
+<script language ='javascript' src = '../js/ui/html.js' >
+</script>
+<script language ='javascript' src = '../js/ui/control1.js'>
+</script>
+<script language ='javascript' src = '../js/ui/button.js' >
+</script>
+<script language = "javascript">
+var button = null;
+function test1() {
+	button = new pst.ui.Button();
+	button.createHtmlElement();
+	button.setValue("test");
+/*	button._hel.style.position = "absolute";
+	button._hel.style.left = "200pt";
+	button._hel.style.visibility = "visible";
+	button._hel.style.width = "200pt";
+	button._hel.style.top = "200pt";
+	button._hel.style.height = "200pt";*/
+
+	button.setBounds(200,300,200,100);
+
+};
+function test2() {
+//	document.forms[0].a1.style.position = "absolute";
+//	document.forms[0].a1.style.left = "200pt";
+//	document.forms[0].a2.style.position = "absolute";
+//	document.forms[0].a2.style.left = "600pt";
+	button.setAllowPushDown(true);
+};
+
+function test3() {
+	
+	button.setLeft(button.getLeft()+5);
+};
+
+function test4() {
+	document.body.removeChild(button._el);
+};
+
+function test5() {
+	var b = $HTML.createElement("BUTTON");
+	$HTML.addElement(b);
+}	
+
+</script>
+</head>
+
+<body>
+<form>
+<input type = button name ='a1' value = 'test1' onclick = "test1();" />
+<input type = button name ='a2' value = 'test2' onclick = "test2();" />
+<input type = button name ='a2' value = 'test2' onclick = "test3();" />
+<input type = button name ='a2' value = 'test4' onclick = "test4();" />
+<input type = button name ='a2' value = 'test5' onclick = "test5();" />
+</form>
+</body>
+</html>

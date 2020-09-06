@@ -1,0 +1,63 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+
+System.defineClass({
+	name		: "sw2.widget.UserForm",
+	superc		: sw2.widget.Form,
+	statics		: {
+		FS_NORMAL 	: "normal",
+		FS_MINIMIZE : "minimize",
+		FS_MAXIMIZE : "maximize",
+		FS_HIDDEN 	: "hidden",
+
+		_initialize : function() {
+			Component.registerComponentTag(this,"UserForm");
+		},
+
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_userEvtHandler	: null,
+
+
+		_initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Control);
+			this._userEvtHandler = new Hash();
+		},
+
+		_finalize : function() {
+			System.dispose(this._userEvtHandler);
+			this._userEvtHandler = null;
+
+			System.execMethod(this,"_finalize",null,W.Control);	
+		},
+
+		readFromXml	: function() {
+			var FILE = sw2.utils.File;
+			var content = FILE.loadFile("C:/t.xml");
+			var XML = sw2.utils.XML;
+			var xmlDoc = XML.createDocumentFromString(content);
+			var node = xmlDoc.documentElement;
+			this.readFromXmlNode(node);
+			 
+		},
+
+		saveToXml	: function() {
+			var XML = sw2.utils.XML;
+			var xmlDoc = XML.createDocument();
+			var node = xmlDoc.createElement("Form");
+			xmlDoc.appendChild(node);
+			this.saveToXmlNode(node);
+			var FILE = sw2.utils.File;
+			FILE.saveInFile(xmlDoc.xml,"C:/t.xml");
+		}
+
+
+	}
+});
+

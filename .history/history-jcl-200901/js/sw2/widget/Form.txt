@@ -1,0 +1,438 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.WindowState",
+	statics		: {
+		_WINDOWSTATES	: ["normal","maximized","minimized","full"],
+
+		normal	: null,
+		maximized	: null,
+		minimized	: null,
+		full	: null,
+
+		_initialize : function() {
+			for (var i = 0;i<this._WINDOWSTATES.length; i++) {
+				var oState = new W.WindowState();
+				oState._value = i;
+				this[this._WINDOWSTATES[i]] = oState;
+			}
+		},
+
+		vtos	: function(o) {
+			var s = W.WindowState._WINDOWSTATES[o._value];
+			return s;
+		},
+
+		vfroms	: function(sValue) {
+			if (this._WINDOWSTATES.indexOf(sValue) > -1) {
+				return this[sValue];
+			} else {
+			}
+		}
+
+	},
+	instances	: {
+		_value	: 0 
+	}
+});
+
+
+
+System.defineClass({
+	name		: "sw2.widget.Form",
+	superc		: sw2.widget.Container,
+	statics		: {
+		FS_NORMAL 	: "normal",
+		FS_MINIMIZE : "minimize",
+		FS_MAXIMIZE : "maximize",
+		FS_HIDDEN 	: "hidden",
+
+		_initialize : function() {
+			Component.registerComponentTag(this,"Form");
+		},
+
+		_defineProperties	: function(propInfo) {
+			W.Container._defineProperties(propInfo);
+            propInfo.put("text", String);
+		}
+
+
+	},
+	instances	: {
+		_activeSysBtn		: null,
+
+		_windowState		: null,
+		_active				: false,
+
+		_showMinBtn 		: true,
+		_showMaxBtn 		: true,
+		_showCloseBtn 		: true,
+
+
+		_elTable			: null,
+		_elCaption			: null,
+		_elContainer		: null,
+		_elCloseBtn			: null,
+		_elMinBtn			: null,
+		_elMaxiBtn			: null,
+		
+		_nLeft1				: 0,
+		_nTop1				: 0,
+		_nWidth1			: 0,
+		_nHeight1			: 0,
+
+
+		_initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Container);	
+
+			var cs = this.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+			this._windowState = W.WindowState.normal;
+
+		},
+
+		_finalize : function() {
+			this._elMinBtn = null;
+			this._elMaxBtn = null;
+			this._elCloseBtn = null;
+			this._elCaption = null;
+			this._elContainer = null;
+
+			this._windowState = null;
+
+			System.execMethod(this,"_finalize",null,W.Container);	
+		},
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"Form");
+
+			var elTable,elTbody,elTr,elTd;
+
+			this._elTable = UITable.create(1,0,el,"FormTable");
+			var row1 = UITable.appendRow(this._elTable,"FormTableRow1");
+			var row2 = UITable.appendRow(this._elTable,"FormTableRow2");
+
+			this._elTitleBar = UIDiv.create(UITableRow.cells(row1,0),"FormTitleBar");
+			this._elContainer = UIDiv.create(UITableRow.cells(row2,0),"FormContainer");
+
+
+			this._elTitleBarTable = UITable.create(0,0,this._elTitleBar,"FormTable");
+			var row3 = UITable.appendRow(this._elTitleBarTable);
+			var cell1 = UITableRow.appendCell(row3,"FormTitleIconCell");
+			this._elCaption = UITableRow.appendCell(row3,"FormTitleTextCell");
+			var cell3 = UITableRow.appendCell(row3,"FormTitleButtonCell");
+			var cell4 = UITableRow.appendCell(row3,"FormTitleButtonCell");
+			var cell5 = UITableRow.appendCell(row3,"FormTitleButtonCell");
+
+			this._elIcon   = UIImg.create(sw2.ResLibPath + "/images/common/blank.gif",cell1,"WindowButton");
+
+			this._elMinBtn = UIImg.create(sw2.ResLibPath + "/images/form/winbtn_minimize.gif",cell3,"WindowButton");
+
+			this._elMaxBtn = UIImg.create(sw2.ResLibPath + "/images/form/winbtn_maximize.gif",cell4,"WindowButton");
+
+			this._elCloseBtn = UIImg.create(sw2.ResLibPath + "/images/form/winbtn_close.gif",cell5,"WindowButton");
+
+			return el;
+		},
+
+
+		_getClientElement	: function() {
+			return this._elContainer;
+		},
+
+		_validateAutoMove	: function(x,y){
+			if ( mouse._mouseinEl == this._elCaption) {
+				return W.Cursor.move;
+			} else {
+				return null;
+			}
+		},
+
+		_doMouseMove	: function(x,y) {
+			var el = mouse._mouseinEl;
+			if (el != this._activeSysBtn) {
+				if (this._activeSysBtn) {
+					ctx.setElCssClass(this._activeSysBtn, "WindowButton");
+					this._activeSysBtn = null;
+				}
+				if (el == this._elMinBtn || 
+					el == this._elMaxBtn ||
+					el == this._elCloseBtn) {
+					ctx.setElCssClass(el, "HotWindowButton");
+					this._activeSysBtn = el;
+				} else {
+				}
+			} 
+			System.execMethod(this,"_doMouseMove",[x,y],W.Container);	
+		},
+
+		_doMouseLeave	: function(){
+			if (this._activeSysBtn) {
+				ctx.setElCssClass(this._activeSysBtn, "WindowButton");
+				this._activeSysBtn = null;
+			}
+		},
+
+
+		_doClick		: function() {
+			var el = mouse._mouseinEl;
+			if (el == this._elMinBtn) {	
+				if (this.getWindowState() == W.WindowState.minimized) {
+					this.restore();
+				} else {
+					this.minimize();
+				}
+			} else if (el == this._elMaxBtn) {
+				if (this.getWindowState() == W.WindowState.maximized) {
+					this.restore();
+				} else {
+					this.maximize();
+				}
+			} else if (el == this._elCloseBtn) {
+				this.hide();
+			} else if (el == this._elContainer) {
+				System.execMethod(this,"_doClick",null,W.Container);	
+			}
+		},
+
+		_doDblClick		: function() {
+			var el = mouse._mouseinEl;
+			if (el == this._elCaption) {
+				if (this.getWindowState() == W.WindowState.maximized) {
+					this.setWindowState(W.WindowState.normal);
+				} else {
+					this.setWindowState(W.WindowState.maximized);
+				}
+			} else if (el == this._elContainer) {
+				System.execMethod(this,"_doDblClick",null,W.Container);	
+			} 
+		},
+
+
+		getText	: function() {
+			return UITableCell.getText(this._elCaption);
+		},
+
+		setText	:function(sCaption) {
+			UITableCell.setText(this._elCaption, sCaption);
+		},
+
+
+		getIcon			: function(){
+			return UIImg.getSrc(this._elIcon);
+		},
+
+		setIcon			: function(sIcon){
+			UIImg.setSrc(this._elIcon,sIcon);
+		},
+
+		getShowMinBtn	:function() {
+			return this._elMinBtn!=null;
+		},
+
+		setShowMinBtn	: function(bShow) {
+			var old = this.getShowMinBtn();
+			if (bShow == old) {
+				return;
+			}
+			var cell = UITable.cells(this._elTitleBarTable,2,0);
+			if (bShow) {
+				this._elMinBtn = UIImg.create(sw2.ResLibPath + "/images/form/winbtn_minimize.gif",cell,"WindowButton");
+			} else {
+				UIContainer.removeAllChild(cell);
+				this._elMinBtn = null;
+			}
+		},
+
+		getShowMaxBtn	: function() {
+			return this._elMaxBtn!=null;
+		},
+
+		setShowMaxBtn	: function(bShow) {
+			var old = this.getShowMaxBtn();
+			if (bShow == old) {
+				return;
+			}
+
+			var cell = UITable.cells(this._elTitleBarTable,3,0);
+			if (bShow) {
+				this._elMinBtn = UIImg.create(sw2.ResLibPath + "/images/form/winbtn_maximize.gif",cell,"WindowButton");
+			} else {
+				UIContainer.removeAllChild(cell);
+				this._elMaxBtn = null;
+			}
+		},
+
+		getShowCloseBtn	: function() {
+			return this._elCloseBtn!=null;
+		},
+
+		setShowCloseBtn	: function(bShow) {
+			var old = this.getShowCloseBtn();
+			if (bShow == old) {
+				return;
+			}
+
+			var cell = UITable.cells(this._elTitleBarTable,4,0);
+			if (bShow) {
+				this._elMinBtn = UIImg.create(sw2.ResLibPath + "/images/form/winbtn_close.gif",cell,"WindowButton");
+			} else {
+				UIContainer.removeAllChild(cell);
+				this._elCloseBtn = null;
+			}
+		},
+
+		getWindowState	: function() {
+			return this._windowState;
+		},
+
+		_backupPosSize	: function() {
+			this._l1 = this.getLeft();
+			this._t1 = this.getTop();
+			this._w1 = this.getWidth();
+			this._h1 = this.getHeight();
+		},
+
+		_restorePosSize	: function() {
+			this.setBounds(this._l1,this._t1,this._w1,this._h1);
+			this._l1 = 0;
+			this._t1 = 0;
+			this._w1 = 0;
+			this._h1 = 0;
+		},
+
+		_doNormalAnimatation	: function(delim) {
+			var w = this.getWidth();
+			var h = this.getHeight();
+			var l = this.getLeft();
+			var t = this.getTop();
+			var dw = delim;
+			var dh = Math.floor((this._h1-h)*delim/(this._w1-w));
+			h = h - dh;
+			w = w - dw;
+
+
+			if (w<=this._w1 || h <= this._h1) {
+				this._restorePosSize();
+			} else {
+				l = l+Math.floor(dw/2);
+				t = t+Math.floor(dh/2);
+				this.setBounds(l<this._l1?l:this._l1,t<this._t1?t:this._t1,w,h);
+				delim +=70;
+				System.asyncExecMethod(this,this._doNormalAnimatation,[delim],3)
+			}
+			
+		},
+
+		_doMaximizeAnimatation	: function(fw,fh,delim) {
+			var w = this.getWidth();
+			var h = this.getHeight();
+			var l = this.getLeft();
+			var t = this.getTop();
+			var dw = delim;
+			var dh = Math.floor((fh-h)*delim/(fw-w));
+			h = h+ dh;
+			w = w + dw;
+
+
+			if (w>=fw || h >= fh) {
+				this.setBounds(0,0,fw,fh);
+			} else {
+				l = l-Math.floor(dw/2);
+				t = t-Math.floor(dh/2);
+				this.setBounds(l>0?l:0,t>0?t:0,w,h);
+				delim +=70;
+				System.asyncExecMethod(this,this._doMaximizeAnimatation,[fw,fh,delim],3)
+			}
+			
+		},
+
+		setWindowState	: function(oState) {
+			if (oState && System.instanceOf(oState,W.WindowState) && oState != this._windowState) {
+				this._windowState = oState;
+				switch (oState) {
+					case W.WindowState.minimized : {
+						this._backupPosSize();
+						
+						break;
+					};
+					case W.WindowState.maximized : {
+						this._backupPosSize();
+						var p = this.getParent();
+						var fw = p.getClientWidth();
+						var fh = p.getClientHeight();
+						if (this._elMaxBtn) {
+							UIImg.setSrc(this._elMaxBtn,sw2.ResLibPath + "/images/form/winbtn_normal.gif");
+						}
+						System.asyncExecMethod(this,this._doMaximizeAnimatation,[fw,fh,30])
+						break;
+					};
+					case W.WindowState.normal : {
+						if (this._elMaxBtn) {
+							UIImg.setSrc(this._elMaxBtn,sw2.ResLibPath + "/images/form/winbtn_maximize.gif");
+						}
+						System.asyncExecMethod(this,this._doNormalAnimatation,[30])
+//						this._restorePosSize();
+						break;
+					};
+					case W.WindowState.full : {
+						this._backupPosSize();
+						break;
+					};
+				} 
+			}
+		},
+
+		minimize	: function() {
+			this.setWindowState(W.WindowState.minimized);
+		},
+
+		maximize	: function() {
+			this.setWindowState(W.WindowState.maximized);
+		},
+
+		restore		: function() {
+			this.setWindowState(W.WindowState.normal);
+		},
+
+		full		: function() {
+			this.setWindowState(W.WindowState.full);
+		},
+
+		hide		: function() {
+			this.setVisible(false);
+		},
+
+		show		: function() {
+			this.setVisible(true);
+		},
+
+		readFromXml	: function() {
+			var FILE = sw2.utils.File;
+			var content = FILE.loadFile("C:/t.xml");
+			var XML = sw2.utils.XML;
+			var xmlDoc = XML.createDocumentFromString(content);
+			var node = xmlDoc.documentElement;
+			this.readFromXmlNode(node);
+			 
+		},
+
+		saveToXml	: function() {
+			var XML = sw2.utils.XML;
+			var xmlDoc = XML.createDocument();
+			var node = xmlDoc.createElement("Form");
+			xmlDoc.appendChild(node);
+			this.saveToXmlNode(node,"");
+			var FILE = sw2.utils.File;
+			FILE.saveInFile(xmlDoc.xml,"C:/t.xml");
+		}
+
+
+	}
+});
+

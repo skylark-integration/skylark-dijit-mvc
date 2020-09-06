@@ -1,0 +1,135 @@
+<html lang="ja">
+
+<head>
+<script type="text/JavaScript">
+function changeHTML(val){
+	//XSLファイルを読み込む
+	//var stl = new ActiveXObject("Microsoft.XMLDom");
+	//stl.async=false;
+	//stl.load("dom.xsl");
+
+	//「test」という属性が入っているタグを検索する
+	//すなわち、dom.xslの中で最初にある<xsl:if test="条件">属性が取得できる
+	//var testfield = stl.selectSingleNode("//@test");
+
+	//test属性の値をセットする。
+	//すなわち、<xsl:if test="条件">に対する条件を指定できる
+	//testfield.value = "名前[.='" + val + "']";
+
+	//XMLファイルを読み込む
+        alert(document.URL);
+	var doc = new ActiveXObject("Microsoft.XMLDom");
+	doc.async=false;
+	doc.load("./a/feature.xml");
+
+	//doc.save("./a/feature-backup.xml");
+	targetID.value=doc.xml; //HTMLを生成し直す
+      
+        //var wshshell=new ActiveXObject("WScript.Shell");
+        var fso = new ActiveXObject("Scripting.FileSystemObject");
+        var  txs = fso.CreateTextFile("I:/WorkSpace/DEVELOP/Temp/a/b.xml");
+	txs.write(doc.xml);
+        txs.close();
+        delete txs;
+        delete fso;
+        //delete wshshell;
+        delete doc;
+};
+
+function testProperty() {
+	
+	alert("1");
+	Array.prototype._length = Array.prototype.length;
+        Array.prototype.length = function() {};
+	var a = new Array("a","b");
+        alert(a.length);
+	alert("1");
+        alert(a._length);
+	//Object.prototype.__defineGetter__("year",function() { return "2006"; })
+	//var o = new Object();
+	//alert(o.year);
+};
+
+
+
+function test11(){	
+	
+//	alert(window.prop1+a[0] );
+	var _Object = Object;
+	var _Function = Function;
+
+	_Object.prototype.p = "aa";
+	alert("0");
+	Object = function(){};
+	Function = 
+
+	alert("1");
+	Object.prototype.p = "bb";
+	alert("2");
+	var _namespaces = {
+		Array : Array
+	};
+	var a = new _namespaces.Array(2);
+	alert("3");
+	a[0] = "abc";
+	var pn = "prop1";
+	window[pn] = "test";
+	alert("4");
+	alert(a.p);
+	alert("5");
+};
+
+function test1(){	
+	alter(typeof(Object));
+	var _Array = Array;
+	/*Array = function() {
+		var a=arguments;
+		for (i=0; i<a.length; ++i) {
+			this[i] = a[i];
+		};
+	};*/
+
+	Array = function() {};
+	
+	Array.prototype.constructor = _Array;
+	alert("1");
+	var a = new _Array("a","b");
+	alert("2");
+	alert(a.length);	
+};
+
+function test13(){	
+	var o = new Object();
+	o.p1="aaa";
+	for (var p in o) {
+		alert(p+"^"+o[p]);
+	}
+};
+
+function test2() {
+  //if (document.forms[0].txt1.value == "" ) {
+//	document.forms[0].btn2.disabled = true;
+ // }
+  alert(caller.arguments);
+
+};
+
+function func1(x, y) {
+    func2();
+}
+function func2() {
+    alert(func2.caller.arguments.caller);
+}
+
+</script>
+</head>
+
+<body>
+<form>
+	<p><button name="btn" onClick="changeHTML('ひしだま')">ボタン</button></p>
+	<input type="text" name="txt1" onkeyup = "test1();"  id="targetID"/> <!--この位置のHTMLが動的に変わる-->
+<button onClick="test1();" name="btn2">P</button>
+</form>
+</body>
+
+</html>

@@ -1,0 +1,870 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.util.XmlParser",
+	superc		: sw2.Component,
+	statics		: {},
+	instances	: {
+		_xmlParser			: null,
+        _parsedFlg          : false,
+        _appPath            : null,
+        _appActionAdd       : null,
+        _appActionDelete    : null,
+        _appActionRename    : null,
+        _appActionSave      : null,
+
+        _initialize : function()
+        {
+            dbgLog("sw2.util.XmlParser._initialize start");
+			/* Create XML parser */
+			this._xmlParser = new ActiveXObject("Microsoft.XMLDOM");
+			this._xmlParser.async = "false";
+			/* Support Mozillas */
+			//var xmlDoc=document.implementation.createDocument("","",null);
+            dbgLog("sw2.util.XmlParser._initialize end");
+        },
+
+        _finalize : function()
+        {
+            dbgLog("sw2.util.XmlParser._finalize start");
+            if (this._xmlParser != null)
+            {
+                //delete this._xmlParser;
+            }
+            dbgLog("sw2.util.XmlParser._finalize end");
+        },
+
+        /* parse XML to DOM */
+        _parseXmlFile : function(xmlFile)
+        {
+            dbgLog("sw2.util.XmlParserPrj.parseXmlFile start");
+			this._xmlParser.loadXML(xmlFile);
+			//var	prjItems = this.ideXmlParser.getElementsByTagName("project");
+            this._parsedFlg = true;
+            dbgLog("sw2.util.XmlParserPrj.parseXmlFile end");
+        },
+
+        /* return DOM to XML */
+        convertXml2Text : function()
+        {
+            if (this._xmlParser == null || !this._parsedFlg)
+                return null;
+
+            return this._xmlParser.xml;
+        },
+
+        _saveXmlFile : function()
+        {
+            if (this._xmlParser == null || !this._parsedFlg)
+                return null;
+
+            var dt = new sw2.util.DataTransfer();
+            var param = "";
+
+            param = "action=saveworkspace" + ";data=" + this.convertXml2Text();
+
+            dt.setUrl(this._appPath + this._appActionSave);
+            dt.setContents(param);
+            dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+            dt.setAsync(false);
+            dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+            dt.doPost();
+        }
+    }
+});
+
+System.defineClass({
+	name		: "sw2.util.XmlParserPrj",
+	superc		: sw2.util.XmlParser,
+	statics		: {},
+	instances	: {
+		//_projects				: null,
+//        _actionType0            : 0,    // create
+//        _actionType1            : 1,    // delete
+//        _actionType2            : 2,    // rename
+//        _actionType3            : 3,    // save
+//        _action                 : null,
+//        _subAction              : null,
+
+        _initialize : function()
+        {
+            dbgLog("sw2.util.XmlParserPrj._initialize start");
+            System.execMethod(this, "_initialize", null, sw2.util.XmlParser);
+            this._appPath = "/webfileeditor_app";
+            this._appActionAdd = "/createdata.do";
+            this._appActionDelete = "/deletedata.do";
+            this._appActionRename = "/renamedata.do";
+            this._appActionSave = "/savedata.do";
+
+//            this._action = new Array("create", "delete", "rename", "save");
+//            this._subAction = new Array("project", "directory", "file");
+            dbgLog("sw2.util.XmlParserPrj._initialize end");
+        },
+
+        _finalize : function()
+        {
+            dbgLog("sw2.util.XmlParserPrj._finalize start");
+            System.execMethod(this, "_finalize", null, sw2.util.XmlParser);
+            dbgLog("sw2.util.XmlParserPrj._finalize end");
+        },
+
+        saveExecute : function(url, param)
+        {
+            if (this._xmlParser == null || !this._parsedFlg)
+                return null;
+
+            this.saveXmlFile();
+
+            var dt = new sw2.util.DataTransfer();
+            var param = "";
+
+            //param = "action=deleteproject" + ";projectName=" + prjName;
+            //dt.setUrl(this._appPath + this._appDeleteAction);
+            dt.setUrl(url);
+            dt.setContents(param);
+            dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+            dt.setAsync(false);
+            dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+
+//            param = "action=" + 
+//                this._action[actType] + 
+//                this._subAction[subActType] + 
+//                actArgs;
+
+//            for(i = 0; i < actArgs.length; i ++)
+//            {
+//                param += ";" + actArgs[i];
+//            }
+
+//            switch(actType)
+//            {
+//                case this._actionType0:
+//                    param = "action=" + this._action[actType] + this._subAction[subActType] + ";projectName=" + prjName;
+//                    break;
+//                case this._actionType1:
+//                    param = "action=deleteproject" + ";projectName=" + prjName;
+//                    break;
+//                case this._actionType2:
+//                    param = "";
+//                    break;
+//                case this._actionType3:
+//                    param = "";
+//                    break;
+//                default:
+//                    break;
+//            };
+
+            dt.doPost();
+        },
+
+        addProject : function(prjName)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+
+            var element = this._xmlParser.createElement("project");
+            element.setAttribute("name", prjName);
+
+            var rootElement = this._xmlParser.getElementsByTagName("workspace");
+            rootElement[0].appendChild(element);
+            //this._xmlParser.appendChild(element);
+//            var url = this._appPath + this._appActionAdd;
+//            var param = "action=createproject;projectname=" + prjName;
+//
+//            this.saveExecute(url, param);
+        },
+
+        deleteProject : function(prjName)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+
+            var prjItems = this._xmlParser.getElementsByTagName("project");
+            for(i = 0; i < prjItems.length; i ++)
+            {
+                if (prjName == prjItems[i].getAttribute("name"))
+                {
+                    var rootElement = this._xmlParser.getElementsByTagName("workspace");
+                    rootElement[0].removeChild(prjItems[i]);
+
+//                    var url = this._appPath + this._appActionDelete;
+//                    var param = "action=deleteproject;projectname=" + prjName;
+//
+//                    this.saveExecute(url, param);
+//
+                    break;
+                }
+            }
+        },
+
+        renameProject : function(oldPrjName, newPrjName)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+
+            var prjItems = this._xmlParser.getElementsByTagName("project");
+            for(i = 0; i < prjItems.length; i ++)
+            {
+                if (oldPrjName == prjItems[i].getAttribute("name"))
+                {
+                    //var rootElement = this._xmlParser.getElementsByTagName("workspace");
+                    //rootElement[0].removeChild(prjItems[i]);
+                    prjItems[i].setAttribute("name", newPrjName);
+
+//                    var dt = new sw2.util.DataTransfer();
+//                    var param = "";
+//
+//                    param = "action=renameproject" + 
+//                        ";oldProjectName=" + oldPrjName + 
+//                        ";newProjectName=" + newPrjName;
+//                    dt.setUrl(this._appPath + this._appRenameAction);
+//                    dt.setContents(param);
+//                    dt.setResponseType($DT.RESPONSE_TYPE_TEXT);
+//                    dt.setAsync(false);
+//                    dt.setContentType($DT.CONTENT_TYPE_URLENCODED);
+//
+//                    dt.doPost();
+//                    var url = this._appPath + this._appActionRename;
+//                    var param = "action=renameproject;oldprojectname=" + oldPrjName + 
+//                        "newprojectname=" + newPrjName;
+//
+//                    this.saveExecute(url, param);
+
+                    break;
+                }
+            }
+        },
+
+        _getDirFileList : function(elementNode, subArray)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+
+            dbgLog("sw2.util.getDirFileList start");
+            if (elementNode.nodeName == "file")
+            {
+//                dbgLog("sw2.util.getDirFileList file:" + elementNode.getAttribute("name"));
+                subArray.push(elementNode.getAttribute("name"));
+                //return;
+            }
+            else if (elementNode.nodeName == "directory")
+            {
+//                dbgLog("sw2.util.getDirFileList dir:" + elementNode.getAttribute("name"));
+                var newDirArray = new Array();
+                newDirArray[0] = elementNode.getAttribute("name");
+                newDirArray[1] = new Array();
+                subArray.push(newDirArray);
+                for(var k = 0; k < elementNode.childNodes.length; k ++)
+                {
+                    this._getDirFileList(elementNode.childNodes[k], newDirArray[1]);
+                }
+            }
+            else
+            {
+                dbgLog("sw2.util.getDirFileList unknown element");
+            }
+            dbgLog("sw2.util.getDirFileList end");
+        },
+
+        getProjectList : function(xmlFile)
+        {
+            //if (this._xmlParser == null || !this._parsedFlg) return;
+
+            dbgLog("sw2.util.XmlParserPrj.getProjectList start");
+
+            this._parseXmlFile(xmlFile);
+
+            var prjList = new Array();
+			var	prjItems = this._xmlParser.getElementsByTagName("project");
+
+            for(i = 0; i < prjItems.length; i ++)
+            {
+                //prjList.push(prjItems[i].getAttribute("name"));
+                prjList[i] = new Array();
+                //prjList[i].push(prjItems[i].getAttribute("name"));
+                prjList[i][0] = prjItems[i].getAttribute("name");
+                if (prjItems[i].childNodes.length > 0)
+                    prjList[i][1] = new Array();
+//                dbgLog("sw2.util.XmlParserPrj.getProjectList [" + i + "].length:" + 
+//                    prjItems[i].childNodes.length);
+                for(j = 0; j < prjItems[i].childNodes.length; j ++)
+                {
+//                    dbgLog("sw2.util.XmlParserPrj.getProjectList [" + i + "," + j + "]");
+                    //prjList[i].push(new Array());
+                    //prjList[i][1] = new Array();
+                    //prjList[i][1][0] = prjItems[i][0].getAttribute("name");
+                    //prjList[i][1] = this.getDirorFile(prjItems[i].childNodes[j]);
+                    this._getDirFileList(prjItems[i].childNodes[j], prjList[i][1]);
+//                    dbgLog("sw2.util.XmlParserPrj.getProjectList [" + i + "," + j + "]");
+                }
+            }
+            dbgLog("sw2.util.XmlParserPrj.getProjectList end");
+
+            return prjList;
+        },
+
+        addDir : function(path, dirName)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+
+            dbgLog("sw2.util.XmlParserPrj.addDir start");
+            var dir = path.split("\\");
+            var items = this._xmlParser.getElementsByTagName("project");
+
+            var i = 0;
+            var j = 0;
+            while(items.length > 0 && i < items.length)
+            {
+                if (items[i].getAttribute("name") == dir[j] && items[i].nodeName != "file")
+                {
+                    if (j == (dir.length - 1))
+                    {
+                        var newDir = this._xmlParser.createElement("directory");
+                        newDir.setAttribute("name", dirName);
+                        items[i].appendChild(newDir);
+                        break;
+                    }
+                    i = 0;
+                    j ++;
+
+                    items = items[i].childNodes;
+                }
+                else
+                    i ++;
+            };
+            dbgLog("sw2.util.XmlParserPrj.addDir end");
+        },
+
+        deleteDir : function(path)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+
+            dbgLog("sw2.util.XmlParserPrj.deleteDir start");
+            var dir = path.split("\\");
+            var items = this._xmlParser.getElementsByTagName("project");
+
+            var i = 0;
+            var j = 0;
+            while(items.length > 0 && i < items.length)
+            {
+                if (items[i].getAttribute("name") == dir[j] && items[i].nodeName != "file")
+                {
+                    if (j == (dir.length - 1))
+                    {
+                        //var newDir = this._xmlParser.createElement("directory");
+                        //items[i].appendChild(newDir);
+                        items[i].parentNode.removeChild(items[i]);
+                        break;
+                    }
+                    i = 0;
+                    j ++;
+
+                    items = items[i].childNodes;
+                }
+                else
+                    i ++;
+            };
+            dbgLog("sw2.util.XmlParserPrj.deleteDir end");
+        },
+
+        renameDir : function(path, newDirName)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+
+            dbgLog("sw2.util.XmlParserPrj.renameDir start");
+            var dir = path.split("\\");
+            var items = this._xmlParser.getElementsByTagName("project");
+
+            var i = 0;
+            var j = 0;
+            while(items.length > 0 && i < items.length)
+            {
+                if (items[i].getAttribute("name") == dir[j] && items[i].nodeName != "file")
+                {
+                    if (j == (dir.length - 1))
+                    {
+                        //var newDir = this._xmlParser.createElement("directory");
+                        //items[i].appendChild(newDir);
+                        //items[i].parentNode.removeChild(items[i]);
+                        items[i].setAttribute("name", newDirName);
+                        break;
+                    }
+                    i = 0;
+                    j ++;
+
+                    items = items[i].childNodes;
+                }
+                else
+                    i ++;
+            };
+            dbgLog("sw2.util.XmlParserPrj.renameDir end");
+        },
+
+        getDirList : function(prjName)
+        {
+            dbgLog("sw2.util.XmlParserPrj.getDirList reserved");
+        },
+
+        addFile : function(filePath, fileName)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+            dbgLog("sw2.util.XmlParserPrj.addFile start");
+            var dir = filePath.split("\\");
+            var items = this._xmlParser.getElementsByTagName("project");
+
+            var i = 0;
+            var j = 0;
+            while(items.length > 0 && i < items.length)
+            {
+                if (items[i].getAttribute("name") == dir[j] && items[i].nodeName != "file")
+                {
+                    if (j == (dir.length - 1))
+                    {
+                        var newFile = this._xmlParser.createElement("file");
+                        newFile.setAttribute("name", fileName);
+                        items[i].appendChild(newFile);
+                        //items[i].parentNode.removeChild(items[i]);
+                        //items[i].setAttribute("name", newDirName);
+                        break;
+                    }
+                    i = 0;
+                    j ++;
+
+                    items = items[i].childNodes;
+                }
+                else
+                    i ++;
+            };
+            dbgLog("sw2.util.XmlParserPrj.addFile end");
+        },
+
+        deleteFile : function(filePath, fileName)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+
+            dbgLog("sw2.util.XmlParserPrj.deleteFile start");
+            var dir = filePath.split("\\");
+            var items = this._xmlParser.getElementsByTagName("project");
+
+            var i = 0;
+            var j = 0;
+            while(items.length > 0 && i < items.length)
+            {
+                if (items[i].getAttribute("name") == dir[j] && items[i].nodeName != "file")
+                {
+                    if (j == (dir.length - 1))
+                    {
+                        //var newFile = this._xmlParser.createElement("file");
+                        //newFile.setAttribute("name", fileName);
+                        //items[i].appendChild(newFile);
+                        //items[i].parentNode.removeChild(items[i]);
+                        //items[i].setAttribute("name", newDirName);
+                        for(var k = 0; k < items[i].childNodes.length; k ++)
+                        {
+                            if (items[i][k].getAttribute("name" == fileName))
+                            {
+                                items[i].removeChild(items[i][k]);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    i = 0;
+                    j ++;
+
+                    items = items[i].childNodes;
+                }
+                else
+                    i ++;
+            };
+            dbgLog("sw2.util.XmlParserPrj.deleteFile end");
+        },
+
+        renameFile : function(filePath, oldFileName, newFileName)
+        {
+            if (this._xmlParser == null || !this._parsedFlg) return;
+
+            dbgLog("sw2.util.XmlParserPrj.addFile start");
+            var dir = filePath.split("\\");
+            var items = this._xmlParser.getElementsByTagName("project");
+
+            var i = 0;
+            var j = 0;
+            while(items.length > 0 && i < items.length)
+            {
+                if (items[i].getAttribute("name") == dir[j] && items[i].nodeName != "file")
+                {
+                    if (j == (dir.length - 1))
+                    {
+                        for(var k = 0; k < items[i].childNodes.length; k ++)
+                        {
+                            if (items[i][k].getAttribute("name" == oldFileName))
+                            {
+                                //items[i].removeChild(items[i][k]);
+                                items[i][k].setAttribute("name", newFileName);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    i = 0;
+                    j ++;
+
+                    items = items[i].childNodes;
+                }
+                else
+                    i ++;
+            };
+            dbgLog("sw2.util.XmlParserPrj.addFile end");
+        },
+
+        getFileList : function(filePath)
+        {
+            dbgLog("sw2.util.XmlParserPrj.getFileList reserved");
+        }
+
+    }
+});
+
+//System.defineClass({
+//	name		: "sw2.util.FormObject",
+//	superc		: jcf.Object,
+//	statics		: {
+//        COMPONENT_FORM          : "form",
+//        COMPONENT_BUTTON        : "button",
+//        COMPONENT_CHECKBOX      : "checkbox",
+//        COMPONENT_COMBO         : "combo",
+//        COMPONENT_GROUPDOWN     : "groupdown"
+//    },
+//	instances	: {
+//        _type           : null,
+//		_name 			: null,
+//        _attr           : null,
+//        _method         : null,
+////        _attrValue      : null,
+////        _attrName       : null,
+////        _methodCode     : null,
+////        _methodName     : null,
+//		_children    	: null,
+//
+//		_initialize : function (name)
+//        {
+//			//System.execMethod(this, "_initialize", null, sw2.util.XmlParser);
+//			//this._children = new Array();
+//            this._attr = new Array();
+//            this._attr[0] = new Array();
+//            this._attr[1] = new Array();
+//            this._method = new Array();
+//            this._method[0] = new Array();
+//            this._method[1] = new Array();
+//
+//            if (name)
+//            {
+//                this._name = name;
+//            }
+////            this._attrValue = new Array();
+////            this._attrName = new Array();
+////            this._methodCode = new Array();
+////            this._methodName = new Array();
+//		},
+//
+//		_finalize : function()
+//        {
+//        },
+//
+//        setType : function(type)
+//        {
+//            this._type = type;
+//        },
+//
+//        getType : function()
+//        {
+//            return this._type;
+//        },
+//
+//        setName : function(name)
+//        {
+//            this._name = name;
+//        },
+//
+//        getName : function()
+//        {
+//            return this._name;
+//        },
+//
+//        setAttribute : function(attrName, value)
+//        {
+//            //this._attr.put(attrName, value);
+//            this._attr[0].push(attrName);
+//            this._attr[1].push(value);
+//        },
+//
+//        getAttribute : function(attrName)
+//        {
+//            return this._attr;  //.get(attrName);
+//        },
+//
+//        setMethod : function(methodName, code)
+//        {
+//            this._method[0].push(methodName);
+//            this._method[1].push(code);
+////            this._method.put(methodName, code);
+//        },
+//        
+//        getMethod : function(methodName)
+//        {
+//            return this._method;    //.get(methodName);
+//        },
+//
+//        addChild : function(obj)
+//        {
+//            if (this._children == null)
+//            {
+//                this._children = new Array();
+//            }
+//
+//            this._children.push(obj);
+//        },
+//
+//        getChild : function()
+//        {
+//            return this._children;
+//        }
+//    }
+//});
+//
+//var $FO = sw2.util.FormObject;
+//
+//System.defineClass({
+//	name		: "sw2.util.XmlParserForm",
+//	superc		: sw2.util.XmlParser,
+//	statics		: {},
+//	instances	: {
+//		//_url				: null,
+//        //_root               : null,
+//
+//        _initialize : function()
+//        {
+//            System.execMethod(this, "_initialize", null, sw2.util.XmlParser);
+////            this._appPath = "/webfileeditor_app";
+////            this._appActionAdd = "/createdata.do";
+////            this._appActionDelete = "/deletedata.do";
+////            this._appActionRename = "/renamedata.do";
+////            this._appActionSave = "/savedata.do";
+//        },
+//
+//        _finalize : function()
+//        {
+//            System.execMethod(this, "_finalize", null, sw2.util.XmlParser);
+//        },
+//
+//        getComponents : function(xmlFile)
+//        {
+//            //if (this._xmlParser == null || this._parsedFlg) return;
+//
+//            dbgLog("sw2.util.XmlParserForm.getForm start");
+//
+//            this._parseXmlFile(xmlFile);
+//
+//            //var formList = new Array();
+//            var _root = new sw2.util.FormObject();
+//            //dbgLog("sw2.util.XmlParserForm create _root.");
+//			var	formObj = this._xmlParser.getElementsByTagName("form");
+//
+//            if (formObj == null)
+//            {
+//                dbgLog("sw2.util.XmlParserForm.getForm document format error.");
+//                return;
+//            }
+//
+//            _root.setType($FO.COMPONENT_FORM);
+//            _root.setName(formObj[0].getAttribute("name"));
+//
+//            var component = formObj[0].childNodes;
+//            //dbgLog("sw2.util.XmlParserForm component.length:" + component.length);
+//
+//            for(var i = 0; i < component.length; i ++)
+//            {
+//                //dbgLog("sw2.util.XmlParserForm component[" + i + "].");
+//                //dbgLog("sw2.util.XmlParserForm component name:" + component[i].nodeName);
+//                if (component[i].nodeName == "attribute")
+//                {
+//                    _root.setAttribute(component[i].getAttribute("name"), 
+//                        component[i].getAttribute("value"));
+//                    continue;
+//                }
+//                else if (component[i].nodeName == "method")
+//                {
+//                    _root.setMethod(component[i].getAttribute("name"), 
+//                        component[i].childNodes[0].nodeValue);
+//                    continue;
+//                }
+//                else if (component[i].nodeName == "#comment")
+//                {
+//                    continue;
+//                }
+//
+//                var obj = new sw2.util.FormObject();
+//                //obj.setType($FO.COMPONENT_BUTTON);
+//                obj.setType(component[i].nodeName);
+//                obj.setName(component[i].getAttribute("name"));
+//                //dbgLog("sw2.util.XmlParserForm create formobject");
+////                switch(component[i].nodeName)
+////                {
+////                    case    $FO.COMPONENT_BUTTON:
+////                        obj.setType($FO.COMPONENT_BUTTON);
+////                        obj.setName(component[i].getAttribute("name"));
+////                        //newBtn.
+////                        break;
+////                    default:
+////                        break;
+////                };
+//
+//                var subComponent = component[i].childNodes;
+//                for(var j = 0; j < subComponent.length; j ++)
+//                {
+//                    //dbgLog("sw2.util.XmlParserForm childNodes[" + j + "].");
+//                    switch(subComponent[j].nodeName)
+//                    {
+//                        case "attribute":
+//                            //dbgLog("sw2.util.XmlParserForm attribute:" +
+//                            //    subComponent[j].getAttribute("name"));
+//                            obj.setAttribute(subComponent[j].getAttribute("name"), 
+//                                subComponent[j].getAttribute("value"));
+//                            break;
+//                        case "method":
+//                            //dbgLog("sw2.util.XmlParserForm method:" + 
+//                            //    subComponent[j].getAttribute("name"));
+//                            obj.setMethod(subComponent[j].getAttribute("name"), 
+//                                subComponent[j].childNodes[0].nodeValue);
+//                            break;
+//                        default:
+//                            dbgLog("sw2.util.XmlParserForm.getForm unknown label:" + 
+//                                subComponent[j].nodeName);
+//                            break;
+//                    };
+//                }
+//
+//                _root.addChild(obj);
+//            }
+//            dbgLog("sw2.util.XmlParserForm.getForm end");
+//
+//            return _root;
+//        },
+//
+////        addButton : function(btnName)
+////        {
+////        },
+////
+////        deleteButton : function(btnName)
+////        {
+////        },
+//
+//        addComponent : function(type, top, left)
+//        {
+//            if (this._xmlParser == null || !this._parsedFlg) return;
+//
+//            var obj = null;
+//            var objElement = null;
+//            var objName = "";
+//
+//            switch(type)
+//            {
+//                case $FO.COMPONENT_BUTTON:
+//                    for(var i = 1; ; i++)
+//                    {
+//                        var	tmpObj = this._xmlParser.getElementsByName("Button" + i);
+//                        if (tmpObj == null)
+//                        {
+//                            objName = $FO.COMPONENT_BUTTON + i;
+//                            break;
+//                        }
+//                    }
+//                    obj = new sw2.util.FormObject(objName);
+//                    obj.setType($FO.COMPONENT_BUTTON);
+//                    // set default value
+//                    obj.setAttribute("Top", top);
+//                    obj.setAttribute("Left", left);
+//
+//                    obj.setMethod("onClick", "");
+//
+//                    break;
+//                default:
+//                    break;
+//            };
+//
+//            if (obj != null)
+//            {
+//                objElement = this._xmlParser.createElement($FO.COMPONENT_BUTTON);
+//                objElement.setAttribute("name", objName);
+//                var attr = obj.getAttribute();
+//                var method = obj.getAttribute();
+//                for(var i = 0; i < attr[0].length; i ++)
+//                {
+//                    var attrElement = this._xmlParser.createElement("attribute");
+//                    attrElement.setAttribute("name", attr[0][i]);
+//                    attrElement.setAttribute("value", attr[1][i]);
+//                    objEelment.appendChild(attrElement);
+//                }
+//                for(var i = 0; i < method[0].length; i ++)
+//                {
+//                    var methodElement = this._xmlParser.createElement("method");
+//                    methodElement.setAttribute("name", method[0][i]);
+//                    objElement.appendChild(attrElement);
+//
+//                    var codeElement = this._xmlParser.createTextNode("method");
+//                    //codeElement.setAttribute("value", method[1][i]);
+//                    codeElement.nodeValue = method[1][i];
+//                    methodElement.appendChild(codeElement);
+//                }
+//            }
+//
+//            var formObj = this._xmlParser.getElementsByTagName("form");
+//            if (formObj != null && obj != null)
+//            {
+//                formObj.appendChild(objElement);
+//            }
+//
+//            return obj;
+//        },
+//
+//        editComponent : function(obj)
+//        {
+//            if (this._xmlParser == null || !this._parsedFlg) return;
+////            switch(obj.getType())
+////            {
+////                case $FO.COMPONENT_BUTTON:
+//            var attr = obj.getAttribute();
+//            var method = obj.getMethod();
+//
+//            var edtObj = this._xmlParser.getElementsByName(obj.getName());
+//            for(var i = 0; i < attr[0].length; i ++)
+//            {
+//                edtObj.setAttribute(attr[0][i], attr[1][i]);
+//            }
+//            for(var i = 0; i < method[0].length; i ++)
+//            {
+//                edtObj.setAttribute(method[0][i], method[1][i]);
+//            }
+////                    break;
+////                default:
+////                    break;
+////            };
+//        },
+//
+//        deleteComponent : function(obj)
+//        {
+//            if (this._xmlParser == null || !this._parsedFlg) return;
+//
+//            var delObj = this._xmlParser.getElementsByName(obj.getName());
+//            if (delObj != null && delObj.parentNode != null)
+//            {
+//                delObj.parentNode.removeChild(obj);
+//            }
+//        },
+//
+////        editMethod : function(componentName, methodName, methodValue)
+////        {
+////        }
+//    }
+//});

@@ -1,0 +1,48 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+
+System.defineClass({
+	name		: "sw2.widget.Label",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"Label");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+            propInfo.put("text", String);
+		}
+
+	},
+	instances	: {
+		_initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Control);	
+			this._el.className = "Label";
+		},
+
+		_finalize : function() {
+			System.execMethod(this,"_finalize",null,W.Control);	
+		},
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"Label");
+
+			return el;
+		},
+
+
+		getText : function() {
+			return UILabel.getText(this._el);
+		},
+
+		setText : function(sCaption) {
+			UILabel.setText(this._el,sCaption);
+		}
+
+	}
+});
+

@@ -1,0 +1,541 @@
+<html>
+<head>
+<title>株式会社ピーエスティー</title>
+<meta name="keywords" content="システム開発,プロダクト、フレームワーク、Web 2.0、コンサルティング,オフショア,中国,中国オフショア">
+<meta name="description" content="システム開発,プロダクト、フレームワーク、Web 2.0、コンサルティング,オフショア,中国,中国オフショア">
+<meta http-equiv="Content-Type" content="text/html; charset=shift-jis">
+<link href="../resources/css/system.css" rel="stylesheet" type="text/css" />
+<link href="../resources/css/skin.css" rel="stylesheet" type="text/css" />
+
+<SCRIPT language ='JavaScript' src = '../js/spw/lang.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/component.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/browser.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/types.txt'></SCRIPT>
+<script language = 'javascript' >
+	sw2.ResLibPath = "../resources";
+</script>
+<SCRIPT language ='JavaScript' src = '../js/sw2/host/ui/Element.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/control.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/dragdrop.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/context.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/desktop.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/form.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/button.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/checkbox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/ProgressBar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/label.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/panel.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/radiobutton.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/radiogroup.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/calendar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/textinput.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/textarea.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/richview.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/PictureBox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/IFrameBox.txt'></SCRIPT>
+
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/groupbox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/splitter.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/tree.txt'></SCRIPT>
+
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/scrollbar.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/menubar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/toolbar.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/tabcontrol.txt'></SCRIPT>
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/listctrl.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/listbox.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/combo.txt'></SCRIPT>
+
+
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/context.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/grid.txt'></SCRIPT>
+<SCRIPT language ='JavaScript' src = '../js/sw2/widget/Calendar.txt'></SCRIPT>
+
+
+
+<SCRIPT language='JavaScript'>
+System.defineClass({
+	name		: "my.PstSite",
+	superc		: spw.Object,
+	statics		: {
+	},
+	instances	: {
+		_GREETING_TEXT  : "<P style='line-height:15pt;font-size:11pt'>　　私達はITプロフェショナルとして様々なシステム開発を経験し、"+
+										   "<br>IT技術を研究開発し続けてきました。そしてお客様によりよい"+
+										   "<br>サービスを提供するために、2007年6月に株式会社ピーエスティーを"+
+									 	   "<br>設立しました。"+
+										   "<br>　　システム開発事業とプロダクトソリューション事業を両輪として"+
+										   "<br>事業を組み立てています。システム開発事業を通じてお客様の様々な"+
+										   "<br>ニーズを把握し纏めながら、プロダクトソリューションの課題に反映"+
+										   "<br>します。そしてプロダクト研究開発を長く続けるうちで培った高い"+
+										   "<br>技術力及びプロダクト製品をシステム開発に生かし、プロフェショナル"+
+										   "<br>チームとしてお客様の求めるビジネスの実現とご満足のために常に"+
+										   "<br>よりよいソリューションを提供していきます。"+
+										   "<br>　　またシステム開発において、海外(中国)の法人と機構と様々な"+
+										   "<br>パートナー関係を築き、日本側の弊社で仕様と技術基盤を全体的に"+
+										   "<br>把握しながら大規模な生産を中国のパートナーに委ねる体制を整えて"+
+										   "<br>いて、より低いコストでお客様に高い品質のソリューションを提供できる"+
+										   "<br>と考えております。"+
+										   "<br><br>今後とも皆さまのより一層のご支援を賜りますようお願い申し上げます。<br><br></P>"+
+										   "<P  style='line-height:15pt;font-size:11pt' align=right>取締役社長　李　文峰&nbsp;&nbsp;</P>",
+		_PROFILE_TEXT	: "<table border='0' cellpadding='0' cellspacing='0' style='padding:10px;width:100%;height:80%'>"+
+										  "<tr><td width='100'><b>会　社　名</b></td><td>株式会社ピーエスティー</td></tr>"+
+										  "<tr><td><b>社　　長<b></td><td>李　文峰</td><tr>"+
+										  "<tr><td ><b>住所</b></td><td>東京都江東区門前仲町１－１６－５門仲原田ビル３０１</td><tr>"+
+										  "<tr><td><b>資　本　金</b></td><td>８００万円</td><tr>"+
+										  "<tr><td><b>設　　　 立</b></font> </td><td>平成１８年０６月</td></tr>"+
+										  "<tr><td><b>従　業　員</b></td><td>８名(2007年12月現在)</td><tr>"+
+										  "<tr><td><b>取引 銀行</b></td><td>三菱東京UFJ銀行　上野中央支店</td><tr>"+
+										  "<tr><td><b>関連会社または機構</b></td><td>青島奥普信息技術有限公司<br>SW2ソフトウェアラボラトリー<br>中国同済大学　基礎ソフトウェア技術研究センター</td><tr>"+
+										  "</table>",
+		_MENU_TEXT   : "<P  style='overfolw:hidden;line-height:18pt;color = blue;font-size:9pt' vAlign=bottom align=right> Web 2.0世代のソリューション:Sparrow Framework&nbsp;&nbsp;<a target = '_blank' href='./demo.htm'>サンプル</a>&nbsp;<a target='_blank' href='./license.txt'>ライセンス</a>&nbsp;</P>",
+		_STATUS_TEXT   : "<P  style='overfolw:hidden;line-height:18pt;font-size:9pt' align=center>お客様、投資会社及びパートナーからのお問い合わせは下記までご連絡をお願い致します。E-Mail: <a href='mailto:admin@psteam.co.jp'>admin@psteam.co.jp</a></P>",
+		_controlsArray  : 
+			    [
+					{
+						text:"企業情報",
+						children	:[
+							{
+								text:"社長挨拶"
+							},
+							{
+								text:"会社概要"
+							},
+							{
+								text:"組織"
+							}
+						]
+					},	
+					{
+						text:"事業・サービス内容",
+						children	:[
+							{
+								text:"システム開発"
+							},
+							{
+								text:"プロダクトソリューション"
+							}
+						]
+					},
+					{
+						text:"SW2ソリューション",
+						children	:[
+							{
+								text:"Sparrow Framework",
+								children	:[
+									{
+										text:"　　概要"
+									},
+									{
+										text:"１．特徴"
+									},
+									{
+										text:"２．アプリケーションモデル"
+									},
+									{
+										text:"３．フレームワーク構成"
+									}
+								]
+							},
+							{
+								text:"JOF"
+							}
+						]
+					},
+					{
+						text:"採用情報"
+					}		
+			    ],
+
+		_frmMain	: null,
+		_container  : null,
+		_ctrlTree	: null,
+		_ctrlMenu	: null,
+
+		_initialize : function() {
+		},
+
+		_garbageCollect			: function() {
+			GarbageCollect();
+		},
+
+
+		_buildContext			: function(txt) {
+			switch (txt) {
+				case "社長挨拶" :
+					this._buildGreeting();
+					break;
+				case "会社概要" :
+					this._buildProfile();
+					break;
+				case "組織" :
+					this._buildOrganization();
+					break;
+				case "システム開発" :
+					this._buildSysDev();
+					break;
+				case "プロダクトソリューション" :
+					this._buildProduction();
+					break;
+				case "　　概要" :
+					this._buildSparrowIntroduction();
+					break;
+				case "１．特徴" :
+					this._buildSparrowIntroduction1();
+					break;
+				case "２．アプリケーションモデル" :
+					this._buildSparrowIntroduction2();
+					break;
+				case "３．フレームワーク構成" :
+					this._buildSparrowIntroduction3();
+					break;
+				case "採用情報" :
+					this._buildRecruit();
+					break;
+				case "JOF" :
+					this._buildJofIntroduction();
+					break;
+				default : 
+//					System.asyncExecMethod(this,this._garbageCollect,[],0)
+					
+					break;
+			}
+		},
+
+		_buildGreeting		: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("社長挨拶");
+			var panel3 = new W.Panel(this._frmMain);
+
+			panel3.setBounds(45,10,450,400);
+
+			panel3.setParent(this._container);
+
+			panel3.getBackground().setColor("#EEEEEE");
+			this._txtPanel = panel3;
+
+			panel3.getFont().setSize(16);
+
+			panel3._el.innerHTML = this._GREETING_TEXT;
+			var cs = panel3.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+		},
+
+		_buildProfile		: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("会社概要");
+			var panel3 = new W.Panel(this._frmMain);
+
+			panel3.setBounds(45,10,450,400);
+
+			panel3.setParent(this._container);
+
+			panel3.getBackground().setColor("#EEEEEE");
+			this._txtPanel = panel3;
+
+			panel3.getFont().setSize(16);
+
+			panel3._el.innerHTML = this._PROFILE_TEXT;
+			var cs = panel3.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+		},
+
+		_buildOrganization		: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("組織");
+			var picture = new W.PictureBox(this._frmMain);
+
+			picture.setBounds(10,10,454,312);
+
+			picture.setImgSrc("./images/organization.jpg");
+			picture.setParent(this._container);
+			var cs = picture.getControlStyle();
+			cs.include(W.ControlStyle.resizable);
+			cs.include(W.ControlStyle.movable);
+
+		},
+
+
+		_buildSysDev		: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("システム開発");
+			var iframe = new W.IFrameBox(this._frmMain);
+
+			iframe.setBounds(10,10,454,312);
+			iframe.setDock(W.Dock.client);
+
+			iframe.setSrc("./SysDev.htm");
+			iframe.setParent(this._container);
+
+		},
+		_buildRecruit		: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("採用情報");
+			var iframe = new W.IFrameBox(this._frmMain);
+
+			iframe.setBounds(10,10,454,312);
+			iframe.setDock(W.Dock.client);
+
+			iframe.setSrc("./recruit.htm");
+			iframe.setParent(this._container);
+
+		},
+		_buildProduction		: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("プロダクトソリューション");
+			var iframe = new W.IFrameBox(this._frmMain);
+
+			iframe.setBounds(10,10,454,312);
+			iframe.setDock(W.Dock.client);
+
+			iframe.setSrc("./Production.htm");
+			iframe.setParent(this._container);
+
+		},
+
+		_buildSparrowIntroduction	: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("Sparrow概要");
+			var iframe = new W.IFrameBox(this._frmMain);
+
+			iframe.setBounds(10,10,454,312);
+			iframe.setDock(W.Dock.client);
+
+			iframe.setSrc("./spwintro.htm");
+			iframe.setParent(this._container);
+		},
+
+		_buildSparrowIntroduction1	: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("Sparrow概要");
+			var iframe = new W.IFrameBox(this._frmMain);
+
+			iframe.setBounds(10,10,454,312);
+			iframe.setDock(W.Dock.client);
+
+			iframe.setSrc("./spwintro1.htm");
+			iframe.setParent(this._container);
+		},
+
+		_buildSparrowIntroduction2	: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("Sparrow概要");
+			var iframe = new W.IFrameBox(this._frmMain);
+
+			iframe.setBounds(10,10,454,312);
+			iframe.setDock(W.Dock.client);
+
+			iframe.setSrc("./spwintro2.htm");
+			iframe.setParent(this._container);
+		},
+		_buildSparrowIntroduction3	: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("Sparrow概要");
+			var iframe = new W.IFrameBox(this._frmMain);
+
+			iframe.setBounds(10,10,454,312);
+			iframe.setDock(W.Dock.client);
+
+			iframe.setSrc("./spwintro3.htm");
+			iframe.setParent(this._container);
+		},
+
+
+		_buildJofIntroduction	: function() {
+			this._clearControlSample();
+
+			this._contentLabel.setText("JOF概要");
+			var iframe = new W.IFrameBox(this._frmMain);
+
+			iframe.setBounds(10,10,454,312);
+			iframe.setDock(W.Dock.client);
+
+			iframe.setSrc("./jofintro.htm");
+			iframe.setParent(this._container);
+		},
+		_NaviTreeViewDblClick 	: function(evt) {
+			var tree = evt.getSender();
+			var node = tree.getSelected();
+			if (node) {
+				this._buildContext(node.getText());
+			}
+			
+			
+		},
+
+
+		_buildCtrlNaviTreeView	:function (form) {
+			var tv  = new W.TreeView(form);
+			var nodes = tv.getNodes();
+			tv.setBounds(0,0,200,300);	
+			nodes.loadFromArray(this._controlsArray);
+			tv.addEventListener("DblClick",this._NaviTreeViewDblClick,this);
+			return tv;
+			
+			
+		},
+
+		_clearControlSample		: function() {
+			var children = this._container.getChildren();
+			for (var i = 0; i<children.length;i++) {
+				children[i].setParent(null);
+			}
+		},
+
+		_buildCtrlNaviMenuBar	: function(form) {
+			var bar = new W.RichView(form);
+			bar.getBackground().setColor("#EEEEEE");
+			bar.setBounds(0,0,200,25);
+			bar.setContent(this._MENU_TEXT);
+			return bar;
+		},
+
+
+		_buildLogoPanel	: function(form) {
+			var panel = new W.Panel(form);
+			panel.setParent(form);
+			panel.setBounds(0,0,200,50);
+			var picture = new W.PictureBox(form);
+			picture.setBounds(0,0,200,50);
+			picture.setImgSrc("./images/logo.gif");
+			picture.setParent(panel);
+			picture.setDock(W.Dock.left);
+			return panel;
+
+		},
+
+				
+		_buildStatusPanel	: function(form) {
+			var panel = new W.RichView(form);
+			panel.setBounds(0,0,200,25);
+			panel.setContent(this._STATUS_TEXT);
+			panel.getBackground().setColor("#EEEEEE");
+			return panel;
+
+		},
+
+		run		:	function() {
+			W.Desktop.start();
+
+			var form = new W.Form();
+//			this._frmMain = form;
+			
+			var dw = desk.getWidth();
+			var dh = desk.getHeight();	
+			form.setBounds((dw-800)/2,1,800,600);
+			form.setMinWidth(800);
+			form.setMinHeight(600);
+			form.setParent(desk);
+			form.setShowCloseBtn(false);
+			form.setShowMinBtn(false);
+			form.setVisible(true);
+			form.setIcon("./images/desktop.gif");
+			form.setText("創造力の企業へ");
+
+			var logo = this._buildLogoPanel(form);
+			logo.setDock(W.Dock.top);
+			logo.setParent(form);
+
+			this._logo = logo;
+
+			var sb = this._buildStatusPanel(form);
+			sb.setDock(W.Dock.bottom);
+			sb.setParent(form);
+
+			var mb = this._buildCtrlNaviMenuBar(form);
+			mb.setDock(W.Dock.top);
+			mb.setParent(form);
+			this._ctrlMenu = mb;
+
+			var tv = this._buildCtrlNaviTreeView(form);
+			tv.setDock(W.Dock.left);
+			tv.setParent(form);
+
+			this._ctrlTree = tv;
+
+			var splitter = new W.Splitter(form);
+			splitter.setDock(W.Dock.left);
+			splitter.setParent(form);
+
+			var panel = new W.Panel(form);
+			panel.setDock(W.Dock.client);
+			panel.setParent(form);
+
+			panel.setDock(W.Dock.client);
+			panel.setParent(form);
+
+
+			var label = new W.Label(form);
+			label.setDock(W.Dock.top);
+			label.setParent(panel);
+			label.setHeight(30);
+
+			label.getFont().setColor("green");
+			label.getFont().setBold(true);
+			label.getFont().setSize(16);
+
+			var panel2 = new W.Panel(form);
+			panel2.setDock(W.Dock.client);
+			panel2.setParent(panel);
+
+			var bss = new W.BorderStyles("ridge none none none");
+
+			var bws = new W.BorderWidths("1 0 0 0");
+
+			panel2.getBorders().setWidths(bws);
+			panel2.getBorders().setStyles(bss);
+
+			this._contentLabel = label;
+			this._container = panel2;
+
+			form.setVisible(true);
+			
+			tv.fullExpand();
+
+			this._buildSysDev();
+		}
+
+
+	}
+});
+	
+
+var pstSite = null;
+
+function afterload(){
+	pstSite = new my.PstSite();
+	pstSite.run();
+}
+
+</SCRIPT>
+
+
+</head>
+<BODY onload='afterload();'>
+</BODY>
+</html>
+
+
+

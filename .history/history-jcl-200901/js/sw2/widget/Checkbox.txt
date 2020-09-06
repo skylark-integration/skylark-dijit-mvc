@@ -1,0 +1,68 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.CheckBox",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"CheckBox");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+            propInfo.put("checked", Boolean);
+            propInfo.put("text", String);
+		}
+	},
+	instances	: {
+		_elLabel	: null,
+		_elCheck	: null,
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"CheckBox");
+
+            this._elCheck = UICheck.create(el);
+			this._elLabel = UILabel.create(el);
+
+			return el;
+		},
+
+		_doFocus		: function() {
+			UIDiv.addCssClass(this._elLabel,"Focus");
+			System.execMethod(this,"_doFocus",[],W.Control);
+		},
+
+		_doBlur			: function() {
+			UIDiv.removeCssClass(this._elLabel,"Focus");
+			System.execMethod(this,"_doBlur",[],W.Control);
+		},
+
+		_doClick	: function() {
+			var el = mouse._mouseinEl;
+			if (el == this._elLabel) {
+				this.setChecked(!this.getChecked());
+			}
+			System.execMethod(this,"_doClick",[],W.Control);
+		},
+
+		getChecked	: function() {
+			return UICheck.getChecked(this._elCheck);
+		},
+
+		setChecked	: function(bChecked) {
+			UICheck.setChecked(this._elCheck, bChecked);
+		},
+
+		getText	: function() {
+			return UILabel.getText(this._elLabel);
+		},
+
+		setText	: function(sValue) {
+			UILabel.setText(this._elLabel,sValue);
+		}
+	}
+});
+

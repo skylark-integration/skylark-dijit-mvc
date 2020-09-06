@@ -1,0 +1,26 @@
+<html>
+<head>
+<script language ='javascript' src = '../js/spw/lang.txt' >
+</script>
+<script language ='javascript' src = '../js/sw2/browser.txt' >
+</script>
+
+<script language ='javascript' src = '../js/sw2/utils/io.txt' >
+</script>
+
+<script language ='javascript'  >
+
+ function test1() {
+   var dm = new sw2.utils.DataManager();
+   dm.saveInFile("test","I:/tmp.txt");
+ }
+</script>
+
+</head>
+<body>
+<form>
+<input type = button name ='a1' value = 'test1' onclick = "test1();" />
+<input type = button name ='a2' value = 'test2' onclick = "test2();" />
+</form>
+</body>
+</html>

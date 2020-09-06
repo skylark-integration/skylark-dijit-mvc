@@ -1,0 +1,190 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.Color",
+	superc		: spw.Object,
+	statics		: {
+		_hexch  : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'],
+
+		_initialize	: function(dsgFrm) {
+		},
+
+		_finalize	: function() {
+		}
+	},
+	instances	: {
+
+		ToHex	: function (n){
+			var h, l;
+
+			n = Math.round(n);
+			l = n % 16;
+			h = Math.floor((n / 16)) % 16;
+			return (W.Color._hexch[h] + W.Color._hexch[l]);
+		},
+
+		doColor	: function (c, l){ 
+			var r, g, b;
+
+			r = '0x' + c.substring(1, 3);
+			g = '0x' + c.substring(3, 5);
+			b = '0x' + c.substring(5, 7);
+
+			if(l > 120)	{
+				l = l - 120;
+				r = (r * (120 - l) + 255 * l) / 120;
+				g = (g * (120 - l) + 255 * l) / 120;
+				b = (b * (120 - l) + 255 * l) / 120;
+			}else{
+				r = (r * l) / 120;
+				g = (g * l) / 120;
+				b = (b * l) / 120;
+			}
+
+			return '#' + this.toHex(r) + this.toHex(g) + this.toHex(b);
+		}
+
+	}
+});	
+
+System.defineClass({
+	name		: "sw2.ide.ColorSelForm",
+	superc		: sw2.widget.Form,
+	statics		: {
+	},
+	instances	: {
+		_elTableGray: null,
+		_elTableColor	: null,
+
+		_dragSel	: null,
+		_selection	: null,
+
+		_initialize	: function(dsgFrm) {
+			System.execMethod(this,"_initialize",null,W.Form);
+
+			var heTable  = ctx.createElement("TABLE");
+			this._elTableColor = heTable;
+
+			heTable.style.cursor = "hand";
+			heTable.cellPadding = 0;
+			heTable.cellSpacing = 0;
+
+			heTable.style.tableLayout = "fixed";
+			heTable.style.borderWidth = 0;
+
+
+			var heTbody = ctx.createElement("TBODY");
+			heTable.appendChild(elTbody);
+
+			var cnum = new Array(1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0);
+
+			for(i = 0; i < 16; i ++){
+				var heTr = ctx.createElement("TR");
+				heTbody.appendChild(heTr);
+				for(j = 0; j < 30; j ++){
+					n1 = j % 5;
+					n2 = Math.floor(j / 5) * 3;
+					n3 = n2 + 3;
+
+					var r = cnum[n3] * n1 + cnum[n2] * (5 - n1);
+					var g = cnum[n3 + 1] * n1 + cnum[n2 + 1] * (5 - n1);
+					var b = cnum[n3 + 2] * n1 + cnum[n2 + 2] * (5 - n1);
+
+					r = ((r * 16 + r) * 3 * (15 - n) + 0x80 * i) / 15;
+					g = ((g * 16 + g) * 3 * (15 - n) + 0x80 * i) / 15;
+					b = ((b * 16 + b) * 3 * (15 - n) + 0x80 * i) / 15;
+
+					var heTd = ctx.createElement("TD");
+					heTr.appendChild(heTd);
+					ctx.setElWdith(heTd,8);
+					ctx.setElHeight(heTd,8);
+					heTd.bgColor = "#"+this._toHex(r)+this._toHex(g)+this._toHex(b);
+				}
+			}
+	
+		},
+
+		_finalize	: function() {
+			if (this._dragSel) {
+				this._dragSel.dispose();
+				this._dragSel = null;
+			}
+
+			if (this._selection) {
+				this._selection.dispose();
+				this._selection = null;
+			}
+
+			System.execMethod(this,"_finalize",null,W.Form);
+		},
+		
+		_endColor	: function (){
+			var i;
+
+			if(DrRGB != SelRGB)	{
+				DrRGB = SelRGB;
+				for(i = 0; i <= 30; i ++)
+					this._elTableGray.rows(i).bgColor = this._doColor(SelRGB, 240 - i * 8);
+				}
+
+				SelColor.value = DoColor(RGB.innerText, GRAY.innerText);
+				ShowColor.bgColor = SelColor.value;
+		},
+
+		_doMouseMove	: function(x,y) {
+			if (mouse.getLButton()) {
+				this._dragSel.setWidth(x-mouse.getDownX());
+				this._dragSel.setHeight(y-mouse.getDownY());
+			}
+			System.execMethod(this,"_doMouseMove",null,W.Form);	
+		},
+
+		_doMouseDown	: function(btn,x,y) {
+			W.Control.setCapture(this);
+			if (mouse.getLButton()) {
+				if (!this._dragSel) {
+					this._dragSel = new W.Control(this);
+					this._dragSel.setBorderWidth(1);
+					this._dragSel.setBorderColor("gray");
+					this._dragSel.setBorderStyle(W.BorderStyle.dotted);
+					ctx.setElTransparent(this._dragSel._el,true);
+					this._dragSel.setLeft(mouse.getDownX()-this.getLeft()-this.getClientLeft());
+					this._dragSel.setTop(mouse.getDownY()-this.getTop()-this.getClientTop());
+					this._dragSel.setParent(this);
+				}
+			}
+
+			System.execMethod(this,"_doMouseDown",null,W.Form);	
+		},
+
+		_doMouseUp	: function(btn,x,y) {
+			if (btn==W.MouseButton.left) {
+				W.Control.setCapture(null);
+				this._dragSel.dispose();
+				this._dragSel = null;
+			}
+			System.execMethod(this,"_doMouseUp",null,W.Form);	
+		},
+
+
+		format	: function (what,opt) {
+		  //	
+		  if (!validateMode()) return;
+		  if (opt=="removeFormat")
+		  {
+		    what=opt;
+		    opt=null;
+		  }
+
+		  if (opt==null) HtmlEdit.document.execCommand(what);
+		  else HtmlEdit.document.execCommand(what,"",opt);
+
+		  pureText = false;
+		  HtmlEdit.focus();
+		}
+		
+	}
+});

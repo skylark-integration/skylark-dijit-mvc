@@ -1,0 +1,389 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.ToolButton",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"ToolButton");
+		}
+	},
+	instances	: {
+		_initialize : function () {
+		},
+		
+		getMenu	: function(){
+		},
+		
+		setMenu	: function(oMenu){
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.widget.ToolBar",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"ToolBar");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_menu	: null,
+		_elTbody: null,
+		_elButtons	: null,
+
+        _label	: null,
+
+		
+		_initialize : function () {
+            System.execMethod(this, "_initialize", null, sw2.widget.Control);
+			ctx.setElCssClass(this._el,"ToolBar");
+
+			var heTable = ctx.createElement("TABLE");
+			this._el.appendChild(heTable);
+            heTable.style.height = "100%";
+
+			var heTbody = ctx.createElement("TBODY");
+			heTable.appendChild(heTbody);
+
+			this._elTbody = heTbody;
+			this._elButtons = new Array();		
+            
+            this._label = new sw2.widget.Label();
+            this._label.setVisible(false);
+		},
+
+		_finalize  : function() {
+			this._menu = null;
+			this._button = null;
+			this._blankPanel = null;
+
+			System.dispose(this._elButtons);
+			this._elButtons = null; 
+
+            System.execMethod(this, "_finalize", null, sw2.widget.Control);
+
+		},
+
+        _doCanAddChild	: function(oChild){
+			return (oChild && System.instanceOf(oChild,W.Menu)) 
+		},
+
+		_doAddChild 	: function(oChild) {
+//            dbgLog("W.MenuBar._doAddChild start");
+            this._setMenu(oChild);
+			System.execMethod(this,"_doAddChild",[oChild],W.Control);
+		},
+
+        getChildren : function() {
+            var children = new Array();
+            if (this._menu != null) {
+                children.push(this._menu);
+            }
+            return children;
+        },
+
+        activate	: function () {
+			if (!this._active) {
+				this.refresh();
+				this._active = true;
+				fireUserEvent(this, "onActive",[this]);
+			}
+		},
+
+		getMenu		: function() {
+			return this._menu;
+		},
+
+		getShowBorder	: function() {
+			return this._showBorder;
+		},
+
+		setShowBorder	: function(bShow) {
+			this._showBorder = bShow;
+		},
+
+		ifFitWidth		: function() {
+			return this._fitWidth;
+		},
+
+		getBlankPanel	: function() {
+			return this._blankPanel;
+		},
+
+		setMenu		: function(oMenu) {
+            //this.addChild(oMenu);
+            this._setMenu(oMenu);
+        },
+
+		_setMenu		: function(oMenu) {
+			function createMenuBarButton(menu, item, button) {
+				ctx.setUnity(button);
+				if (item._disabled) {
+					button.className = "MenuBarButton_Disabled";
+				} else {
+					button.className = "MenuBarButton";
+				};
+				button.style.height = "100%";
+				button.style.width = "100%";
+
+				var heTr, heTd;
+
+				var heTable = ctx.createElement("TABLE");
+				button.appendChild(heTable);
+
+				heTable.style.height = "100%";
+				heTable.cellSpacing = 0;
+				heTable.cellPadding = 1;
+
+				var heTbody = ctx.createElement("TBODY");
+				heTable.appendChild(heTbody);
+
+				heTr = ctx.createElement("TR");
+				heTbody.appendChild(heTr);
+
+				if (item._icon != null) {
+					heTd = ctx.createElement("TD");
+                    heTd.innerHTML = "<IMG src=\"" + item._toolBarIcon + "\">";
+//					heTd.innerHTML = "<IMG src=\"" + item._icon + "\">";
+					heTr.appendChild(heTd);
+				};
+
+				heTd = ctx.createElement("TD");
+				heTr.appendChild(heTd);
+
+				heTd.style.whiteSpace = "nowrap";
+				heTd.align = "center";
+				heTd.style.width = "100%";
+//				heTd.innerText = item._caption;
+
+				button._menuItem = item;
+			};
+
+			if (this._menu == oMenu) {
+				return;
+			}
+			this._menu = oMenu;
+			this._elButtons.clear();
+			
+			var heTbody = this._elTbody;
+			var heTr = heTbody.firstChild;
+			
+			if (heTr) {
+				heTbody.removeChild(heTr);
+			}
+
+			if (oMenu) {
+				heTr = ctx.createElement("TR");
+				heTbody.appendChild(heTr);
+				var items = oMenu.getItems();
+				for (var i = 0; i <items.length; i++) {
+					var item = items[i];
+					if (!item._visible) {
+						continue;
+					}
+                    var subMenu = item.getSubMenu();
+                    var subMenuItems = subMenu.getItems();
+                    for(var j = 0; (subMenuItems != null) && (j < subMenuItems.length); j ++) {
+                        var subMenuItem = subMenuItems[j];
+                        var heTd = ctx.createElement("TD");
+                        heTd.style.height = "100%";
+                        var button = ctx.createElement("DIV");
+                        createMenuBarButton(oMenu, subMenuItem, button);
+                        heTd.appendChild(button);
+                        this._elButtons.push(button);
+                        heTr.appendChild(heTd);
+                    }
+				};
+				if (!this._fitWidth) {
+					var heTd = ctx.createElement("TD");
+					heTd.align = "right";
+					heTd.style.width = "100%";
+					this._blankPanel = heTd;
+					heTr.appendChild(heTd);
+				}
+			}
+		},
+
+		hotMenuButton		: function (button,bHot) {
+			if (bHot) {
+				button.className = "MenuBarHotButton";
+			} else {
+				button.className = "MenuBarButton";
+			}
+
+//			if (this._menuItem == button)
+//				return;
+//			var menuItem = this._menuItem;
+//			if (menuItem != null) {
+//				if (menuItem._menuItem._disabled) {
+//					menuItem.className = "MenuBarButton_Disabled";
+//				} else {
+//					menuItem.className = "MenuBarButton";
+//				}
+//			};
+//			if (button == null) {
+//				button = this._button;
+//			};
+//			if (button != null) {
+//				if (button._menuItem._disabled) {
+//					button = null;
+//				} else {
+//					button.className = "HotButton";
+//				}
+//			}
+//			this._menuItem = button;
+		},
+
+		showSubMenu		: function(oButton,oMenuItem,oSubMenu) {
+            dbgLog("sw2.widget.ToolBar.showSubMenu start");
+
+			if (oMenuItem._disabled)
+				return;
+			
+			if (!(oSubMenu && oSubMenu.getCount()>0)) {
+				return;
+			}
+			var $_j;
+			var popup = new sw2.widget.PopupMenu();
+			popup.setMenu(oSubMenu);
+
+			var posXY = this._getElDeskXY(oButton);
+			var x = posXY[0];
+			var y = posXY[1];
+			var w = ctx.getElWidth(oButton);
+			var h = ctx.getElOffsetHeight(oButton);
+
+			if (x + popup.getWidth() >desk.getWidth()) {
+				x = desk.getWidth() - popup.getWidth();
+			};
+			if (x < 0) {
+				x = 0;
+			}
+			y = y + h + 2;
+
+            popup.popup(x,y);
+
+//			desk.float(popup,x,y);
+
+            dbgLog("sw2.widget.ToolBar.showSubMenu end");
+		},
+
+//		_doElClick		: function(el,elEvt) {
+		_doClick		: function() {
+            dbgLog("sw2.widget.ToolBar._doClick start");
+            var el = mouse._mouseinEl;
+			var nIndex = this._elButtons.indexOf(el);
+			if (nIndex > -1 ) {
+				var menuItem = this._elButtons[nIndex]._menuItem;//this._menu.getItem(nIndex);
+				var subMenu = menuItem.getSubMenu();
+				this.showSubMenu(el,menuItem,subMenu);
+			}/*
+            else {
+                this._clearPopup();
+            }*/
+            dbgLog("sw2.widget.ToolBar._doClick end");
+		},
+
+		_doMouseMove	: function(x,y) {
+//            dbgLog("sw2.widget.ToolBar._doMouseMove start:" + this._prevHotButton);
+            var el = mouse._mouseinEl;
+			var nIndex = this._elButtons.indexOf(el);
+			if (nIndex > -1 ) {
+                if (this._prevHotButton != null && this._prevHotButton != el) {
+                    this.hotMenuButton(this._prevHotButton, false);
+                }
+				this.hotMenuButton(el,true);
+                this._prevHotButton = el;
+                var posXY = this._getElDeskXY(el);
+                var dskXY = W.Control.getDesktop()._el.getBoundingClientRect();
+                this._label.setCaption(el._menuItem.getCaption());
+                this._label.setVisible(true);
+                this._label.setLeft(/*mouse._x*/posXY[0] + dskXY.left + 5);
+                this._label.setTop(/*mouse._y*/posXY[1] + this.getHeight() + dskXY.top + 0);
+//                dbgLog(this.getHeight());
+			} else {
+                if (this._prevHotButton != null) {
+                    this.hotMenuButton(this._prevHotButton, false);
+                }
+                this._prevHotButton = null;
+                this._label.setVisible(false);
+            }
+//            dbgLog("sw2.widget.ToolBar._doMouseMove end");
+        },
+
+//		_doElMouseOver		: function(el,elEvt) {
+		_doMouseEnter		: function() {
+            dbgLog("sw2.widget.ToolBar._doMouseEnter start");
+            var el = mouse._mouseinEl;
+			var nIndex = this._elButtons.indexOf(el);
+			if (nIndex > -1 ) {
+				this.hotMenuButton(el,true);
+                this._prevHotButton = el;
+                var posXY = this._getElDeskXY(el);
+                var dskXY = W.Control.getDesktop()._el.getBoundingClientRect();
+                this._label.setCaption(el._menuItem.getCaption());
+                this._label.setVisible(true);
+                this._label.setLeft(/*mouse._x*/posXY[0] + dskXY.left + 5);
+                this._label.setTop(/*mouse._y*/posXY[1] + this.getHeight() + dskXY.top + 0);
+//				if (this.getFocused()) {
+//					var menuItem = this._menu.getItem(nIndex);
+//					var subMenu = menuItem.getSubMenu();
+//					this.showSubMenu(el,menuItem,subMenu);
+//				}
+			}
+            dbgLog("sw2.widget.ToolBar._doMouseEnter end");
+		},
+
+//		_doElMouseOut		: function(el,elEvt) {
+		_doMouseLeave		: function() {
+            dbgLog("sw2.widget.ToolBar._doMouseLeave start");
+            var el = mouse._mouseinEl;
+			var nIndex = this._elButtons.indexOf(el);
+			if (nIndex > -1 ) {
+				this.hotMenuButton(el,false);
+				//System.asyncExecMethod(this,this.hotMenuButton,[evtSrc,false],300);
+			};
+            if (this._prevHotButton != null) {
+                this.hotMenuButton(this._prevHotButton, false);
+            }
+            this._prevHotButton = null;
+            this._label.setVisible(false);
+//			var menu = this.getMenu();
+//			System.asyncExecMethod(menu,menu.hideBox,[null],500);
+            dbgLog("sw2.widget.ToolBar._doMouseLeave end");
+		},
+
+		getMenuGroupBox : function(menuItem) {
+			var items = menuItem.getItems();
+			var size = items.size();
+			if (size > 0) {
+				var menuGroupBox = menuItem._groupBox;
+				if (menuGroupBox == null) {
+					menuGroupBox = _createMenuItemGroupBox(menuItem);
+					menuItem._groupBox = menuGroupBox;
+				};
+				menuGroupBox.refresh();
+				return menuGroupBox;
+			} else {
+				return null;
+			}
+		},
+
+		hideBox : function() {
+			if (this._activeMenuGroupBox != null) {
+				this._activeMenuGroupBox.hide();
+				this._activeMenuGroupBox = null;
+			}
+		}
+
+	}
+});
+

@@ -1,0 +1,518 @@
+System.defineNs("sw2");
+
+System.defineClass({
+	name		: "sw2.Event",
+	statics		: {
+	},
+	instances	: {
+		_sender		: null,
+		_type		: "",
+		_result		: 0,
+
+		_initialize	: function(sType,oSender) {
+			this._type = sType;
+			this._sender = oSender;
+		},
+
+		_finalize	: function() {
+			this._sender = null;
+			this._type   = "";
+			this._result = 0;
+		},
+
+		getType	: function() {
+			return this._type;
+		},
+
+		setType	: function(sType) {
+			this._type = sType;
+		},
+
+		getSender	: function() {
+			return this._sender;
+		},
+
+		setSender	: function(oSender) {
+			this._sender = oSender;
+		},
+
+		getResult : function() {
+			return this._result;
+		},
+
+		setResult : function(nResult) {
+			this._result = nResult;
+		}
+	}
+});
+
+System.defineClass({
+	name		: "sw2.Change",
+	superc		: sw2.Event,
+	statics		: {
+	},
+	instances	: {
+		_initialize	: function(oSender) {
+			System.execMethod(this,"_initialize",["Change",oSender],sw2.Event);	
+		}
+	}
+});
+
+
+/**
+ * クラスsw2.Persistentを定義します。
+ *
+ */
+
+System.defineClass({
+	name		: "sw2.Persistent",
+	statics		: {
+		_ppInfos	: null,
+
+		_initialize	: function() {
+			this._ppInfos = new Hash();
+		},
+
+		_finalize	: function() {
+		},
+
+		_defineProperties	: function(propInfo) {
+		},
+
+		getPropInfo : function(cPst) {
+			var name = System.getClassName(cPst);
+			var propInfo = this._ppInfos.get(name);
+			if (!propInfo) {
+				propInfo = new Hash();
+				cPst._defineProperties(propInfo);
+				this._ppInfos.put(name,propInfo);
+			}
+			return propInfo;
+		}
+
+	},
+	instances	: {
+		_updating	: false,
+
+		_initialize	: function() {
+		},
+
+		_finalize	: function() {
+		},
+
+		readFromXmlNode	: function(xnode){
+			var attributes = xnode.attributes;
+			var c = System.getClass(this);
+			var propInfo = sw2.Persistent.getPropInfo(c);
+
+			for (var i = 0;i<xnode.attributes.length;i++) {
+				var sPropName = xnode.attributes[i].name;
+				var sPropValue = xnode.attributes[i].value;
+
+				var type = propInfo.get(sPropName);
+				if (type) {
+					if (type == String) {
+						this.setPropValue(sPropName,sPropValue);
+					} else if (type.vfroms) {
+						var o = type.vfroms(sPropValue);
+						this.setPropValue(sPropName,o);
+					}
+				}
+			}
+			var oChildNodes = xnode.childNodes;
+			for (var i =0;i<oChildNodes.length;i++) {
+				var cNode = oChildNodes[i];
+				var scNodeName = cNode.nodeName;
+				var arrTmp = scNodeName.split(".");
+				if (arrTmp.length == 2 ) {
+					var sPropName = arrTmp[1];
+					var oProp = this.getPropValue(sPropName);
+					oProp.readFromXmlNode(cNode);
+				} 
+			}
+		},
+		
+		saveToXmlNode	: function(xnode,oDft){
+			var doc = xnode.ownerDocument;
+			var propInfo = sw2.Persistent.getPropInfo(System.getClass(this));
+			var propNames = propInfo.keys();
+			for(var j=0;j<propNames.length;j++) {
+				var name = propNames[j];
+				var type = propInfo.get(name);
+				var oValue = this.getPropValue(name);
+				var sValue = "";
+				if (type == String) {
+					sValue = oValue;
+					xnode.setAttribute(name,sValue);
+				} else if(type.vtos) {
+					sValue = type.vtos(oValue);
+					xnode.setAttribute(name,sValue);
+				} else if (System.inheritFrom(type,sw2.Persistent)) {
+					var cNode = doc.createElement(xnode.nodeName+"."+name);
+					xnode.appendChild(cNode);
+					oValue.saveToXmlNode(cNode);
+				}
+			}
+			
+		},
+
+		getPropValue	: function(sName) {
+			if (sName) {
+				var sMethodName = "get"+sName.charAt(0).toUpperCase()+sName.substring(1);
+				var mGetter = this[sMethodName];
+				if (mGetter) {
+					var oValue = mGetter.apply(this,[]);
+					return oValue;
+				} else {
+					throw new Error (0,"invalid property");
+				}
+			} else {
+				throw new Error(0,"invalid parameter");
+			}
+		},
+
+		setPropValue	: function(sName,oValue) {
+			if (sName) {
+				var sMethodName = "set"+sName.charAt(0).toUpperCase()+sName.substring(1);
+				var mSetter = this[sMethodName];
+				if (mSetter) {
+					mSetter.apply(this,[oValue]);
+				} else {
+					throw new Error (0,"invalid property");
+				}
+			} else {
+				throw new Error(0,"invalid parameter");
+			}
+		},
+
+		_doEndUpdate	: function() {
+		},
+
+		beginUpdate		: function() {
+			this._updating = true;
+		},
+
+		endUpdate		: function() {
+			if (this._updating) {
+				this._updating = false;
+				this._doEndUpdate();
+			}
+		},
+
+		isUpdating		: function() {
+			return 	this._updating;
+
+		}
+
+	}
+});
+
+System.defineClass({
+	name		: "sw2.EventHooker",
+	statics		: {
+	},
+	instances	: {
+		_ownered	: false,
+
+		_initialize	: function(ownered) {
+			this._ownered = ownered;
+		},
+
+		_finalize	: function() {
+		},
+	
+		getOwnered		: function() {
+			return this._ownered;
+		},
+
+		beforeHandle	: function(evt) {
+			return true;
+		},
+
+		afterHandle		: function(evt) {
+			return true;
+		}
+	}
+});
+
+/**
+ * クラスsw2.Componentを定義します。
+ *
+ */
+System.defineClass({
+	name		: "sw2.Component",
+	superc		: sw2.Persistent,
+	statics		: {
+		CPE_INSERT	 : "onComponentInsert",
+		CPE_REMOVE	 : "onComponentRemove",
+
+		_root		 : null,
+		_components1 : new Hash(),
+		_components2 : new Hash(),
+
+		_XMLNODENAME : "",
+
+		_initialize	: function() {
+			System.defineName("Component",sw2.Component);
+		},
+
+		_finalize	: function() {
+		},
+
+		_defineProperties	: function(propInfo) {
+			propInfo.put("name",String);
+		},
+
+		registerComponentTag	: function(cComponent,sName) {
+			var name = System.getClassName(cComponent);
+			var oValue = this._components1.get(sName);
+			if (!oValue) {
+				this._components1.put(sName,cComponent);
+			}
+
+			oValue = this._components2.get(name);
+			if (!oValue) {
+				this._components2.put(name,sName);
+			}
+		},
+
+		getDefaultCompObject : function(cComponent) {
+		},
+
+		findComponentByTagName	: function(sName) {
+			return this._components1.get(sName);
+		},
+
+		getComponentTagName		: function(cComponent) {
+			var name = System.getClassName(cComponent);
+			return this._components2.get(name);
+		},
+
+
+		getRoot			: function() {
+			return this._root;
+		},
+
+		setRoot			: function(oRoot) {
+				this._root = oRoot;
+		}
+	},
+	instances	: {
+		_owner			: null,
+		_isSub			: false,
+		_components		: null,
+
+		_domain			: false,
+
+		_name 			: "",
+
+		_hooker			: null,
+
+
+		_eventListener	: null,
+
+		_initialize 	: function (cOwner,isSub) {
+            //dbgLog("sw2.Component._initialize start:", oOwner);
+			if (!cOwner) {
+				cOwner = sw2.Component.getRoot();
+			} 
+			if (cOwner) {
+				cOwner._insertComponent(this);
+			}
+
+			if (isSub) {
+				this._isSub = true;
+			}
+
+			this._eventListener = new Hash();
+            //dbgLog("sw2.Component._initialize end");
+		},
+
+		_finalize  		: function() {
+
+			System.dispose(this._eventListener);
+			this._eventListener = null;
+
+			if (this._owner) {
+				this._owner._removeComponent(this);
+			}
+		},
+
+		getOwner		: function() {
+			return this._owner;
+		},
+
+		isSub			: function() {
+			return this._isSub;
+		},
+
+		_insertComponent 	: function(oComp) {
+			if (!this._components) {
+				this._components = new Array();
+			}
+			this._components.push(oComp);
+			oComp._owner = this;
+			this._doInsertComponent(oComp);
+		},
+
+		_removeComponent	: function(oComp) {
+			if (this._components) {
+				this._components.remove(oComp);
+				this._doRemoveComponent(oComp);
+			}
+		},
+
+		_doInsertComponent	: function(oComp){
+		},
+
+		_doRemoveComponent	: function(oComp){
+		},
+
+
+		getName 			: function() {
+			return this._name;
+		},
+
+		setName				: function(sName) {
+			if (sName != "" && sName != this._name) {
+				if (this._parent) {
+					var oComponent = this._parent.findComponent(sName);
+					if (oComponent) {
+						throw new Error(0);
+					}
+				}
+				this._name = sName;
+			}
+		},
+
+		getChildren : function() {
+			return [];
+		},
+
+		addChild : function(oChild) {
+		},
+
+		findComponent	: function(sName,bChild) {
+			if (bChild) {
+				var cs = this.getChildren();
+				var l = cs.length;
+				for (var i = 0; i < l; i++) {
+					var oChild = cs[i];
+					if (oChild.getName() == sName) {
+						return oChild;
+					}
+					if ((!p._domain) && (oChild.getChildrenCount()>0)) {
+						var oDescendant = oChild.findComponent(sName,true);
+						if (oDescendant) {
+							return oDescendant;
+						}
+					}
+				}
+				return null;
+			} else {
+				var p = this;
+				while ((!p._domain) && (p.getParent() != null)) {
+					p = p.getParent();
+				}
+				return p.findComponent(sName,true);
+			}
+			
+		},
+
+
+		readFromXmlNode	: function(xnode){
+			System.execMethod(this,"readFromXmlNode",[xnode],sw2.Persistent);	
+
+			var oChildNodes = xnode.childNodes;
+			for (var i =0;i<oChildNodes.length;i++) {
+				var cNode = oChildNodes[i];
+				var scNodeName = cNode.nodeName;
+				if (scNodeName.length>0 && scNodeName.indexOf(".")>-1) {
+					continue;
+				} else {
+					var cComponent = sw2.Component.findComponentByTagName(scNodeName);
+					if (!cComponent) {
+						throw new Error(0,"undefined component");
+					}
+					var oChild = new cComponent();
+					oChild.readFromXmlNode(oChildNodes[i]);
+					this.addChild(oChild);
+				}
+			}
+		},
+		
+		saveToXmlNode	: function(xnode,oDft){
+			System.execMethod(this,"saveToXmlNode",[xnode,oDft],sw2.Persistent);
+			var children = this.getChildren();
+			var doc = xnode.ownerDocument;
+			for (var i = 0; i<children.length; i++) {
+				var oChild = children[i];
+				var c = System.getClass(oChild);
+				var tagname = sw2.Component.getComponentTagName(c);
+
+                var commentNode = doc.createTextNode("\r\n" + oDft + "\t");
+                xnode.appendChild(commentNode);
+				var cNode = doc.createElement(tagname);
+				xnode.appendChild(cNode);
+				oChild.saveToXmlNode(cNode, (oDft + "\t"));
+			}
+            var commentNode = doc.createTextNode("\r\n" + oDft);
+            xnode.appendChild(commentNode);
+		},
+
+		setEventHooker		: function(hooker) {
+			this._hooker = hooker;
+		},
+
+		addEventListener	: function(sEvent,m,o){
+			var aListener = this._eventListener.get(sEvent);
+			var a = [m,o];
+			if (!aListener) {
+				aListener = new Array();
+				aListener.pushAll(a);
+				this._eventListener.put(sEvent,aListener)
+			} else {
+				var i = aListener.indexOfSub(a);
+				if (i == -1) {
+					aListener.pushAll(a);
+				}
+			}
+		},
+
+		removeEventListener	: function(sEvent,m,o){
+			var aListener = this._eventListener.get(sEvent);
+			if (aListener) {
+				var a = [m,o];
+				aListener.removeSub(a);
+			}
+		},
+
+		notifyEvent		: function(evt){
+			if (this._hooker) {
+				var ret = this._hooker.beforeHandle(evt);
+				if (!ret) {
+					return;
+				}
+			}
+
+			if (this._owner && this._owner._hooker && this._owner._hooker.getOwnered()) {
+				var ret = this._owner._hooker.beforeHandle(evt);
+				if (!ret) {
+					return;
+				}
+			}
+			var sEvent = evt.getType();
+			var args = [evt]
+			var aListener = this._eventListener.get(sEvent);
+			if (aListener) {
+				for (var i = 0; i<aListener.length; i+=2) {
+					var m = aListener[i];
+					var o = aListener[i+1];
+					m.apply(o,args);
+				}
+			}
+		}
+
+	}
+});
+

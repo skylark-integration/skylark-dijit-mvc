@@ -1,0 +1,69 @@
+<html>
+<head>
+<link href="../themes\default/skin.css" rel="stylesheet" type="text/css" />
+<script language = 'javascript' >
+	var _theme_root = "../themes/default";
+	var __SKIN_PATH = "../themes/default";
+</script>
+<script language ='javascript' src = '../js/jcf/jcf.txt' >
+</script>
+<script language ='javascript' src = '../js/ui/html.txt' >
+</script>
+<script language ='javascript' src = '../js/ui/control.txt'>
+</script>
+<script language ='javascript' src = '../js/ui/groupbox.txt' >
+</script>
+<script language = "javascript">
+var groupbox = null;
+function test1() {
+	groupbox = new pst.ui.GroupBox();
+	groupbox.build();
+	groupbox.setTitle("test");
+/*	groupbox._hel.style.position = "absolute";
+	groupbox._hel.style.left = "200pt";
+	groupbox._hel.style.visibility = "visible";
+	groupbox._hel.style.width = "200pt";
+	groupbox._hel.style.top = "200pt";
+	groupbox._hel.style.height = "200pt";*/
+
+	groupbox.setBounds(200,300,200,100);
+
+};
+function test2() {
+//	document.forms[0].a1.style.position = "absolute";
+//	document.forms[0].a1.style.left = "200pt";
+//	document.forms[0].a2.style.position = "absolute";
+//	document.forms[0].a2.style.left = "600pt";
+//	groupbox.setAllowPushDown(true);
+//	var c = $C.getControl(groupbox._elContent);
+//	alert(c.getLeft());
+	alert('1');
+	groupbox.setExpanded(false);
+};
+
+function test3() {
+	
+	groupbox.setLeft(groupbox.getLeft()+5);
+};
+
+function test4() {
+	document.body.removeChild(groupbox._el);
+};
+
+function test5() {
+	alert(groupbox._el.innerHTML);
+}	
+
+</script>
+</head>
+
+<body>
+<form>
+<input type = button name ='a1' value = 'test1' onclick = "test1();" />
+<input type = button name ='a2' value = 'test2' onclick = "test2();" />
+<input type = button name ='a2' value = 'test2' onclick = "test3();" />
+<input type = button name ='a2' value = 'test4' onclick = "test4();" />
+<input type = button name ='a2' value = 'test5' onclick = "test5();" />
+</form>
+</body>
+</html>

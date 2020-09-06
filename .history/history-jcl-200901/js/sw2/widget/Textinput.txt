@@ -1,0 +1,55 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.Text",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"Text");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_oldValue	: null,
+		_elText 	: null,
+
+		_doCreateUIElement	: function() {
+			var el = System.execMethod(this,"_doCreateUIElement",[],W.Control);
+			UIElement.addCssClass(el,"Text");
+
+            this._elText = UIText.create(el);
+
+			return el;
+		},
+
+		_doFocus		: function() {
+			this._oldValue = this.getValue();
+			UIText.focus(this._elText);
+			System.execMethod(this,"_doFocus",[],W.Control);
+		},
+
+		_doBlur			: function() {
+			System.execMethod(this,"_doBlur",[],W.Control);
+		},
+
+		getValue	: function() {
+			return UIText.getValue(this._elText);
+		},
+
+		setValue	: function(value) {
+			UIText.setValue(this._elText, value);
+		},
+
+		modified	: function() {
+			return this._oldValue != this.getValue();
+		}
+
+
+	}
+});
+

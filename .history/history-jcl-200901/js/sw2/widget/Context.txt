@@ -1,0 +1,884 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name  		:"sw2.widget.HTableUtil",
+	statics		: {
+		_initialize : function() {
+			System.defineName("$HTUtil",this);
+		},
+
+		createTable	: function(nColCount,nRowCount) {
+			var heTable = ctx.createElement("TABLE");
+
+			heTable.style.width = "100%";
+			heTable.style.height = "100%";
+//			heTable.style.emptyCells = "show";
+//			heTable.style.tableLayout = "fixed"; 
+			
+				heTable.cellSpacing = 0;
+				heTable.cellPadding = 0;
+
+			var heColgroup = ctx.createElement("COLGROUP");
+			heTable.appendChild(heColgroup);
+			heTable._elColgroup = heColgroup;
+
+			var heTbody = ctx.createElement("TBODY");
+			heTable.appendChild(heTbody);
+			
+			heTable._elTbody = heTbody;
+			
+			this.setColRowCount(heTable,nColCount,nRowCount);
+			return heTable;
+		},
+
+		getRowCount	: function(elTable) {
+			return elTable.rows.length;
+		},
+
+		getColCount	: function(elTable) {
+			return elTable._elColgroup.children.length;
+		},
+
+		setRowCount	: function(elTable,nRowCount) {
+			var nColCount = this.getColCount(elTable);
+			this.setColRowCount(elTable,nColCount,nRowCount);
+		},
+
+		setColCount	: function(nColCount) {
+			var nRowCount = this.getRowCount(elTable);
+			this.setColRowCount(elTable,nColCount,nRowCount);
+		},
+		
+		setColRowCount	: function(elTable,nColCount,nRowCount){
+			var heTable = elTable;
+			var heTbody = elTable._elTbody;;
+			var nOldRowCount = this.getRowCount(elTable);
+			var nOldColCount = this.getColCount(elTable);
+			
+			if (nOldColCount > nColCount) {
+				var heColgroup = elTable._elColgroup;
+				for (var i=nColCount-1;i>nOldColCount-1;i--){
+					heColgroup.removeChild(heColgroup.children[i]);
+				}
+			} else if (nOldColCount < nColCount) {
+				var heColgroup = elTable._elColgroup;
+				for (var i=nOldColCount;i<nColCount;i++){
+					var heCol = ctx.createElement("COL");
+					heCol.style.width = "20";
+					heColgroup.appendChild(heCol);
+				}
+			}
+
+			if (nOldRowCount >= nRowCount) {
+				for (var i = nOldRowCount-1;i>nRowCount-1;i--) {
+					heTbody.removeChild(heTable.rows[i]);
+				}
+				if (nOldColCount >= nColCount) {
+					for (var i = 0;i <nRowCount;i++) {
+						var heTr = heTable.rows[i];
+						for (var j = nOldColCount-1;j>nColCount-1;j--) {
+							heTr.removeChild(heTr.cells[j]);
+						}
+					}
+				} else if (nOldColCount < nColCount) {
+					for (var i = 0;i <nRowCount;i++) {
+						var heTr = heTable.rows[i];
+						for (var j = nOldColCount;j<nColCount;j++) {
+							heTr.appendChild(ctx.createElement("TD"));
+						}
+					}
+				}
+			} else if (nOldRowCount < nRowCount) {
+				if (nOldColCount >= nColCount) {
+					for (var i = 0;i <nOldRowCount;i++) {
+						var heTr = heTable.rows[i];
+						for (var j = nOldColCount-1;j>nColCount-1;j--) {
+							heTr.removeChild(heTr.cells[j]);
+						}
+					}
+				} else if (nOldColCount < nColCount) {
+					for (var i = 0;i <nOldRowCount;i++) {
+						var heTr = heTable.rows[i];
+						for (var j = nOldColCount;j<nColCount;j++) {
+							heTr.appendChild(ctx.createElement("TD"));
+						}
+					}
+				}
+				for (var i = nOldRowCount;i<nRowCount;i++) {
+					var heTr = ctx.createElement("TR");
+					for (var j =0;j<nColCount;j++) {
+						var heTd = ctx.createElement("TD");
+//						heTd.innerText = "test";
+//						heTd.style.border="1px solid";
+						heTr.appendChild(heTd);
+					}
+					heTbody.appendChild(heTr);
+				}
+				
+			}
+		},
+		
+		deleteRow	: function (elTable,nIdx) {
+			var nRowCount = this.getRowCount(elTable);
+		
+			if (nIdx>=0 && nIdx < nRowCount) {
+				elTable._elTbody.removeChild(elTable.rows[nIdx]);
+			}
+		},
+
+		deleteCol	: function (elTable,nIdx) {
+			var nColCount = this.getColCount(elTable);
+			var nRowCount = this.getRowCount(elTable);
+			if (nIdx>=0 && nIdx < nColCount) {
+				for (var i = 0;i <nRowCount;i++) {
+					var heTr = elTable.rows[i];
+					heTr.removeChild(heTr.cells[nIdx]);
+				}
+			}	
+		},
+		
+		addRow	: function (elTable,nIdx) {
+			var nColCount = this.getColCount(elTable);
+			var nRowCount = this.getRowCount(elTable);
+			var heTr = ctx.createElement("TR");
+			heTr.style.height = "20";
+			for (var j =0;j<nColCount;j++) {
+				var heTd = ctx.createElement("TD");
+				heTd.innerText = "insert";
+				heTr.appendChild(heTd);
+			}
+			var heTbody = elTable._elTbody;
+			if (!nIdx || nRowCount == 0 || nIdx >= nRowCount) {
+				heTBody.appendChild(heTr);
+			} else {
+				if (nIdx <=0) {
+					heTbody.insertBefore(heTr,this._elTable.rows[0]);
+				} else {
+					heTbody.insertBefore(heTr,this._elTable.rows[nIdx]);
+				}
+			}
+		},
+		
+		addCol	: function (elTable,nIdx) {
+			var nColCount = this.getColCount(elTable);
+			var nRowCount = this.getRowCount(elTable);
+			if (!nIdx) {
+				nIdx = nColCount;
+			} else if(nIdx<0) {
+				nIdx = 0;
+			} 
+			var heColgroup = elTable._elColgroup;
+			var heCol = ctx.createElement("COL");
+			heCol.style.width = "20";
+			if (nIdx >= nColCount) {
+				heColgroup.appendChild(heCol);
+			} else {
+				heColgroup.insertBefore(heCol,heColgroup.children[nIdx]);
+			}
+			
+			for (var i=0;i<nRowCount;i++){
+				var heTr = elTable.rows[i];
+				var heTd = ctx.createElement("TD");
+				heTd.innerText = "test";
+				heTd.style.border="1px solid";
+				if (nIdx >= nColCount) {
+					heTr.appendChild(heTd);
+				} else {
+					heTr.insertBefore(heTd,heTr.cells[nIdx]);
+				}
+
+			}
+		},
+
+		getCell			: function(elTable,nCol,nRow) {
+			var heTd = elTable.rows[nRow].cells[nCol];
+			return heTd;
+		},
+
+		
+		getCellText		: function(elTable,nCol,nRow){
+			var heTd = elTable.rows[nRow].cells[nCol];
+			return heTd.innerText;
+		},
+
+		setCellText		: function(elTable,nCol,nRow,sText) {
+			var heTd = elTable.rows[nRow].cells[nCol];
+			heTd.innerText = sText;
+		},
+
+		getCellControl	: function(nCol,nRow){
+		},
+
+		setCellControl	: function(nCol,nRow,oControl){
+		},
+
+		getCellColor	: function(nCol,nRow){
+		},
+
+		setCellColor	: function(nCol,nRow,nColor){
+		},
+
+		getRowHeight	: function(elTable,nRowIndex) {
+			var heTrs = telTable.rows;
+			if (nRowIndex>=0 && nRowIndex<heTrs.length){
+				return ctx.getElHeight(heTrs[nRowIndex]);
+			} else {
+				throw new Error("invalid parameter");
+			}
+		},
+		
+		setRowHeight	: function(elTable,nRowIndex,nHeight) {
+			var heTrs = this._elTable.rows;
+			if (nRowIndex>=0 && nRowIndex<heTrs.length){
+				ctx.setElHeight(heTrs[nRowIndex],nHeight);
+			} else {
+				throw new Error("invalid parameter");
+			}
+		},
+
+		getColWidth		: function(elTable,nColIndex) {
+			var heCols = elTable._elColgroup.children;
+			if (nColIndex>=0 && nColIndex<heCols.length){
+				return ctx.getElWidth(heCols[nColIndex]);
+			} else {
+				throw new Error("invalid parameter");
+			}
+		},
+		
+		setColWidth		: function(elTable,nColIndex,nWidth){
+
+			var heCols = elTable._elColgroup.children;
+			if (nColIndex>=0 && nColIndex<heCols.length){
+				ctx.setElWidth(heCols[nColIndex],nWidth);
+			} else {
+				throw new Error("invalid parameter");
+			}
+		}
+	},
+
+	instances	: {
+
+	}
+});
+
+System.defineClass({
+	name  		:"sw2.widget.Context",
+	statics		: {
+		_SIZE_R	: /\s*(-{0,1}\d+)(\D+)\s*/,
+
+		_ctx	: null,
+
+		_initialize : function() {
+			this._ctx = new W.Context();
+			System.defineName("ctx",this._ctx);
+		}
+	},
+
+	instances	: {
+		_divTmp	: null,
+
+
+		_initialize : function(cDesktop) {
+		},
+
+		_finalize : function() {
+			if (this._divTmp) {
+				this._divTmp = null;
+			}
+		},
+
+		createSw2Element: function(sn){
+			var el = this.createElement(sn);
+			if (!this._divTmp) {
+				this._divTmp = this.createElement("DIV");
+				this.setElStyle(el,"position","absolute");
+				this.setElVisible(this._divTmp,false);
+				document.body.appendChild(this._divTmp);
+			}
+			this._divTmp.appendChild(el);
+//			this.setElStyle(el,"overflow","hidden");
+			return el;
+		},
+
+
+		createElement	: function(sn,u) {
+			var el = document.createElement(sn);
+			if (browser.isIE) {
+				el.unselectable = true;
+			} else {
+				el.style.MozUserSelect = "none";
+			}
+			el.style.cursor = "";
+			el.hideFocus = true;
+			if (u) {
+				this.setUnity(el);
+			}
+			return  el;
+		},
+
+		
+		createControlElement	: function(sn,c,u) {
+			var el = this.createElement(sn,u);
+			this.setControl(el,c);
+			this.setElStyle(el,"position","absolute");
+
+			if (!this._divTmp) {
+				this._divTmp = this.createElement("DIV");
+				this.setElStyle(el,"position","absolute");
+				this.setElVisible(this._divTmp,false);
+				document.body.appendChild(this._divTmp);
+			}
+			this._divTmp.appendChild(el);
+			return el;
+		},
+
+		destroySw2Element	: function(el) {
+			if (el.parentElement) {
+				el.parentElement.removeChild(el);
+			}
+		},
+
+		destroyControlElement	: function(c){
+			if (c && c._el) {
+				if (c._el.parentElement) {
+					c._el.parentElement.removeChild(c._el);
+				}
+			}
+		},
+
+		getControl		: function(el) {
+			var c   = null;
+			while (el) {
+				if (el._C) {
+					c = el._C;
+					break;
+				}
+				el = el.parentElement;
+			}
+			return c;
+		},
+
+		getElType	: function(el) {
+			return el._t?el._t:"";
+		},
+		
+		setElType	: function(el,sType) {
+			el._t = sType;
+		},
+
+	
+		getUnity		: function(el) {
+			var u   = el;
+			while (el) {
+				if (el._U) {
+					u = el;
+					break;
+				}
+				if (el._C) {
+					break;
+				}
+				el = el.parentElement;
+			}
+			return u;
+		},
+
+		setControl		: function (el,c) {
+			el._C = c;
+		},
+
+		setUnity		: function (el) {
+		 	el._U = true;
+		},
+ 
+
+		focusElement		: function(el) {
+			var bInput = true
+			switch (el.tagName) {
+				case "INPUT" :
+ 				case "TEXTAREA":
+					bInput = true
+					break;
+				default :
+					break;
+			}
+			if (bInput) {
+				if (browser.isIE) {
+					el.unselectable = false;
+				} else {
+					el.style.MozUserSelect = "";
+				}
+			}
+			el.focus();
+			if (browser.isIE) {
+				el.unselectable = true;
+			} else {
+				el.style.MozUserSelect = "none";
+			}
+
+		},
+
+		_pickupNumber	: function(s) {
+			var c = W.Context._SIZE_R.exec(s);
+			if (c && c.length > 1) {
+				return Math.parseFloat(c[1]);
+			} else {
+				return 0;
+			}
+		},
+
+		getElStyle : function(el, property) {
+			var sValue = el.currentStyle[property]
+			
+			return sValue;
+		},
+
+		setElStyle : function(el, property, val) {
+            el.style[property] = val;
+		},
+
+		getElNLeftBorderWidth	: function(el) {
+			return this._pickupNumber(this.getElStyle(el,"borderLeftWidth"));
+		},
+
+		getElNRightBorderWidth	: function(el) {
+			return this._pickupNumber(this.getElStyle(el,"borderRightWidth"));
+		},
+
+		getElNTopBorderWidth	: function(el) {
+			return this._pickupNumber(this.getElStyle(el,"borderTopWidth"));
+		},
+
+		getElNBottomBorderWidth	: function(el) {
+			return this._pickupNumber(this.getElStyle(el,"borderBottomWidth"));
+		},
+
+		getElNLeft	: function(el) {
+			return this._pickupNumber(this.getElStyle(el,"left"));
+		},
+
+		getElNTop	: function(el) {
+			return this._pickupNumber(this.getElStyle(el,"top"));
+		},
+
+		getElNWidth	: function(el) {
+			return this._pickupNumber(this.getElStyle(el,"width"));
+		},
+
+		getElNHeight	: function(el) {
+			return this._pickupNumber(this.getElStyle(el,"height"));
+		},
+
+		getElLeft	: function(el) {
+			return this.getElStyle(el,"left");
+		},
+
+
+		setElLeft	: function(el,nLeft) {
+			this.setElStyle(el,"pixelLeft",nLeft);
+		},
+
+		getElTop	: function(el) {
+			return this.getElStyle(el,"top");
+		},
+
+		setElTop	: function(el,nTop) {
+			this.setElStyle(el,"top",nTop);
+		},
+
+		getElWidth	: function(el) {
+			return this.getElStyle(el,"width");
+		},
+
+		setElWidth	: function(el,nWidth) {
+			this.setElStyle(el,"width",nWidth);
+		},
+
+		getElHeight	: function(el) {
+			return this.getElStyle(el,"height");
+		},
+
+		setElHeight	: function(el,nHeight) {
+			this.setElStyle(el,"height",nHeight);
+		},
+
+
+
+		getElOffsetLeft	: function(el) {
+			return el.offsetLeft;
+		},
+
+		getElOffsetTop	: function(el) {
+			return el.offsetTop;
+		},
+
+		getElOffsetWidth	: function(el) {
+			return el.offsetWidth;
+		},
+
+		getElOffsetHeight	: function(el) {
+			return el.offsetHeight;
+		},
+
+		getElClientWidth	: function(el) {
+			return el.clientWidth;
+		},
+
+		getElClientHeight	: function(el) {
+			return el.clientHeight;
+		},
+
+		getElVisible		: function(el) {
+			return !this.getElStyle(el,"visibility") != "hidden";
+		},
+
+		setElVisible		: function(el,bVisible) {
+			if (bVisible) {
+				this.setElStyle(el,"visibility","");
+			} else {
+				this.setElStyle(el,"visibility","hidden");
+			}
+		},
+
+		getElEnabled	: function(el) {
+			return !(el.disabled);
+		},
+
+		setElEnabled	: function(el,bEnable) {
+			el.disabled = !bEnable;
+		},
+
+
+        hasElCssClass: function(el, className) {
+            var re = new RegExp('(?:^|\\s+)' + className + '(?:\\s+|$)');
+
+            return re.test(el['className']);
+            
+        },
+    
+        addElCssClass: function(el, className) {
+            if (this.hasElCssClass(el, className)) {
+				 return;
+			} // already present
+            
+            el.className = [el.className, className].join(' ');
+        },
+    
+        removeElCssClass: function(el, className) {
+            var re = new RegExp('(?:^|\\s+)' + className + '(?:\\s+|$)', 'g');
+
+            if (!this.hasElCssClass(el, className)) { 
+				return; 
+			} // not present
+            
+            
+            var c = el.className;
+            el.className = c.replace(re, ' ');
+            if (this.hasElCssClass(el, className) ) { 
+                this.removeElCssClass(el, className);
+            }
+
+        },
+        
+        replaceElCssClass: function(el, oldClassName, newClassName) {
+            if (oldClassName === newClassName) { // avoid infinite loop
+                return;
+            }
+            
+            var re = new RegExp('(?:^|\\s+)' + oldClassName + '(?:\\s+|$)', 'g');
+
+            if ( !this.hasClass(el, oldClassName) ) {
+                this.addElCssClass(el, newClassName); // just add it if nothing to replace
+                return; // note return
+            }
+        
+            el.className = el.className.replace(re, ' ' + newClassName + ' ');
+
+            if ( this.hasElCssClass(el, oldClassName) ) { // in case of multiple adjacent
+                this.replaceElCssClass(el, oldClassName, newClassName);
+            }
+        },
+
+		getElCssClass	: function(el) {
+			return el.className;
+		},
+
+		setElCssClass	: function(el,sCssClass) {
+			el.className = sCssClass;
+		},
+		
+		getElBorderWidth	: function(el) {
+			return this.getElStyle(el,"borderWidth");
+		},
+
+		setElBorderWidth 	: function(el,nWidth) {
+			this.setElStyle(el,"borderWidth",nWidth);
+		},
+		
+		getElBorderColor	: function(el){
+			return this.getElStyle(el,"borderColor");
+		},
+
+		setElBorderColor	: function(el,color) {
+			this.setElStyle(el,"borderColor",color);
+		},
+
+		getElBorderStyle	: function(el) {
+			return this.getElStyle(el,"borderStyle");
+		},
+
+		setElBorderStyle	: function(el,sStyle) {
+			this.setElStyle(el,"borderStyle",sStyle);
+		},
+
+		getElBackgroundColor : function(el) {
+			return this.getElStyle(el,"backgroundColor");
+		},
+
+		setElBackgroundColor : function(el,color) {
+			this.setElStyle(el,"backgroundColor",color);
+		},
+		
+		getElTransparent 	: function(el) {
+			return this.getElStyle(el,"backgroundColor") == "transparent";
+		},
+
+		setElTransparent	: function(el,val) {
+			if (val) {
+				this.setElStyle(el,"backgroundColor","transparent");
+			} else {
+				if (this.getElTransparent(el)) {
+					this.setElStyle(el,"backgroundColor","");
+				}
+			}
+		},
+
+
+		getElOpacity		: function(el) {
+			if (browser.isIE) {
+                var val = 100;
+                try { // will error if no DXImageTransform
+                    val = el.filters['DXImageTransform.Microsoft.Alpha'].opacity;
+
+                } catch(e) {
+                    try { // make sure its in the document
+                        val = el.filters('alpha').opacity;
+                    } catch(e) {
+                    }
+                }
+                return val / 100;
+			} else {
+				return this.getElStyle(el,"opacity");
+			}
+		},
+
+		setElOpacity		: function(el,val) {
+			if (browser.isIE) {
+                if (typeof el.style.filter == 'string' ) { // in case not appended
+                    el.style.filter = 'alpha(opacity=' + val * 100 + ')';
+                    
+                    if (!el.currentStyle || !el.currentStyle.hasLayout) {
+                        el.style.zoom = 1; // when no layout or cant tell
+                    }
+                }
+ 			} else {
+				this.setElStyle(el,"opacity",val);
+			}
+		},
+
+		getElFontName	: function(el) {
+			return this.getElStyle(el,"fontFamily");
+		},
+
+		setElFontName	: function(el,sName) {
+			this.setElStyle(el,"fontFamily",sName);
+		},
+
+		getElFontBold	: function(el) {
+			return this.getElStyle(el,"fontWeight")=="bold";
+		},
+
+		setElFontBold	: function(el,bBold) {
+			this.setElStyle(el,"fontWeight",bBold?"bold":"normal");
+		},
+
+		getElFontItalic	: function(el) {
+			return this.getElStyle(el,"fontStyle")=="italic";
+		},
+
+		setElFontItalic	: function(el,bItalic) {
+			this.setElStyle(el,"fontStyle",bItalic?"italic":"normal");
+		},
+
+
+		getElFontUnderline	: function(el) {
+			return this.getElStyle(el,"textDecoration")=="underline";
+		},
+
+		setElFontUnderline	: function(el,bUnderline) {
+			if (bUnderline) {
+				this.setElStyle(el,"textDecoration","underline");
+			} else {
+				if (this.getElFontUnderline(el)){
+					this.setElStyle(el,"textDecoration","none");
+				}
+				
+			}
+		},
+
+		getElFontStrikeout	: function(el) {
+			return this.getElStyle(el,"textDecoration")=="line-through";
+		},
+
+		setElFontStrikeout	: function(el,bStrikeout) {
+			if (bStrikeout) {
+				this.setElStyle(el,"textDecoration","line-through");
+			} else {
+				if (this.getElFontStrikeout(el)){
+					this.setElStyle(el,"textDecoration","none");
+				}
+				
+			}
+		},
+
+		getElFontUnit	: function(el) {
+			var s = this.getElStyle(el,"fontSize");
+			c = W.Context._SIZE_R.exec(s);
+			if (c && c.length>=3) {
+				return c[2];
+			} else {
+				return "";
+			}
+		},
+
+		setElFontUnit	: function(el,unit) {
+			var size = this.getElFontSize(el);
+			var s = size + unit;
+			this.setElStyle(el,"fontSize",s);
+		},
+
+		getElFontSize	: function(el) {
+			var s = this.getElStyle(el,"fontSize");
+			c = W.Context._SIZE_R.exec(s);
+			if (c && c.length>=2) {
+				return Math.parseFloat(c[1]);
+			} else {
+				return 0;
+			}
+		},
+
+		setElFontSize	: function(el,size) {
+			var unit = this.getElFontUnit(el);
+			var s = size + unit;
+			this.setElStyle(el,"fontSize",s);
+		},
+
+		getElFontColor	: function(el) {
+			return this.getElStyle(el,"color");
+		},
+
+		setElFontColor	: function(el,sColor) {
+			this.setElStyle(el,"color",sColor);
+		},
+
+		getElBgColor	: function(el){
+			return this.getElStyle(el,"backgroundColor");
+		},
+
+		setElBgColor	: function(el,sColor) {
+			this.setElStyle(el,"backgroundColor",sColor);
+		},
+
+		getElBgImage		: function(el) {
+			return this.getElStyle(el,"backgroundImage");
+		},
+
+		setElBgImage		: function(el,sImg) {
+			this.setElStyle(el,"backgroundImage",sImg);
+		},
+
+		getElBgImgRepeat: function(el){
+			return this.getElStyle(el,"backgroundRepeat");
+		},
+
+		setElBgImgRepeat: function(el,sRepeat){
+			this.setElStyle(el,"backgroundRepeat",sRepeat);
+		},
+
+		getElBgImgPosition: function(el){
+			return this.getElStyle(el,"backgroundPosition");
+		},
+
+		setElBgImgPosition: function(el,sRepeat){
+			this.setElStyle(el,"backgroundPosition",sRepeat);
+		},
+
+		inDesktop		: function(el) {
+            var p = el.parentNode;
+
+            while (p) {
+                if (p == this._elDesktop) {
+                    return true;
+                }
+                p = p.parentNode;
+            }
+            return false;
+		},
+
+		getPageXY		: function(el) {
+            var parentNode = null;
+            var pos = [-1,-1];
+            var box;
+            
+            if (el.getBoundingClientRect) { // IE
+                box = el.getBoundingClientRect();
+                var doc = document;
+
+                var scrollTop = Math.max(doc.documentElement.scrollTop, doc.body.scrollTop);
+                var scrollLeft = Math.max(doc.documentElement.scrollLeft, doc.body.scrollLeft);
+                
+                return [box.left + scrollLeft, box.top + scrollTop];
+            }
+            else { // safari, opera, & gecko
+                pos = [el.offsetLeft, el.offsetTop];
+                parentNode = el.offsetParent;
+                if (parentNode != el) {
+                    while (parentNode) {
+                        pos[0] += parentNode.offsetLeft;
+                        pos[1] += parentNode.offsetTop;
+                        parentNode = parentNode.offsetParent;
+                    }
+                }
+                if (this.isSafari && this.getStyle(el, 'position') == 'absolute' ) { // safari doubles in some cases
+                    pos[0] -= document.body.offsetLeft;
+                    pos[1] -= document.body.offsetTop;
+                } 
+            }
+            
+            if (el.parentNode) { parentNode = el.parentNode; }
+            else { parentNode = null; }
+    
+            while (parentNode && parentNode.tagName.toUpperCase() != 'BODY' && parentNode.tagName.toUpperCase() != 'HTML') 
+            { // account for any scrolled ancestors
+                if (this.getStyle(parentNode, 'display') != 'inline') { // work around opera inline scrollLeft/Top bug
+                    pos[0] -= parentNode.scrollLeft;
+                    pos[1] -= parentNode.scrollTop;
+                }
+                
+                if (parentNode.parentNode) {
+                    parentNode = parentNode.parentNode; 
+                } else { parentNode = null; }
+            }
+    
+            
+            return pos;
+        }
+
+
+
+
+	}
+
+});

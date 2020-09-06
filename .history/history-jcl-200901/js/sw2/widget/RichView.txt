@@ -1,0 +1,34 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+
+System.defineClass({
+	name		: "sw2.widget.RichView",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"RichView");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Container._defineProperties(propInfo);
+            propInfo.put("content", String);
+		}
+	},
+	instances	: {
+
+		_initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Control);	
+		},
+
+		getContent		: function() {
+			return UIRichView.getContent(this._el);
+		},
+
+		setContent		: function(content){
+			UIRichView.setContent(this._el,content);
+		}
+	}
+});
+ 

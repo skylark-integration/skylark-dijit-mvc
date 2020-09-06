@@ -1,0 +1,793 @@
+* {
+	margin		: 0px;
+	font-size	: 9pt;
+}
+
+body {
+	font-family	: VERDANA;
+	font-size	: 9pt;
+	visibility	: visible;
+	overflow 	: hidden;
+	padding  	: 0;
+	border	 	: 0;
+
+}
+
+.DeskContainer {
+	position	: absolute;
+	left		: 0;
+	top			: 0;
+	visibility	: visible;
+	height		: 100%;
+	width 		: 100%;
+	overflow	: hidden;
+}
+
+DIV.Desktop {
+	position	: absolute;
+	left		: 0;
+	top			: 0;
+	height		: 100%;
+	width 		: 100%;
+	visibility	: visible;
+	border		: 0px;
+	overflow	: auto;
+	margin		: 0px;
+	padding		: 0px;
+	z-index		: 2;
+    background:url(../images/common/bg.gif);
+}
+
+DIV.tmpContainer {
+	position	: absolute;
+	left		: 0px;
+	top			: 0px;
+	height		: 10000px;
+	width 		: 10000px;
+	visibility	: visible;
+	border		: 0px;
+	overflow	: hidden;
+	margin		: 0px;
+	padding		: 0px;
+	z-index		: 0;
+}
+
+.Control {
+	position	: absolute;
+	display		: block;
+}
+
+.Text INPUT{
+	border	:none;
+	width	:100%;
+	height	:100%;
+}
+
+.TextArea TEXTAREA {
+	border	:none;
+	width	:100%;
+	height	:100%;
+}
+
+.Radio INPUT{
+	position	: absolute;
+}
+
+.Radio LABEL {
+	position	: absolute;
+	left		: 20px;
+	top			: 4px;
+	padding		: 1px;
+}
+
+.Radio LABEL.Focus {
+	border 		: dotted 1px gray;
+	padding		: 0px;
+}
+
+.CheckBox LABEL {
+	position	: absolute;
+	left		: 20px;
+	top			: 4px;
+	padding		: 1px;
+}
+
+.CheckBox LABEL.Focus {
+	border 		: dotted 1px gray;
+	padding		: 0px;
+}
+
+.Button INPUT {
+	position	: absolute;
+	left		: -1;
+	top			: -1;
+	height		: 101%;
+	width 		: 101%;
+	border		: 0;
+}
+
+.ComboText {
+    border		: 0px;
+	height		: 100%;
+	width 		: 100%;
+}
+
+.ComboButton2 {
+	width		 : 30px;
+	height       : 24px;
+	background-color :  #EDF2F6;
+	background : url(../images/common/dropdown_button.gif)  no-repeat center center;
+	border-width : 1px;
+    border-style : solid;
+	border-color : buttonhighlight buttonshadow buttonshadow buttonhighlight;
+}
+
+.ListBox UL{
+	position	: absolute;
+    display		:block;
+    list-style-type:none;
+    border		:0px;
+    background-color:transparent;
+    color		:white;
+    padding		:0px;
+    margin		:0px;
+	overflow-x	:hidden;
+	overflow-y	:auto;
+	left	: 0;
+	top		: 0;
+	width	: 100%;
+	height  : 100%;
+}
+
+.ListBox UL li.selected{
+	background-color: #DDEDF9;
+}
+
+.ListBox UL li{
+    color:black;
+    display:block;
+    padding:2px;
+	border :none; 
+    background-color:transparent;
+}
+
+.ListBox UL li.Focus {
+	border : dotted 1px gray;
+}
+
+.GroupBox  FIELDSET {
+	width	 : 100%;
+	height	 : 100%;
+}
+
+.GroupBox  LEGEND {
+	white-space: nowrap;
+}
+
+
+.GroupBox .Container2 {
+	position	: absolute;
+	top			: 14px;
+	left		: 7px;
+	padding-top : 4;
+	overflow    : auto;
+	width       : 100%;
+	height      : 70%;
+}
+
+.Text {
+	position	: absolute;
+    border		:0px;
+    background-color:transparent;
+	left		: 0px;
+	top			: 0px;
+	height		: 100%;
+	width 		: 100%;
+}
+
+
+.TreeView_Table {
+	width	:100%;
+}
+
+.TreeNodeCell {
+	white-space: nowrap;
+	padding :1px;
+}
+
+.TreeNodeIndent,.TreeNodeButton,.TreeNodeIcon,.TreeNodeCheckBox,.TreeNodeText {
+	padding-right : 1px;
+	width : 17px;
+	vertical-align: top;
+}
+
+.TreeNodeCheckBox {
+	padding-left : 1px;
+    width:15px;
+    height:15px;
+	margin:0px;
+}
+
+.TreeNodeText {
+	padding		: 1px;
+	padding-left : 4px;
+	width : auto;
+}
+
+.TreeNodeTextCurrent {
+	padding		: 0px;
+	padding-left : 3px;
+	background-color: blue;
+	border : 1px gray dotted;
+	color	: white;
+}
+
+.MenuBar_Table {
+	width	: 100%;
+	height	: 100%;
+}
+
+.MenuBarButton {
+	padding-left: 12px;	
+	padding-right: 12px;	
+/*	border		: solid transparent 1px;*/
+	white-space	: nowrap;
+	height	: 100%;
+}
+
+.MenuBarButton_Disabled {
+	padding-left: 12;	
+	padding-right: 12;
+	border-style: none;
+	margin: 1;
+}
+
+.MenuBarButton_Disabled TD {
+	color: gray;
+}
+
+.MenuBarHotButton {
+	padding-left : 12px;	
+	padding-right: 12px;	
+	border		 : solid  1px;
+    border-color : buttonhighlight buttonshadow buttonshadow buttonhighlight;
+	width		 : 100%;
+	height	: 100%;
+/*	background-color: #FFEFC6;*/
+}
+
+.MenuBar_Blank {
+	border-width :0;
+	width	:100%;
+	align:right;
+}
+
+.MenuItem_Row {
+	height : 24px;
+}
+.MenuItem {
+	padding: 2;
+	height: 100%;
+	border-width: 1;
+}
+
+.MenuItem_Disabled {
+	padding: 2;
+	height: 100%;
+	border-width: 1;
+}
+
+.MenuItem_Disabled TD {
+	color: gray;
+}
+
+.HotMenuItem {
+	padding: 2;
+	height: 100%;
+	background-color: #DDEDF9;
+	border-width: 1;
+	border-color: #7BB9E6;
+	border-style: solid;
+}
+
+.MenuBox_Table {
+	width : 100%;
+	height : 100%;
+}
+
+.MenuItem_Table {
+	width : 100%;
+	height: 100%;
+}
+
+.MenuItem_Icon {
+	width : 18px;
+}
+
+.MenuItem_Deli {
+	width : 4px;
+}
+
+.MenuItem_Text {
+	white-space :  nowrap;
+}
+
+.MenuItem_Indi {
+	width : 16px;
+}
+
+.TabPage {
+	width	: 100%;
+	height	: 100%;
+}
+
+.TabControl_Table {
+	width	: 100%;
+	height	: 100%;
+	table-layout : fixed;
+}
+
+
+.Tabs_Table {
+	width	: auto;
+	height	: 100%;
+	table-layout : auto;
+}
+
+.TabsTop {
+	width	: 100%;
+	height	: 25px;
+	valign  : top;
+	background : url(../images/tabcontrol/tab_blank_top.gif) repeat;
+}
+
+.TabsScroll {
+	position : absolute;
+}
+
+.TabsTop  .TabDelimFirst {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_1_first_top.gif) no-repeat center center;
+}
+
+.TabsTop  .TabDelimFirst.TabDelimFirstCurrent {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_1_current_first_top.gif) no-repeat center center;
+}
+
+.TabsTop  .TabDelimLast {
+ 	 height	: 100%;
+	 width : 50px;
+	 background : url(../images/tabcontrol/tab_3_last_top.gif) no-repeat center center;
+}
+
+.TabsTop  .TabDelimLast.TabDelimLastCurrent {
+ 	 height	: 100%;
+	 width : 50px;
+	 background : url(../images/tabcontrol/tab_3_current_last_top.gif) no-repeat center center;
+}
+
+.TabsTop  .TabDelimMiddle {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_1_top.gif) no-repeat center center;
+}
+
+.TabsTop  .TabText {
+ 	 height	: 100%;
+   	 white-space :  nowrap;
+	 padding-top : 3px;
+	 background : url(../images/tabcontrol/tab_2_top.gif) repeat;
+}
+
+.TabsTop  .TabText.TabCurrent {
+ 	 height	: 100%;
+	 background : url(../images/tabcontrol/tab_2_current_top.gif) repeat;
+}
+
+.TabsTop  .TabDelimMiddle.TabCurrentLeft {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_1_current_top.gif) no-repeat center center;
+}
+
+.TabsTop  .TabDelimMiddle.TabCurrentRight {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_3_current_top.gif) no-repeat center center;
+}
+
+
+.TabSetContentContainer_top {
+	valign  : top;
+	width : 100%;
+	height : 100%;
+
+	border-width: 1;
+	border-color: #AAAAAA;
+	border-left-style: solid;
+	border-right-style: solid;
+	border-top-style: none;
+	border-bottom-style: solid;
+	overflow: auto;
+}
+
+.TabSetContentContainer_bottom {
+	valign  : bottom;
+	width : 100%;
+	width : 100%;
+	height : 100%;
+
+	border-width: 1;
+	border-color: #AAAAAA;
+	border-left-style: solid;
+	border-right-style: solid;
+	border-top-style: solid;
+	border-bottom-style: none;
+	overflow: auto;
+}
+
+.TabsBottom {
+	width	: 100%;
+	height	: 25px;
+	valign  : bottom;
+	background : url(../images/tabcontrol/tab_blank_bottom.gif) repeat;
+}
+
+.TabsBottom  .TabDelimFirst {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_1_first_bottom.gif) no-repeat center center;
+}
+
+.TabsBottom  .TabDelimFirst.TabDelimFirstCurrent {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_1_current_first_bottom.gif) no-repeat center center;
+}
+
+.TabsBottom  .TabDelimLast {
+ 	 height	: 100%;
+	 width : 50px;
+	 background : url(../images/tabcontrol/tab_3_last_bottom.gif) no-repeat center center;
+}
+
+.TabsBottom  .TabDelimLast.TabDelimLastCurrent {
+ 	 height	: 100%;
+	 width : 50px;
+	 background : url(../images/tabcontrol/tab_3_current_last_bottom.gif) no-repeat center center;
+}
+
+.TabsBottom  .TabDelimMiddle {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_1_bottom.gif) no-repeat center center;
+}
+
+.TabsBottom  .TabText {
+ 	 height	: 100%;
+	white-space :  nowrap;
+	 background : url(../images/tabcontrol/tab_2_bottom.gif) repeat;
+}
+
+.TabsBottom  .TabText.TabCurrent {
+ 	 height	: 100%;
+	 background : url(../images/tabcontrol/tab_2_current_bottom.gif) repeat;
+}
+
+.TabsBottom  .TabDelimMiddle.TabCurrentLeft {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_1_current_bottom.gif) no-repeat center center;
+}
+
+.TabsBottom  .TabDelimMiddle.TabCurrentRight {
+ 	 height	: 100%;
+	 width : 25px;
+	 background : url(../images/tabcontrol/tab_3_current_bottom.gif) no-repeat center center;
+}
+
+.Form .FormTable {
+	width  : 100%;
+	height : 100%;
+	border : 0px;
+}
+
+.PictureBox  IMG{
+	width  : 100%;
+	height : 100%;
+}
+
+.IFrameBox IFRAME {
+	width  : 100%;
+	height : 100%;
+	border : none;
+}
+
+.Form  .FormTableRow1 {
+}
+
+.Form .FormTableRow2 {
+	height : 100%;
+}
+
+.Form .FormTitleBar {
+	left			: 0;
+	top				: 0;
+	width 			: 100%;
+	height			: 18px;
+	background-color: #6D9FE2;
+}
+
+.Form .FormTitleBarTable {
+	width 			: 100%;
+}
+
+.Form .FormTitleIconCell {
+	width	: auto;
+}
+
+.Form .FormTitleTextCell {
+	white-space : nowrap;
+	width 		: 100%;
+	padding-left: 8px;
+}
+
+.Form .FormTitleButtonCell {
+	width 		: auto;
+}
+
+.Form .FormContainer {
+/*	position		: absolute;*/
+	border-top-width: 2;
+	border-top-style: ridge;
+	border-left-width: 0;
+	border-right-width:0;
+	border-bottom-width: 0;
+	background-color: white;
+	width			: 100%;
+	height			: 100%;
+	overflow		: auto;
+}
+.Form .WindowButton {
+}
+
+.Form .HotWindowButton {
+	background-color: #B8D0F1;
+}
+
+.ScrollBar TD {
+	align: center;
+	valign: center;
+}
+
+.ScrollBarButton {
+	width: 13;
+	height: 13;
+	background-color: #EDF2F6;
+	border-width: 1;
+	border-style: solid;
+	border-color: #C5D9E8;	
+	filter: none;	
+}
+
+.ScrollBarButton_Down {
+	width: 13;
+	height: 13;
+	background-color: #E6EAEF;
+	border-width: 1;
+	border-style: solid;
+	border-color: #D0D4DA;
+	filter: none;	
+}
+
+.ScrollBarButton_Disabled {
+	background-color: #E6E7E7;
+	width: 13;
+	height: 13;
+	border-width: 1;
+	border-style: solid;
+	border-color: #D0D4DA;
+	filter: none;	
+}
+
+.ScrollBarSilder {
+	width: 13;
+	height: 13;
+	background-color: #EDF2F6;
+	border-width: 2;
+	border-style: outset;
+	border-color: #C5D9E8;
+	overflow: hidden;
+}
+
+.ScrollBarSilder_Down {
+	width: 13;
+	height: 13;
+	background-color: #E6EAEF;
+	border-width: 2;
+	border-style: solid;
+	border-color: #D0D4DA;
+	overflow: hidden;
+}
+
+.ScrollBarPositionLabel {	
+	padding: 2;
+	background-color: white;
+	border-width: 1;
+	border-color: gray;
+	border-style: solid;
+	filter: progid:DXImageTransform.Microsoft.Alpha(opacity=85);
+	-moz-opacity: 0.85;
+}
+
+
+.Calendar .Header {
+}
+
+.Calendar .Header .Button {	
+	width: 18;
+	height: 18;
+	border-width: 0;
+	background-color: #EDF2F6;
+	filter: none;	
+}
+
+.Calendar .Footer {
+}
+
+.Calendar .CalendarTable {
+	border-width: 1;
+	border-color: #C5D9E8;
+	border-style: solid;
+	border-collapse: collapse;
+}
+
+.Calendar .Footer TD {
+}
+
+.Calendar .CalendarTable TR {
+}
+
+.Calendar .CalendarTable .Header {
+	height: 20;
+	background-color: #E1EAF1;
+	font-weight: bold;
+}
+
+.Calendar .CalendarTable .CurrentMonth {	
+	background-color: #F7F7B7;
+}
+
+.Calendar .CalendarTable .CurrentMonth .Content {	
+	background-color: #FAFAD3;
+}
+
+.Calendar .CalendarTable .PrevMonth {	
+	background-color: #F5F7F9;
+}
+
+.Calendar .CalendarTable .PrevMonth TABLE {	
+	color: #969696;
+}
+
+.Calendar .CalendarTable .PrevMonth .Content {	
+	background-color: #FAFBFC;
+}
+
+.Calendar .CalendarTable .NextMonth {	
+	background-color: #F5F7F9;
+}
+
+.Calendar .CalendarTable .NextMonth TABLE {	
+	color: #969696;
+}
+
+.Calendar .CalendarTable .NextMonth .Content {	
+	background-color: #FAFBFC;
+}
+
+.Calendar .CalendarTable .CurrentDay {
+	background-color: #B7F39B;
+}
+
+.OutlookBar .Img {
+    filterÅFalphaÅiopacity=0,finishopacity=0);
+}
+
+.HProgressBar .Pointer {
+/*	border-width: 1;
+	border-color: white;
+	border-style: solid;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDE9F9, endColorstr=#81ACE7);
+*/	background-color: #81ACE7;
+	position: absolute;
+}
+
+.HProgressBar .Pointer {
+/*	border-width: 1;
+	border-color: white;
+	border-style: solid;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#DDE9F9, endColorstr=#81ACE7);
+*/	background-color: #81ACE7;
+	position: absolute;
+	width	: 0px;
+	height	: 100%;
+}
+
+.HProgressBar .BarLabel {
+    color: black;
+/*	background-color: transparent;*/
+/*	position: absolute;*/
+/*	background: #transparent;*/
+}
+
+.VProgressBar .BarLabel {
+    color: black;
+/*	background-color: transparent;*/
+/*	position: absolute;*/
+/*	background: #transparent;*/
+}
+
+
+.PictureBox IMG {
+	width	: 100%;
+	height	: 100%;
+}
+
+/* hh add ------------------------------------------------------*/
+.hdr td {
+	font-family:arial;
+	font-size:12px;
+	background-Color:#D4D0C8;
+	border: 1px solid;
+	border-color : white Gray Gray white;
+	text-align: center;
+	margin:0px;
+	padding:5px 0px 5px 0px ;
+	font-weight:normal;
+    -moz-user-select:none;
+    overflow:hidden;
+}
+
+.grid tr {
+    height:20px;
+    white-space: nowrap;
+    padding:0px;
+}
+
+.grid td {
+	border: 1px solid;
+	border-color : white Gray Gray white;
+	font-family:Arial;
+	font-size:12px;
+    -moz-user-select:none;
+    overflow:hidden;
+    padding-top:0px;
+    padding-bottom:0px;
+}
+
+.rowselected *{
+	background-color:#FCE4A7;
+	color:black;
+}
+
+
+.cellselected{
+    background-color:#d8d8d8;
+/*  #81ACE7 */
+/*  #d8d8d8 */
+	color:black;
+}
+
+
+.flexCol {
+	background-Color:#D4D0C8;
+}
+
+/*
+td:active { font-size: 9pt; text-decoration: underline;}
+span:active { font-size: 9pt; text-decoration: underline;}
+*/

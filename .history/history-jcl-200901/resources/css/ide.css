@@ -1,0 +1,57 @@
+DIV {
+	overflow	: hidden;
+}
+
+DIV.DotSelRect {
+	border : 1px dotted gray;
+}
+
+.Selector,.Selector_Move{
+	border : 0px;
+	width  : 5px;
+	height : 5px;
+	overflow: visible;
+}
+
+.Control.Selector DIV.Inner {
+	visibility	: hidden;
+	position	: absolute;
+	border 		: 0px;
+}
+
+.Control.Selector DIV.Border {
+	position	: absolute;
+	border 		: 0px;
+}
+
+.Control.Selector DIV.Corner {
+	position	: absolute;
+    border		: black 1px solid;
+	width		: 5px;
+	height		: 5px;
+    background-color:white;
+}
+
+.Control.Selector_Move DIV.Border {
+	visibility	: hidden;
+	position	: absolute;
+	border 		: 0px;
+}
+
+
+.Control.Selector_Move DIV.Inner {
+	visibility	: ;
+	position	: absolute;
+	border 		: 3px solid  black;
+}
+
+.Control.Selector_Move DIV.Corner {
+	visibility	: hidden;
+	position	: absolute;
+    border		: black 1px solid;
+	width		: 3px;
+	height		: 3px;
+    background-color:white;
+}
+
+

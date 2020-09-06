@@ -1,0 +1,26 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+
+System.defineClass({
+	name		: "sw2.widget.Panel",
+	superc		: sw2.widget.Container,
+	statics		: {
+		_initialize : function() {
+			Component.registerComponentTag(this,"Panel");
+		},
+		_defineProperties	: function(propInfo) {
+			W.Container._defineProperties(propInfo);
+            propInfo.put("caption", String);
+		}
+	},
+	instances	: {
+
+		_initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Container);	
+			UIElement.setStyle(this._el,"overflow", "auto");
+		}
+	}
+});

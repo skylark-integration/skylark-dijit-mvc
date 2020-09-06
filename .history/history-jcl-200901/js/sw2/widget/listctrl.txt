@@ -1,0 +1,190 @@
+/*----------------------------------------------------------------------------
+ * Sparrow Framework Version 0.8(DEV)                                         
+ * Copyright(c) 2006-2008, SW2 Software Laboratory & PST Inc.                 
+ *                                                                            
+ *--------------------------------------------------------------------------*/
+System.defineClass({
+	name		: "sw2.widget.ListItems",
+	statics		: {
+	},
+	instances	: {
+		_c		: null,
+		_items	: null,
+
+		_initialize : function(c) {
+			this._c = c;
+			this._items	= new Array();
+		},
+
+		_finalize : function() {
+			this._c = null;
+			if (this._items){
+				System.dispose(this._items);
+				this._items = null;
+			}
+		},
+
+		add		: function(item) {
+			if (this._c._datasource){
+				return;
+			}
+			this._items.push(item);
+			this._c._doAddItem(item);
+		},
+
+		remove	: function(item) {
+			if (this._c._datasource){
+				return;
+			}
+			var i = this._items.indexOf(item);
+			if (i>-1) {
+				this.removeAt(i);
+			}
+		},
+
+		insertAt	: function(item,i) {
+			if (this._c._datasource){
+				return;
+			}
+			this._items.insertAt(item,i);
+		},
+
+		removeAt	: function(i){
+			if (this._c._datasource){
+				return;
+			}
+			this._items.removeAt(i);
+			this._c._doRemoveItem(i);
+		},
+
+		getCount	: function(){
+			var ds = this._c._datasource;
+			if (ds) {
+				if (System.instanceOf(ds,Array)) {
+					return ds.length;
+				} 
+			} else {
+				return this._items.length;
+			}
+		},
+
+		getItem		: function(i){
+			var ds = this._c._datasource;
+			if (ds) {
+				if (System.instanceOf(ds,Array)) {
+					return ds[i];
+				} 
+			} else {
+				return this._items.get[i];
+			}
+		}
+	}
+});
+
+
+System.defineClass({
+	name		: "sw2.widget.ListControl",
+	superc		: sw2.widget.Control,
+	statics		: {
+		_initialize : function() {
+		},
+		_defineProperties	: function(propInfo) {
+			W.Control._defineProperties(propInfo);
+		}
+	},
+	instances	: {
+		_datasource		: null,
+		_dispMember 	: null,
+		_valueMember 	: null,
+
+		_items		: null,
+
+		_initialize : function() {
+			System.execMethod(this,"_initialize",null,W.Control);
+			this._items = new W.ListItems(this);
+		},
+
+		_finalize : function() {
+			System.dispose(this._items);
+			this._items = null;
+			System.execMethod(this,"_finalize",null,W.Control);
+		},
+
+		_doClearItems	: function(){
+		},
+
+		_doRefreshItems	: function(){
+		},
+
+		_doAddItem		: function(item){
+		},
+
+		_doRemoveItem	: function(nIdx){
+		},
+
+		getSelectIndex	: function() {
+		},
+
+		setSelectIndex	: function(nIdx){
+		},
+
+		getItemText		: function(item) {
+			if (System.instanceOf(item,Hash)) {
+			  if (this._dispMember) {
+				var value = item.get(this._dispMember);
+				return value.toString();
+			  } else {
+				return "";
+			  }
+			} else if (System.instanceOf(item,sw2.Persistent)) {
+			  if (this._dispMember) {
+				var value = item.getPropertyValue(this._dispMember);
+				return value.toString();
+			  } else {
+				return "";
+			  }
+			} else {
+				return item.toString();
+			}
+		},
+
+		getItems		: function() {
+			return this._items;
+		},
+
+		bindDatasource	: function(ds,dm,vm){
+			this._datasource = null;
+			this._dispMember  = null;
+			this._valueMember = null;
+			if (ds) {
+				this._datasource = ds;
+			}
+			if (dm) {
+				this._dispMember  = dm;
+			}
+			if (vm) {
+				this._valueMember = vm;
+			}
+			this._doRefreshItems();
+		},
+
+		getDataSource	: function() {
+			return this._datasource;
+		},
+
+
+		getDispMember	: function() {
+			return this._dispMember;
+		},
+
+
+		getValueMember	: function() {
+			return this._valueMember;
+		},
+
+		getItemCount	: function() {
+			return this._items.getCount();
+		}
+	}
+});
+
